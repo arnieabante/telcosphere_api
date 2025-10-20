@@ -27,6 +27,11 @@ class Role extends Model
         'is_active'
     ];
 
+    public function getRouteKeyName(): string {
+        // use uuid instead of id in model binding
+        return 'uuid';
+    }
+
     public function uniqueIds(): array {
         return ['uuid'];
     }

@@ -46,10 +46,10 @@ class ModuleController extends ApiController
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $uuid)
     {
         try {
-            $module = Module::with('roles')->findOrFail($id);
+            $module = Module::with('roles')->where('uuid', $uuid)->firstOrFail();
             return new ModuleResource($module);
 
         } catch (ModelNotFoundException $ex) {
@@ -63,13 +63,13 @@ class ModuleController extends ApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateModuleRequest $request, string $id)
+    public function update(UpdateModuleRequest $request, string $uuid)
     {
         try { 
             // update policy
             // $this->isAble('update', Module::class);
 
-            $module = Module::findOrFail($id);
+            $module = Module::where('uuid', $uuid)->firstOrFail();
             $affected = $module->update($request->mappedAttributes());
             
             return new ModuleResource($module);
@@ -85,13 +85,13 @@ class ModuleController extends ApiController
     /**
      * Replace the specified resource in storage.
      */
-    public function replace(ReplaceModuleRequest $request, $id)
+    public function replace(ReplaceModuleRequest $request, string $uuid)
     {
         try {
             // replace policy
             // $this->isAble('replace', Module::class);
             
-            $module = Module::findOrFail($id);
+            $module = Module::where('uuid', $uuid)->firstOrFail();
             $affected = $module->update($request->mappedAttributes());
             
             return new ModuleResource($module);
@@ -107,10 +107,10 @@ class ModuleController extends ApiController
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $uuid)
     {
         try {
-            $module = Module::findOrFail($id);
+            $module = Module::where('uuid', $uuid)->firstOrFail();
             $affected = $module->delete();
 
             return $this->ok("Deleted $affected record.", []);

@@ -59,6 +59,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function getRouteKeyName(): string {
+        // use uuid instead of id in model binding
+        return 'uuid';
+    }
+
     public function uniqueIds(): array {
         return ['uuid'];
     }

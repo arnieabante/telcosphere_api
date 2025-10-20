@@ -46,10 +46,10 @@ class RoleController extends ApiController
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $uuid)
     {
         try {
-            $role = Role::with('user')->findOrFail($id);
+            $role = Role::with('user')->where('uuid', $uuid)->firstOrFail();
             return new RoleResource($role);
 
         } catch (ModelNotFoundException $ex) {
@@ -63,13 +63,13 @@ class RoleController extends ApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRoleRequest $request, string $id)
+    public function update(UpdateRoleRequest $request, string $uuid)
     {
         try { 
             // update policy
             // $this->isAble('update', Role::class);
 
-            $role = Role::findOrFail($id);
+            $role = Role::where('uuid', $uuid)->firstOrFail();
             $affected = $role->update($request->mappedAttributes());
             
             return new RoleResource($role);
@@ -85,13 +85,13 @@ class RoleController extends ApiController
     /**
      * Replace the specified resource in storage.
      */
-    public function replace(ReplaceRoleRequest $request, $id)
+    public function replace(ReplaceRoleRequest $request, string $uuid)
     {
         try {
             // replace policy
             // $this->isAble('replace', Role::class);
             
-            $role = Role::findOrFail($id);
+            $role = Role::where('uuid', $uuid)->firstOrFail();
             $affected = $role->update($request->mappedAttributes());
             
             return new RoleResource($role);
@@ -107,10 +107,10 @@ class RoleController extends ApiController
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $uuid)
     {
         try {
-            $role = Role::findOrFail($id);
+            $role = Role::where('uuid', $uuid)->firstOrFail();
             $affected = $role->delete();
 
             return $this->ok("Deleted $affected record.", []);
