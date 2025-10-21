@@ -23,12 +23,3 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('modules/{uuid}', [ModuleController::class, 'update']);
     Route::put('modules/{uuid}', [ModuleController::class, 'replace']);
 });
-
-/*
-TODO:
-1. repo - create development and staging - DONE
-3. modules - add icon field - DONE
-4. routes - use uuid instead of id - DONE
-2. users/roles - move foriegn key to users table
-
-*/
