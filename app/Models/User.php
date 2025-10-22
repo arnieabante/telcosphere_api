@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,8 +22,9 @@ class User extends Authenticatable
     protected $attributes = [
        'site_id' => 1,
        'is_active' => 1,
-       'created_by' => 99,
-       'updated_by' => 99
+       'role_id' => 99, // TODO
+       'created_by' => 99, // TODO
+       'updated_by' => 99 // TODO
     ];
 
     /**
@@ -67,8 +69,8 @@ class User extends Authenticatable
     public function uniqueIds(): array {
         return ['uuid'];
     }
-    
-    public function role(): HasOne {
-        return $this->hasOne(Role::class);
+
+    public function role(): BelongsTo {
+        return $this->belongsTo(Role::class);
     }
 }

@@ -23,8 +23,9 @@ class DatabaseSeeder extends Seeder
             ->count(4)
             ->create();
 
-        // then Users, which also triggers Roles
-        User::factory()
+        // then Roles 
+        // triggers Users, assigns permissions
+        Role::factory()
             ->count(3)
             ->create();
 

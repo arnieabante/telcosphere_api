@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->boolean('is_active');
+            $table->integer('role_id');
             $table->integer('created_by');
             $table->integer('updated_by');
             $table->rememberToken();

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->integer('site_id');
             $table->string('name')->unique();
             $table->text('description');
-            $table->integer('user_id');
             $table->boolean('is_active');
             $table->integer('created_by');
             $table->integer('updated_by');

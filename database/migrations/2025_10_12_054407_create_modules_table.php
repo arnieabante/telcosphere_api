@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->text('description');
             $table->boolean('is_active');
-            $table->longText('icon');
+            $table->longText('icon')->nullable();
             $table->integer('created_by');
             $table->integer('updated_by');
             $table->timestamps();
