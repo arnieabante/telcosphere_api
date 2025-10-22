@@ -25,7 +25,6 @@ class RoleResource extends JsonResource
                 $this->mergeWhen(
                     request()->routeIs('roles.show'), [
                         'siteId' => $this->site_id,
-                        'userId' => $this->user_id,
                         'createdBy' => $this->created_by,
                         'updatedBy' => $this->updated_by,
                         'createdAt' => $this->created_at,
