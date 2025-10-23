@@ -50,8 +50,8 @@ class BillingCategoryController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $module = BillingCategory::where('uuid', $uuid)->firstOrFail();
-            return new BillingCategoryResource($module);
+            $billingcategory = BillingCategory::where('uuid', $uuid)->firstOrFail();
+            return new BillingCategoryResource($billingcategory);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Billing Category does not exist.', 404);
@@ -69,10 +69,10 @@ class BillingCategoryController extends ApiController
             // update policy
             // $this->isAble('update', BillingCategory::class);
 
-            $module = BillingCategory::where('uuid', $uuid)->firstOrFail();
-            $affected = $module->update($request->mappedAttributes());
+            $billingcategory = BillingCategory::where('uuid', $uuid)->firstOrFail();
+            $affected = $billingcategory->update($request->mappedAttributes());
             
-            return new BillingCategoryResource($module);
+            return new BillingCategoryResource($billingcategory);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Billing Category does not exist.', 404);
@@ -91,10 +91,10 @@ class BillingCategoryController extends ApiController
             // replace policy
             // $this->isAble('replace', BillingCategory::class);
             
-            $module = BillingCategory::where('uuid', $uuid)->firstOrFail();
-            $affected = $module->update($request->mappedAttributes());
+            $billingcategory = BillingCategory::where('uuid', $uuid)->firstOrFail();
+            $affected = $billingcategory->update($request->mappedAttributes());
             
-            return new BillingCategoryResource($module);
+            return new BillingCategoryResource($billingcategory);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Billing Category does not exist.', 404);
@@ -110,8 +110,8 @@ class BillingCategoryController extends ApiController
     public function destroy(string $uuid)
     {
         try {
-            $module = BillingCategory::where('uuid', $uuid)->firstOrFail();
-            $affected = $module->delete();
+            $billingcategory = BillingCategory::where('uuid', $uuid)->firstOrFail();
+            $affected = $billingcategory->delete();
 
             return $this->ok("Deleted $affected record.", []);
 
