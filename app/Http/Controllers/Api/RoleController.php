@@ -22,7 +22,7 @@ class RoleController extends ApiController
      */
     public function index()
     {
-        return RoleResource::collection(Role::paginate(5));
+        return RoleResource::collection(Role::paginate(10));
     }
 
     /**
