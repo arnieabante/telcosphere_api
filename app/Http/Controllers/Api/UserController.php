@@ -23,7 +23,7 @@ class UserController extends ApiController
      */
     public function index()
     {
-        return UserResource::collection(User::paginate(5));
+        return UserResource::collection(User::paginate(10));
     }
 
     /**
