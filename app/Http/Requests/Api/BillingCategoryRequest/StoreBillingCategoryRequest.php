@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\ModuleRequest;
+namespace App\Http\Requests\Api\BillingCategoryRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ReplaceBillingCategoryRequest extends BaseModuleRequest
+class StoreBillingCategoryRequest extends BaseBillingCategoryRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,8 +22,7 @@ class ReplaceBillingCategoryRequest extends BaseModuleRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|min:3|unique:billingcategory',
-            'isActive' => 'required|boolean'
+            'name' => 'required|string|min:3|unique:modules'
         ];
     }
 }

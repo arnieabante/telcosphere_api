@@ -22,7 +22,7 @@ class BillingCategoryResource extends JsonResource
                 'name' => $this->name,
                 'isActive' => $this->is_active, 
                 $this->mergeWhen(
-                    request()->routeIs('billingcategorys.show'), [
+                    request()->routeIs('billingcategories.show'), [
                         'siteId' => $this->site_id,
                         'createdBy' => $this->created_by,
                         'updatedBy' => $this->updated_by,
@@ -32,7 +32,7 @@ class BillingCategoryResource extends JsonResource
                 ),
             ],
             'links' => [
-                'billingcategory' => route('billingcategorys.show', $this->id)
+                'billingcategory' => route('billingcategories.show', $this->id)
             ]
         ];
     }

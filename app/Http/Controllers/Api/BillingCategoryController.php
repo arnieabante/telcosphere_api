@@ -22,7 +22,8 @@ class BillingCategoryController extends ApiController
      */
     public function index()
     {
-        return BillingCategoryResource::collection(BillingCategory::paginate(10));
+        $categories = BillingCategory::where('is_active', 1)->paginate(10);
+        return BillingCategoryResource::collection($categories);
     }
 
     /**
@@ -49,7 +50,7 @@ class BillingCategoryController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $module = BillingCategory::with('roles')->where('uuid', $uuid)->firstOrFail();
+            $module = BillingCategory::where('uuid', $uuid)->firstOrFail();
             return new BillingCategoryResource($module);
 
         } catch (ModelNotFoundException $ex) {

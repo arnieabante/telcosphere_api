@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Api\BaseBillingCategoryRequest;
+namespace App\Http\Requests\Api\BillingCategoryRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
 
