@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ModuleController;
+use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\BillingCategoryController;
@@ -24,7 +25,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('modules/{uuid}', [ModuleController::class, 'update']);
     Route::put('modules/{uuid}', [ModuleController::class, 'replace']);
 
+    // permissions
+    // create permission - assign modules to roles AND set is_crud fields
+    // update permission - re-assign modules to roles AND/OR change is_crud fields
+    // delete permission - remove modules from roles
+    Route::post('roles/{role_uuid}/modules/{module_uuid}/attach', [PermissionController::class, 'attachModule']);
+    Route::post('roles/{role_uuid}/modules/{module_uuid}/detach', [PermissionController::class, 'detachModule']);
+
     Route::apiResource('billingcategories', BillingCategoryController::class)->except(['update']);
     Route::patch('billingcategories/{uuid}', [BillingCategoryController::class, 'update']);
     Route::put('billingcategories/{uuid}', [BillingCategoryController::class, 'replace']);
+
 });
