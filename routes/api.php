@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\BillingCategoryController;
+use App\Http\Controllers\Api\ServerController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login']);
@@ -35,5 +36,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('billingcategories', BillingCategoryController::class)->except(['update']);
     Route::patch('billingcategories/{uuid}', [BillingCategoryController::class, 'update']);
     Route::put('billingcategories/{uuid}', [BillingCategoryController::class, 'replace']);
+
+    Route::apiResource('servers', ServerController::class)->except(['update']);
+    Route::patch('servers/{uuid}', [ServerController::class, 'update']);
+    Route::put('servers/{uuid}', [ServerController::class, 'replace']);
 
 });
