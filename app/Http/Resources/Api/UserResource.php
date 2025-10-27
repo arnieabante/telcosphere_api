@@ -19,9 +19,10 @@ class UserResource extends JsonResource
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
+                'fullname' => $this->fullname,
                 'username' => $this->username,
                 'email' => $this->email,
-                'roleId' => $this->role_id,
+                'roleName' => $this->role?->name,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('users.show'), [

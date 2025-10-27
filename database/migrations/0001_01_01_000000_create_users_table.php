@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id');
+            $table->string('fullname');
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->string('password');
