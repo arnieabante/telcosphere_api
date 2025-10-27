@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\BillingCategoryController;
+use App\Http\Controllers\Api\InternetplanController;
 use App\Http\Controllers\Api\ServerController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,5 +41,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('servers', ServerController::class)->except(['update']);
     Route::patch('servers/{uuid}', [ServerController::class, 'update']);
     Route::put('servers/{uuid}', [ServerController::class, 'replace']);
+
+    Route::apiResource('internetplans', InternetplanController::class)->except(['update']);
+    Route::patch('internetplans/{uuid}', [InternetplanController::class, 'update']);
+    Route::put('internetplans/{uuid}', [InternetplanController::class, 'replace']);
 
 });
