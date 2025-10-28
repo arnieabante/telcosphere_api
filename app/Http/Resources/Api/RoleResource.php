@@ -46,7 +46,7 @@ class RoleResource extends JsonResource
                             ]
                         ],
                         'links' => [
-                            'user' => route('users.show', $this->user->id),
+                            'user' => route('users.show', $this->user->uuid),
                             'related' => '' // TODO
                         ]
                     ],
@@ -61,7 +61,7 @@ class RoleResource extends JsonResource
                 ];
             }),
             'links' => [
-                'role' => route('roles.show', $this->id)
+                'role' => route('roles.show', $this->uuid)
             ]
         ];
     }
