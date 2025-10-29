@@ -22,7 +22,7 @@ class UpdateServerRequest extends BaseServerRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|required|string|min:5',
+            'name' => ['sometimes', 'required', 'string', 'min:5'],
             'description' => 'sometimes|required|string|max:100',
             'isActive' => 'sometimes|required|boolean'
         ];
