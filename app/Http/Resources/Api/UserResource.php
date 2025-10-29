@@ -19,9 +19,10 @@ class UserResource extends JsonResource
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
+                'fullname' => $this->fullname,
                 'username' => $this->username,
                 'email' => $this->email,
-                'roleId' => $this->role_id,
+                'roleName' => $this->role?->name,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('users.show'), [
@@ -47,7 +48,7 @@ class UserResource extends JsonResource
                             ]
                         ],
                         'links' => [
-                            'role' => route('roles.show', $this->role->id),
+                            'role' => route('roles.show', $this->role->uuid),
                             'related' => '' // TODO
                         ]
                     ]
@@ -61,7 +62,7 @@ class UserResource extends JsonResource
                 })
             ], */
             'links' => [
-                'user' => route('users.show', $this->id)
+                'user' => route('users.show', $this->uuid)
             ]
         ];
     }
