@@ -22,7 +22,6 @@ class User extends Authenticatable
     protected $attributes = [
        'site_id' => 1,
        'is_active' => 1,
-       'role_id' => 99, // TODO
        'created_by' => 99, // TODO
        'updated_by' => 99 // TODO
     ];
@@ -37,6 +36,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'role_id',
         'is_active'
     ];
 

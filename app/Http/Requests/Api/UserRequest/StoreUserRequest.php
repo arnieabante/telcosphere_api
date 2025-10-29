@@ -25,7 +25,8 @@ class StoreUserRequest extends BaseUserRequest
             'fullname' => 'required|string|min:5',
             'username' => 'required|string|min:5|unique:users',
             'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|min:8'
+            'password' => 'required|string|min:8',
+            'roleId' => 'required|string'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
     }
