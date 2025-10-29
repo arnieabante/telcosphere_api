@@ -20,9 +20,21 @@ class RoleController extends ApiController
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return RoleResource::collection(Role::paginate(10));
+        $perPage = $request->get('per_page', 10);
+        $search = $request->get('search');
+
+        $query = Role::query()->where('is_active', '=', '1');
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $roles = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        return RoleResource::collection($roles);
     }
 
     /**
