@@ -5,7 +5,7 @@ namespace App\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RoleResource extends JsonResource
+class InternetplanResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,15 +15,15 @@ class RoleResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'type' => 'role',
+            'type' => 'internetplan',
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
                 'name' => $this->name,
-                'description' => $this->description,
+                'monthly_subscription' => $this->monthly_subscription,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
-                    request()->routeIs('roles.show'), [
+                    request()->routeIs('internetplans.show'), [
                         'siteId' => $this->site_id,
                         'createdBy' => $this->created_by,
                         'updatedBy' => $this->updated_by,
@@ -32,36 +32,30 @@ class RoleResource extends JsonResource
                     ]
                 ),
             ],
-            'relationships' => $this->whenLoaded('user', function() {
+            /* TODO: load through permissions
+            'relationships' => $this->whenLoaded('roles', function() {
                 return [
-                    'user' => [
+                    'role' => [
                         'data' => [
-                            'type' => 'user',
-                            'id' => (string) $this->user->id,
+                            'type' => 'role',
+                            'id' => (string) $this->role->id,
                             'attributes' => [
-                                'uuid' => $this->user->uuid,
-                                'username' => $this->user->username,
-                                'email' => $this->user->email,
-                                'isActive' => $this->user->is_active
+                                'uuid' => $this->role->uuid,
+                                'name' => $this->role->name,
+                                'description' => $this->role->description,
+                                'isActive' => $this->role->is_active
                             ]
                         ],
                         'links' => [
-                            'user' => route('users.show', $this->user->id),
+                            'role' => route('roles.show', $this->role->id),
                             'related' => '' // TODO
                         ]
-                    ],
-                    /* TODO
-                    'modules' => [
-                        'data' => [
-                            'type' => 'module',
-                            'id' => (string) $this->module->id,
-                            'attributes' => []
-                        ]
-                    ] */
+                    ]
                 ];
             }),
+            */
             'links' => [
-                'role' => route('roles.show', $this->id)
+                'internetplan' => route('internetplans.show', $this->id)
             ]
         ];
     }
