@@ -24,9 +24,8 @@ class RoleFactory extends Factory
         return [
             'uuid' => fake()->uuid(),
             'site_id' => 1,
-            'name' => fake()->randomElement(['guest', 'manager', 'admin']),
+            'name' => fake()->unique()->randomElement(['guest', 'manager', 'admin']),
             'description' => fake()->text(50),
-            'user_id' => NULL,
             'is_active' => rand(0, 1),
             'created_by' => 99, // TODO: what is the value for this?
             'updated_by' => 99 // TODO: what is the value for this?
@@ -35,6 +34,10 @@ class RoleFactory extends Factory
 
     public function configure(): static {
         return $this->afterCreating(function (Role $role) {
+
+            User::factory()->create([
+                'role_id' => $role->id
+            ]);
 
             $modules = Module::inRandomOrder()->take(3)->get();
             

@@ -5,7 +5,7 @@ namespace App\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class ServerResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,17 +15,14 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'type' => 'user',
+            'type' => 'server',
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
-                'fullname' => $this->fullname,
-                'username' => $this->username,
-                'email' => $this->email,
-                'roleName' => $this->role?->name,
+                'name' => $this->name,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
-                    request()->routeIs('users.show'), [
+                    request()->routeIs('servers.show'), [
                         'siteId' => $this->site_id,
                         'createdBy' => $this->created_by,
                         'updatedBy' => $this->updated_by,
@@ -34,7 +31,8 @@ class UserResource extends JsonResource
                     ]
                 ),
             ],
-            'relationships' => $this->whenLoaded('role', function() {
+            /* TODO: load through permissions
+            'relationships' => $this->whenLoaded('roles', function() {
                 return [
                     'role' => [
                         'data' => [
@@ -42,27 +40,21 @@ class UserResource extends JsonResource
                             'id' => (string) $this->role->id,
                             'attributes' => [
                                 'uuid' => $this->role->uuid,
-                                'name' => $this->role->name, 
+                                'name' => $this->role->name,
                                 'description' => $this->role->description,
                                 'isActive' => $this->role->is_active
                             ]
                         ],
                         'links' => [
-                            'role' => route('roles.show', $this->role->uuid),
+                            'role' => route('roles.show', $this->role->id),
                             'related' => '' // TODO
                         ]
                     ]
                 ];
             }),
-            // loads entire resource, can be optional. example url query: <url>?include=author
-            // might not be needed for this resource
-            /* 'includes' => [
-                'company' => $this->whenLoaded('company', function () {
-                    return new CompanyResource($this->user);
-                })
-            ], */
+            */
             'links' => [
-                'user' => route('users.show', $this->uuid)
+                'server' => route('servers.show', $this->id)
             ]
         ];
     }

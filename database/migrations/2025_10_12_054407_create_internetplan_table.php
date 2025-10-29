@@ -7,17 +7,18 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.  
+     * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('internetplans', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id');
             $table->string('name')->unique();
-            $table->text('description');
+            $table->text('monthly_subscription');
             $table->boolean('is_active');
+            $table->longText('icon')->nullable();
             $table->integer('created_by');
             $table->integer('updated_by');
             $table->timestamps();
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('internetplans');
     }
 };

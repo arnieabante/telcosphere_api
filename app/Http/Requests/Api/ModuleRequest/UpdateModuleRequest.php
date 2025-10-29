@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\ModuleRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateModuleRequest extends BaseModuleRequest
 {
@@ -22,7 +23,8 @@ class UpdateModuleRequest extends BaseModuleRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|required|string|min:5|unique:modules',
+            // 'name' => 'sometimes|required|string|min:5|unique:modules',
+            'name' => ['sometimes', 'required', 'string', 'min:5', Rule::unique('modules')->ignore($this->uuid, 'uuid')],
             'description' => 'sometimes|required|string|max:100',
             'isActive' => 'sometimes|required|boolean'
         ];

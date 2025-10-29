@@ -28,10 +28,12 @@ class UserFactory extends Factory
         return [
             'uuid' => fake()->uuid(),
             'site_id' => 1,
+            'fullname' => fake()->name(),
             'username' => fake()->userName(),
             'email' => fake()->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'),
             'is_active' => rand(0, 1),
+            'role_id' => NULL,
             'created_by' => 99, // TODO: what is the value for this?
             'updated_by' => 99 // TODO: what is the value for this?
         ];
@@ -45,13 +47,5 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
-    }
-
-    public function configure(): static {
-        return $this->afterCreating(function (User $user) {
-            Role::factory()->create([
-                'user_id' => $user->id
-            ]);
-        });
     }
 }

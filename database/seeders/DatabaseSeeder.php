@@ -7,6 +7,7 @@ use App\Models\Module;
 use App\Models\Permission;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\BillingCategory;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -23,8 +24,13 @@ class DatabaseSeeder extends Seeder
             ->count(4)
             ->create();
 
-        // then Users, which also triggers Roles
-        User::factory()
+        // then Roles 
+        // triggers Users, assigns permissions
+        Role::factory()
+            ->count(3)
+            ->create();
+
+        BillingCategory::factory()
             ->count(3)
             ->create();
 

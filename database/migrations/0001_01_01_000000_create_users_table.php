@@ -15,10 +15,12 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id');
+            $table->string('fullname');
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->string('password');
             $table->boolean('is_active');
+            $table->integer('role_id');
             $table->integer('created_by');
             $table->integer('updated_by');
             $table->rememberToken();

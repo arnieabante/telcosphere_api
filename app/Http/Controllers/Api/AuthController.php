@@ -18,11 +18,11 @@ class AuthController extends Controller
     public function login(LoginUserRequest $request) {
         $request->validated($request->all());
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if (!Auth::attempt($request->only('username', 'password'))) {
             return $this->error('Invalid Credentials.', 400);
         }
 
-        $user = User::firstWhere('email', $request->email);
+        $user = User::firstWhere('username', $request->username);
 
         return $this->ok('Authenticated.', [
             'token' => $user->createToken(
