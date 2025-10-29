@@ -20,10 +20,23 @@ class BillingCategoryController extends ApiController
     /**
      * Display a listing of the resource.
      */
-    public function index()
+
+    public function index(Request $request)
     {
-        $categories = BillingCategory::where('is_active', 1)->paginate(10);
-        return BillingCategoryResource::collection($categories);
+        $perPage = $request->get('per_page', 10);
+        $search = $request->get('search');
+
+        $query = BillingCategory::query()
+            ->where('is_active', 1);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $billingcategories = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        return BillingCategoryResource::collection($billingcategories);
     }
 
     /**
