@@ -26,7 +26,8 @@ class BillingCategoryController extends ApiController
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
 
-        $query = BillingCategory::query();
+        $query = BillingCategory::query()
+            ->where('is_active', 1);
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
