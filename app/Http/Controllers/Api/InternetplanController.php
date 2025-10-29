@@ -20,9 +20,23 @@ class InternetplanController extends ApiController
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return InternetplanResource::collection(Internetplan::paginate(10));
+        $perPage = $request->get('per_page', 10);
+        $search = $request->get('search');
+
+        $query = Internetplan::query()
+            ->where('is_active', 1);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('monthly_subscription', 'like', "%{$search}%");
+            });
+        }
+
+        $internetplan = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        return InternetplanResource::collection($internetplan);
     }
 
     /**
