@@ -61,7 +61,7 @@ class RoleController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $role = Role::with('user')->where('uuid', $uuid)->firstOrFail();
+            $role = Role::with('modules')->where('uuid', $uuid)->firstOrFail();
             return new RoleResource($role);
 
         } catch (ModelNotFoundException $ex) {

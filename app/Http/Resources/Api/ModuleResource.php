@@ -31,14 +31,12 @@ class ModuleResource extends JsonResource
                         'updatedAt' => $this->updated_at
                     ]
                 ),
-                $this->whenPivotLoaded('permissions', function () {
+                'permissions' => $this->whenPivotLoaded('permissions', function () {
                      return [
-                        'permissions' => [
-                            'isRead' => $this->pivot->is_read,
-                            'isWrite' => $this->pivot->is_write,
-                            'isDelete' => $this->pivot->is_delete
-                        ]
-                    ];
+                        'isRead' => $this->pivot->is_read,
+                        'isWrite' => $this->pivot->is_write,
+                        'isDelete' => $this->pivot->is_delete
+                     ];
                 })
             ],
             'links' => [

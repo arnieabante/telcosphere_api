@@ -33,10 +33,11 @@ class RoleResource extends JsonResource
                     ]
                 ),
             ],
-            'relationships' => [
-                'user' => new UserResource($this->whenLoaded('user')),
-                'modules' => ModuleResource::collection($this->whenLoaded('modules')),
-            ],
+            'relationships' => $this->whenLoaded('modules', function () {
+                return [
+                    'modules' => ModuleResource::collection($this->modules)
+                ];
+            }),
             'links' => [
                 'role' => route('roles.show', $this->uuid)
             ]
