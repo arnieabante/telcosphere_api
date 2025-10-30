@@ -11,6 +11,7 @@ use App\Policies\Api\UserPolicy;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request; 
 
 class UserController extends ApiController
 {
@@ -21,9 +22,23 @@ class UserController extends ApiController
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return UserResource::collection(User::paginate(10));
+        $perPage = $request->get('per_page', 10);
+        $search = $request->get('search');
+
+        $query = User::query()->with('role');
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('username', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('fullname', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        return UserResource::collection($users);
     }
 
     /**

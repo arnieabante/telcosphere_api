@@ -20,9 +20,22 @@ class ServerController extends ApiController
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return ServerResource::collection(Server::paginate(10));
+        $perPage = $request->get('per_page', 10);
+        $search = $request->get('search');
+
+        $query = Server::query()
+            ->where('is_active', 1);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $servers = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        return ServerResource::collection($servers);
     }
 
     /**

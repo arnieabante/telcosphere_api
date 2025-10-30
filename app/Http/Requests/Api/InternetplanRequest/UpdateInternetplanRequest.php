@@ -22,7 +22,7 @@ class UpdateInternetplanRequest extends BaseInternetplanRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|required|string|min:5|unique:internetplans',
+            'name' => 'sometimes|required|string|min:5',
             'monthly_subscription' => 'sometimes|required|decimal:2',
             'isActive' => 'sometimes|required|boolean'
         ];

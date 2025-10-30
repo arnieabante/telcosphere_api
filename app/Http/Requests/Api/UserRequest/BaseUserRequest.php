@@ -12,6 +12,7 @@ class BaseUserRequest extends FormRequest
             'username' => 'username',
             'email' => 'email',
             'password' => 'password',
+            'roleId' => 'role_id',
             'isActive' => 'is_active'
         ];
 
