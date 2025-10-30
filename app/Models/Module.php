@@ -36,6 +36,8 @@ class Module extends Model
 
     public function roles() : BelongsToMany {
         return $this->belongsToMany(Role::class, 'permissions')
-            ->using(Permission::class);
+            ->using(Permission::class)
+            ->withPivot(['is_read', 'is_write', 'is_delete', 'is_active'])
+            ->withTimestamps();
     }
 }

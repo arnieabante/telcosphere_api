@@ -122,4 +122,48 @@ class RoleController extends ApiController
             return $this->error('You are not authorized to delete a Role.', 401);
         }
     }
+    
+    public function attachModule(Request $request, string $uuid)
+    {
+        try {
+            $role = Role::where('uuid', $uuid)->firstOrFail();
+            $modules = $request->input('modules');
+
+            foreach ($modules as $module) {
+                $role->modules()->attach($module['id'], [
+                    'is_read' => $module['isRead'],
+                    'is_write' => $module['isWrite'],
+                    'is_delete' => $module['isDelete'],
+                    'is_active' => $module['isActive'],
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+
+            return RoleResource::collection(
+                Role::with('modules')->where('uuid', $uuid)->get()
+            );
+
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('Role or Module does not exist.', 404);
+        }
+    }
+
+    public function detachModule(Request $request, string $uuid)
+    {
+        try {
+            $role = Role::where('uuid', $uuid)->firstOrFail();
+            $modules = $request->input('modules');
+
+            foreach ($modules as $module) {
+                $role->modules()->detach($module['id']);
+            }
+
+            return $this->ok("Detach module/s is successful", []);
+
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('Role or Module does not exist.', 404);
+        }
+        
+    }
 }

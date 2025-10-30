@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Permission extends Pivot
@@ -13,6 +14,8 @@ class Permission extends Pivot
     use HasFactory, HasUuids;
 
     public $incrementing = true;
+
+    protected $table = 'permissions';
     
     // default values
     protected $attributes = [
@@ -24,8 +27,6 @@ class Permission extends Pivot
        'created_by' => 99, // TODO
        'updated_by' => 99 // TODO
     ];
-
-    protected $table = 'permissions';
     
     protected $fillable = [
         'role_id',
@@ -40,5 +41,13 @@ class Permission extends Pivot
 
     public function uniqueIds(): array {
         return ['uuid'];
+    }
+
+    public function role() : BelongsTo {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function module() : BelongsTo {
+        return $this->belongsTo(Module::class);
     }
 }
