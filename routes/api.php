@@ -22,8 +22,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('roles', RoleController::class)->except(['update']);
     Route::patch('roles/{uuid}', [RoleController::class, 'update']);
     Route::put('roles/{uuid}', [RoleController::class, 'replace']);
-    Route::post('roles/{uuid}/modules/attach', [RoleController::class, 'attachModule']);
-    Route::post('roles/{uuid}/modules/detach', [RoleController::class, 'detachModule']);
+    Route::post('roles/{uuid}/modules/attach', [RoleController::class, 'attach']);
+    Route::post('roles/{uuid}/modules/detach', [RoleController::class, 'detach']);
 
     Route::apiResource('modules', ModuleController::class)->except(['update']);
     Route::patch('modules/{uuid}', [ModuleController::class, 'update']);
