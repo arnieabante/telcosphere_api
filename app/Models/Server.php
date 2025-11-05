@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Module extends Model
+class Server extends Model
 {
     use HasFactory, HasUuids;
 
@@ -21,7 +20,6 @@ class Module extends Model
 
     protected $fillable = [
         'name',
-        'description',
         'is_active'
     ];
 
@@ -32,10 +30,5 @@ class Module extends Model
 
     public function uniqueIds(): array {
         return ['uuid'];
-    }
-
-    public function roles() : BelongsToMany {
-        return $this->belongsToMany(Role::class, 'permissions')
-            ->using(Permission::class);
     }
 }

@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\UserRequest;
+namespace App\Http\Requests\Api\ServerRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UpdateUserRequest extends BaseUserRequest
+class UpdateServerRequest extends BaseServerRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,10 +22,8 @@ class UpdateUserRequest extends BaseUserRequest
     public function rules(): array
     {
         return [
-            'fullname' => 'sometimes|required|string|min:5',
-            'username' => ['sometimes', 'required', 'string', Rule::unique('users')->ignore($this->uuid, 'uuid')],
-            'email' => ['sometimes', 'required', 'email', Rule::unique('users')->ignore($this->uuid, 'uuid')],
-            'password' => 'sometimes|required|string|min:8',
+            'name' => ['sometimes', 'required', 'string', 'min:5'],
+            'description' => 'sometimes|required|string|max:100',
             'isActive' => 'sometimes|required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username

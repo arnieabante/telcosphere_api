@@ -1,18 +1,15 @@
 <?php
 
-namespace App\Http\Requests\Api\UserRequest;
+namespace App\Http\Requests\Api\InternetplanRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BaseUserRequest extends FormRequest
+class BaseInternetplanRequest extends FormRequest
 {
     public function mappedAttributes(): array {
         $attributes = [
-            'fullname' => 'fullname',
-            'username' => 'username',
-            'email' => 'email',
-            'password' => 'password',
-            'roleId' => 'role_id',
+            'name' => 'name',
+            'monthly_subscription' => 'monthly_subscription',
             'isActive' => 'is_active'
         ];
 

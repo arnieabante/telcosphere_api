@@ -25,7 +25,6 @@ class RoleResource extends JsonResource
                 $this->mergeWhen(
                     request()->routeIs('roles.show'), [
                         'siteId' => $this->site_id,
-                        'userId' => $this->user_id,
                         'createdBy' => $this->created_by,
                         'updatedBy' => $this->updated_by,
                         'createdAt' => $this->created_at,
@@ -47,7 +46,7 @@ class RoleResource extends JsonResource
                             ]
                         ],
                         'links' => [
-                            'user' => route('users.show', $this->user->id),
+                            'user' => route('users.show', $this->user->uuid),
                             'related' => '' // TODO
                         ]
                     ],
@@ -62,7 +61,7 @@ class RoleResource extends JsonResource
                 ];
             }),
             'links' => [
-                'role' => route('roles.show', $this->id)
+                'role' => route('roles.show', $this->uuid)
             ]
         ];
     }

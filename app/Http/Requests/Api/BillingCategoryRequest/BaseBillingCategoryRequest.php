@@ -1,18 +1,14 @@
 <?php
 
-namespace App\Http\Requests\Api\UserRequest;
+namespace App\Http\Requests\Api\BillingCategoryRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BaseUserRequest extends FormRequest
+class BaseBillingCategoryRequest extends FormRequest
 {
     public function mappedAttributes(): array {
         $attributes = [
-            'fullname' => 'fullname',
-            'username' => 'username',
-            'email' => 'email',
-            'password' => 'password',
-            'roleId' => 'role_id',
+            'name' => 'name',
             'isActive' => 'is_active'
         ];
 

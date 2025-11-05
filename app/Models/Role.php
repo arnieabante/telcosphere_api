@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Role extends Model
 {
@@ -16,7 +17,6 @@ class Role extends Model
     protected $attributes = [
        'site_id' => 1,
        'is_active' => 1,
-       'user_id' => 99, // TODO
        'created_by' => 99, // TODO
        'updated_by' => 99 // TODO
     ];
@@ -27,12 +27,17 @@ class Role extends Model
         'is_active'
     ];
 
+    public function getRouteKeyName(): string {
+        // use uuid instead of id in model binding
+        return 'uuid';
+    }
+
     public function uniqueIds(): array {
         return ['uuid'];
     }
 
-    public function user() : BelongsTo {
-        return $this->belongsTo(User::class);
+    public function user() : HasOne {
+        return $this->hasOne(User::class);
     }
 
     public function modules() : BelongsToMany {

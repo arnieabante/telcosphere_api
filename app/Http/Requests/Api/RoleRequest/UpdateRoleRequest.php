@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\RoleRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateRoleRequest extends BaseRoleRequest
 {
@@ -22,7 +23,7 @@ class UpdateRoleRequest extends BaseRoleRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|required|string|min:3|unique:roles',
+            'name' => ['sometimes', 'required', 'string', 'min:3', Rule::unique('roles')->ignore($this->uuid, 'uuid')],
             'description' => 'sometimes|required|string|max:100',
             'isActive' => 'sometimes|required|boolean'
         ];

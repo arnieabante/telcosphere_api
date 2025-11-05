@@ -55,7 +55,7 @@ class ModuleResource extends JsonResource
             }), 
             */
             'links' => [
-                'module' => route('modules.show', $this->id)
+                'module' => route('modules.show', $this->uuid)
             ]
         ];
     }
