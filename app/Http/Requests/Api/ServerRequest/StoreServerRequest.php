@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\UserRequest;
+namespace App\Http\Requests\Api\ServerRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreUserRequest extends BaseUserRequest
+class StoreServerRequest extends BaseServerRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,12 +22,7 @@ class StoreUserRequest extends BaseUserRequest
     public function rules(): array
     {
         return [
-            'fullname' => 'required|string|min:5',
-            'username' => 'required|string|min:5|unique:users',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|min:8',
-            'roleId' => 'required|string'
+            'name' => 'required|string|min:5|unique:servers'
         ];
-        // TODO: improve to accommodate i.e. data.attributes.username
     }
 }

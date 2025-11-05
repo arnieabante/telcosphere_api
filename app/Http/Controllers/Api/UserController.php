@@ -11,6 +11,7 @@ use App\Policies\Api\UserPolicy;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request; 
 
 class UserController extends ApiController
 {
@@ -21,9 +22,23 @@ class UserController extends ApiController
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return UserResource::collection(User::paginate(5));
+        $perPage = $request->get('per_page', 10);
+        $search = $request->get('search');
+
+        $query = User::query()->with('role');
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('username', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('fullname', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        return UserResource::collection($users);
     }
 
     /**
@@ -47,10 +62,10 @@ class UserController extends ApiController
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(string $uuid)
     {
         try {
-            $user = User::with('role')->findOrFail($id);
+            $user = User::with('role')->where('uuid', $uuid)->firstOrFail();
             return new UserResource($user);
 
         } catch (ModelNotFoundException $ex) {
@@ -64,13 +79,13 @@ class UserController extends ApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, $id)
+    public function update(UpdateUserRequest $request, string $uuid)
     {
         try { 
             // update policy
             // $this->isAble('update', User::class);
 
-            $user = User::findOrFail($id);
+            $user = User::where('uuid', $uuid)->firstOrFail();
             $affected = $user->update($request->mappedAttributes());
             
             return new UserResource($user);
@@ -86,13 +101,13 @@ class UserController extends ApiController
     /**
      * Replace the specified resource in storage.
      */
-    public function replace(ReplaceUserRequest $request, $id)
+    public function replace(ReplaceUserRequest $request, string $uuid)
     {
         try {
             // replace policy
             // $this->isAble('replace', User::class);
             
-            $user = User::findOrFail($id);
+            $user = User::where('uuid', $uuid)->firstOrFail();
             $affected = $user->update($request->mappedAttributes());
             
             return new UserResource($user);
@@ -108,10 +123,10 @@ class UserController extends ApiController
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $uuid)
     {
         try {
-            $user = User::findOrFail($id);
+            $user = User::where('uuid', $uuid)->firstOrFail();
             $affected = $user->delete();
 
             return $this->ok("Deleted $affected record.", []);
