@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Http\Requests\Api\BillingCategoryRequest;
+namespace App\Http\Requests\Api\TicketCategoryRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BaseBillingCategoryRequest extends FormRequest
+class BaseTicketCategoryRequest extends FormRequest
 {
     public function mappedAttributes(): array {
         $attributes = [
             'name' => 'name',
             'description' => 'description',
-            'dateCycle' => 'date_cycle',
             'isActive' => 'is_active'
         ];
 
