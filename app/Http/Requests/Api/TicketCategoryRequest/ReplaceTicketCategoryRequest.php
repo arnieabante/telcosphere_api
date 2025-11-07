@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\BillingCategoryRequest;
+namespace App\Http\Requests\Api\TicketCategoryRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreBillingCategoryRequest extends BaseBillingCategoryRequest
+class ReplaceTicketCategoryRequest extends BaseTicketCategoryRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,9 @@ class StoreBillingCategoryRequest extends BaseBillingCategoryRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|min:3|unique:billing_categories'
+            'name' => 'required|string|min:3|unique:ticketcategory',
+            'description' => 'string|min:3',
+            'isActive' => 'required|boolean'
         ];
     }
 }
