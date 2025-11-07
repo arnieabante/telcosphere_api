@@ -20,6 +20,7 @@ class TicketCategoryResource extends JsonResource
             'attributes' => [
                 'uuid' => $this->uuid,
                 'name' => $this->name,
+                'description' => $this->description,
                 'isActive' => $this->is_active, 
                 $this->mergeWhen(
                     request()->routeIs('ticketcategories.show'), [

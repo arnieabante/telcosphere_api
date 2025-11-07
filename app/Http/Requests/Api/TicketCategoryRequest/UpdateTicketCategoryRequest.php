@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\TicketCategoryRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateTicketCategoryRequest extends BaseTicketCategoryRequest
 {
@@ -22,7 +23,7 @@ class UpdateTicketCategoryRequest extends BaseTicketCategoryRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|min:3|unique:ticket_categories',
+            'name' => ['sometimes', 'required', 'string', 'min:3', Rule::unique('roles')->ignore($this->uuid, 'uuid')],
             'isActive' => 'sometimes|required|boolean',
             'description' => 'string|min:3'
         ];
