@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Api\BillingCategoryRequest;
+namespace App\Http\Requests\Api\TicketCategoryRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class StoreBillingCategoryRequest extends BaseBillingCategoryRequest
+class UpdateTicketCategoryRequest extends BaseTicketCategoryRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +23,10 @@ class StoreBillingCategoryRequest extends BaseBillingCategoryRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|min:3|unique:billing_categories',
-            'description' => 'string|min:3|max:100',
-            'dateCycle' => 'required|integer',
-            'isActive' => 'sometimes|required|boolean'
+            'name' => ['sometimes', 'required', 'string', 'min:3', Rule::unique('roles')->ignore($this->uuid, 'uuid')],
+            'isActive' => 'sometimes|required|boolean',
+            'description' => 'string|min:3'
         ];
+        // TODO: improve to accommodate i.e. data.attributes.username
     }
 }
