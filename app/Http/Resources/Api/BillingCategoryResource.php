@@ -20,6 +20,8 @@ class BillingCategoryResource extends JsonResource
             'attributes' => [
                 'uuid' => $this->uuid,
                 'name' => $this->name,
+                'description' => $this->description,
+                'dateCycle' => $this->date_cycle,
                 'isActive' => $this->is_active, 
                 $this->mergeWhen(
                     request()->routeIs('billingcategories.show'), [

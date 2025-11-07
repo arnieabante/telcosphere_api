@@ -22,7 +22,10 @@ class StoreBillingCategoryRequest extends BaseBillingCategoryRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|min:3|unique:billing_categories'
+            'name' => 'required|string|min:3|unique:billing_categories',
+            'description' => 'string|min:3|max:100',
+            'dateCycle' => 'required|integer',
+            'isActive' => 'sometimes|required|boolean'
         ];
     }
 }

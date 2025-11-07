@@ -9,6 +9,8 @@ class BaseBillingCategoryRequest extends FormRequest
     public function mappedAttributes(): array {
         $attributes = [
             'name' => 'name',
+            'description' => 'description',
+            'dateCycle' => 'date_cycle',
             'isActive' => 'is_active'
         ];
 

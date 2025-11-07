@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class BillingCategory extends Model
 {
@@ -20,6 +21,8 @@ class BillingCategory extends Model
 
     protected $fillable = [
         'name',
+        'description',
+        'date_cycle',
         'is_active'
     ];
 

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('site_id');
             $table->string('name')->unique();
             $table->string('description')->nullable();
+            $table->integer('date_cycle');
             $table->boolean('is_active');
             $table->integer('created_by');
             $table->integer('updated_by');
