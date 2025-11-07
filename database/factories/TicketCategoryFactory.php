@@ -23,7 +23,7 @@ class TicketCategoryFactory extends Factory
         return [
             'uuid' => fake()->uuid(),
             'site_id' => 1,
-            'name' => fake()->unique()->randomElement(['Installations', 'Repairs']),
+            'name' => fake()->unique()->randomElement(['Installation', 'Repairs']),
             'description' => null,
             'is_active' => 1,
             'created_by' => 1, 

@@ -22,7 +22,7 @@ class ReplaceTicketCategoryRequest extends BaseTicketCategoryRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|min:3|unique:ticketcategory',
+            'name' => 'required|string|min:3|unique:ticket_categories',
             'description' => 'string|min:3',
             'isActive' => 'required|boolean'
         ];

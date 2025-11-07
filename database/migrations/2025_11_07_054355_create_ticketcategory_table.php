@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('billing_categories', function (Blueprint $table) {
+        Schema::create('ticket_categories', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id');
             $table->string('name')->unique();
+            $table->string('description')->nullable();
             $table->boolean('is_active');
             $table->integer('created_by');
             $table->integer('updated_by');
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('billing_categories');
+        Schema::dropIfExists('ticket_categories');
     }
 };
