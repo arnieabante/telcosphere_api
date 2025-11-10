@@ -19,6 +19,9 @@ class ClientResource extends JsonResource
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
+                'firstName' => $this->first_name,
+                'middleName' => $this->middle_name,
+                'lastName' => $this->last_name,
                 'clientName' => trim($this->first_name . ' ' . $this->last_name),
                 'internetPlan' => optional($this->internetPlan)->name, 
                 'monthlySubscription' => optional($this->internetPlan)->monthly_subscription, 
