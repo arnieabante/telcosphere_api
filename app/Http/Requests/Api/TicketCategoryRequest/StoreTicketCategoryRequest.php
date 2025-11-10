@@ -24,7 +24,7 @@ class StoreTicketCategoryRequest extends BaseTicketCategoryRequest
         return [
             'name' => 'required|string|min:3|unique:ticket_categories',
             'isActive' => 'sometimes|required|boolean',
-            'description' => 'string|min:3'
+            'description' => 'nullable|string|min:3'
         ];
     }
 }

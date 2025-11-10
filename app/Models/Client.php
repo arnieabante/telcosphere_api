@@ -33,7 +33,6 @@ class Client extends Model
         'billing_category_id',
         'server_id',
         'internet_plan_id',
-        'status',
         'is_active'
     ];
 
@@ -44,5 +43,15 @@ class Client extends Model
 
     public function uniqueIds(): array {
         return ['uuid'];
+    }
+
+    public function internetPlan()
+    {
+        return $this->belongsTo(InternetPlan::class, 'internet_plan_id');
+    }
+
+    public function billingCategory()
+    {
+        return $this->belongsTo(billingCategory::class, 'billing_category_id');
     }
 }
