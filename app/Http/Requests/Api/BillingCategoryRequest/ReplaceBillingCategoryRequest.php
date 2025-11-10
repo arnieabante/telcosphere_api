@@ -22,8 +22,10 @@ class ReplaceBillingCategoryRequest extends BaseBillingCategoryRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|min:3|unique:billingcategory',
-            'isActive' => 'required|boolean'
+            'name' => 'required|string|min:3|unique:billing_categories',
+            'description' => 'string|max:100',
+            'dateCycle' => 'required|integer',
+            'isActive' => 'sometimes|required|boolean'
         ];
     }
 }

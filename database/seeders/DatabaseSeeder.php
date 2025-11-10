@@ -8,6 +8,9 @@ use App\Models\Permission;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\BillingCategory;
+use App\Models\Client;
+use App\Models\TicketCategory;
+
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -32,6 +35,14 @@ class DatabaseSeeder extends Seeder
 
         BillingCategory::factory()
             ->count(3)
+            ->create();
+        
+        Client::factory()
+            ->count(1)
+            ->create();
+            
+        TicketCategory::factory()
+            ->count(2)
             ->create();
 
         /*User::firstOrCreate(

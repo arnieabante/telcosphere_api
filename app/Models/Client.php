@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class BillingCategory extends Model
+class Client extends Model
 {
     use HasFactory, HasUuids;
 
@@ -15,14 +14,26 @@ class BillingCategory extends Model
     protected $attributes = [
        'site_id' => 1,
        'is_active' => 1,
-       'created_by' => 1,
-       'updated_by' => 1
+       'created_by' => 99,
+       'updated_by' => 99
     ];
 
     protected $fillable = [
-        'name',
-        'description',
-        'date_cycle',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'mobile_no',
+        'email',
+        'house_no',
+        'account_no',
+        'installation_date',
+        'inactive_date',
+        'notes',
+        'facebook_profile_url',
+        'billing_category_id',
+        'server_id',
+        'internet_plan_id',
+        'status',
         'is_active'
     ];
 

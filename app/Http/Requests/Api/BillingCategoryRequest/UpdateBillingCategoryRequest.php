@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\BillingCategoryRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateBillingCategoryRequest extends BaseBillingCategoryRequest
 {
@@ -22,7 +23,9 @@ class UpdateBillingCategoryRequest extends BaseBillingCategoryRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|required|string|min:3|unique:modules',
+            'name' => ['sometimes', 'required', 'string', 'min:3', Rule::unique('billing_categories')->ignore($this->uuid, 'uuid')],
+            'description' => 'sometimes|required|string|max:100',
+            'dateCycle' => 'required|integer',
             'isActive' => 'sometimes|required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
