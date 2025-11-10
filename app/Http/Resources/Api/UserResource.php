@@ -36,31 +36,9 @@ class UserResource extends JsonResource
             ],
             'relationships' => $this->whenLoaded('role', function() {
                 return [
-                    'role' => [
-                        'data' => [
-                            'type' => 'role',
-                            'id' => (string) $this->role->id,
-                            'attributes' => [
-                                'uuid' => $this->role->uuid,
-                                'name' => $this->role->name, 
-                                'description' => $this->role->description,
-                                'isActive' => $this->role->is_active
-                            ]
-                        ],
-                        'links' => [
-                            'role' => route('roles.show', $this->role->uuid),
-                            'related' => '' // TODO
-                        ]
-                    ]
+                    'role' => new RoleResource($this->role)
                 ];
             }),
-            // loads entire resource, can be optional. example url query: <url>?include=author
-            // might not be needed for this resource
-            /* 'includes' => [
-                'company' => $this->whenLoaded('company', function () {
-                    return new CompanyResource($this->user);
-                })
-            ], */
             'links' => [
                 'user' => route('users.show', $this->uuid)
             ]

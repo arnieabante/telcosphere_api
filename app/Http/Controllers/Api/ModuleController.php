@@ -49,7 +49,7 @@ class ModuleController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $module = Module::with('roles')->where('uuid', $uuid)->firstOrFail();
+            $module = Module::where('uuid', $uuid)->firstOrFail();
             return new ModuleResource($module);
 
         } catch (ModelNotFoundException $ex) {
