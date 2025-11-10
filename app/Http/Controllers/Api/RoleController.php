@@ -151,9 +151,9 @@ class RoleController extends ApiController
             if (in_array($input['uuid'], $currentModules)) {
                 // update existing
                 $toUpdate[$input['uuid']] =  [
-                    'is_read' => $input['isRead'],
-                    'is_write' => $input['isWrite'],
-                    'is_delete' => $input['isDelete'],
+                    'is_read' => $input['permissions']['isRead'],
+                    'is_write' => $input['permissions']['isWrite'],
+                    'is_delete' => $input['permissions']['isDelete'],
                 ];
                 
             } else {
@@ -162,10 +162,9 @@ class RoleController extends ApiController
                     $module = Module::where('uuid', $input['uuid'])->firstOrFail();
                     // create new
                     $toCreate[$module['id']] = [
-                        'is_read' => $input['isRead'],
-                        'is_write' => $input['isWrite'],
-                        'is_delete' => $input['isDelete'],
-                        'is_active' => $input['isActive'],
+                        'is_read' => $input['permissions']['isRead'],
+                        'is_write' => $input['permissions']['isWrite'],
+                        'is_delete' => $input['permissions']['isDelete'],
                         'created_at' => now(),
                         'updated_at' => now()
                     ];
