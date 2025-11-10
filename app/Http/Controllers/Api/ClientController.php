@@ -31,14 +31,14 @@ class ClientController extends ApiController
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]) // ✅ full name search
+                $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]) 
                 ->orWhere('first_name', 'like', "%{$search}%")
                 ->orWhere('last_name', 'like', "%{$search}%")
                 ->orWhereHas('internetPlan', function ($planQuery) use ($search) {
-                    $planQuery->where('name', 'like', "%{$search}%"); // ✅ fixed column name
+                    $planQuery->where('name', 'like', "%{$search}%"); 
                 })
                 ->orWhereHas('billingCategory', function ($billingQuery) use ($search) {
-                    $billingQuery->where('name', 'like', "%{$search}%"); // ✅ search billing category
+                    $billingQuery->where('name', 'like', "%{$search}%"); 
                 });
             });
         }
