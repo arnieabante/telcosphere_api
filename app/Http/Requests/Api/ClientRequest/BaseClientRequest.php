@@ -16,11 +16,12 @@ class BaseClientRequest extends FormRequest
             'houseNo' => 'house_no',
             'accountNo' => 'account_no',
             'installationDate' => 'installation_date',
-            'billingCategoryId' => 'billing_category_id',
-            'status' => 'status',
             'inactiveDate' => 'inactive_date',
             'notes' => 'notes',
-            'facebokkProfileUrl' => 'facebook_profile_url',
+            'facebookProfileUrl' => 'facebook_profile_url',
+            'billingCategoryId' => 'billing_category_id',
+            'serverId' => 'server_id',
+            'internetPlanId' => 'internet_plan_id',
             'isActive' => 'is_active'
         ];
 
