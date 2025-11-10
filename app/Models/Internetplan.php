@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class InternetPlan extends Model
+class Internetplan extends Model
 {
     use HasFactory, HasUuids;
+    protected $table = 'internetplans';
 
     // default values
     protected $attributes = [
