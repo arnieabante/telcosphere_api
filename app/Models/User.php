@@ -22,8 +22,8 @@ class User extends Authenticatable
     protected $attributes = [
        'site_id' => 1,
        'is_active' => 1,
-       'created_by' => 99, // TODO
-       'updated_by' => 99 // TODO
+       'created_by' => 1, // TODO
+       'updated_by' => 1 // TODO
     ];
 
     /**

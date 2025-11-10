@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api;
 
+use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -32,32 +33,9 @@ class RoleResource extends JsonResource
                     ]
                 ),
             ],
-            'relationships' => $this->whenLoaded('user', function() {
+            'relationships' => $this->whenLoaded('modules', function () {
                 return [
-                    'user' => [
-                        'data' => [
-                            'type' => 'user',
-                            'id' => (string) $this->user->id,
-                            'attributes' => [
-                                'uuid' => $this->user->uuid,
-                                'username' => $this->user->username,
-                                'email' => $this->user->email,
-                                'isActive' => $this->user->is_active
-                            ]
-                        ],
-                        'links' => [
-                            'user' => route('users.show', $this->user->uuid),
-                            'related' => '' // TODO
-                        ]
-                    ],
-                    /* TODO
-                    'modules' => [
-                        'data' => [
-                            'type' => 'module',
-                            'id' => (string) $this->module->id,
-                            'attributes' => []
-                        ]
-                    ] */
+                    'modules' => ModuleResource::collection($this->modules)
                 ];
             }),
             'links' => [

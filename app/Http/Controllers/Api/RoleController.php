@@ -7,6 +7,8 @@ use App\Http\Requests\Api\RoleRequest\ReplaceRoleRequest;
 use App\Http\Requests\Api\RoleRequest\StoreRoleRequest;
 use App\Http\Requests\Api\RoleRequest\UpdateRoleRequest;
 use App\Http\Resources\Api\RoleResource;
+use App\Models\Module;
+use App\Models\Permission;
 use App\Models\Role;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -61,7 +63,7 @@ class RoleController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $role = Role::with('user')->where('uuid', $uuid)->firstOrFail();
+            $role = Role::with('modules')->where('uuid', $uuid)->firstOrFail();
             return new RoleResource($role);
 
         } catch (ModelNotFoundException $ex) {
@@ -133,5 +135,79 @@ class RoleController extends ApiController
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to delete a Role.', 401);
         }
+    }
+
+    public function attach(Request $request, string $uuid) 
+    {
+        $role = Role::where('uuid', $uuid)->firstOrFail();
+        $currentModules = [];
+        foreach ($role->modules as $module)
+            $currentModules[] = $module->uuid;
+        
+        $inputModules = $request->input('modules');
+        $toUpdate = $toCreate = [];
+
+        foreach ($inputModules as $input) {
+            if (in_array($input['uuid'], $currentModules)) {
+                // update existing
+                $toUpdate[$input['uuid']] =  [
+                    'is_read' => $input['permissions']['isRead'],
+                    'is_write' => $input['permissions']['isWrite'],
+                    'is_delete' => $input['permissions']['isDelete'],
+                ];
+                
+            } else {
+                try {
+                    // confirm existence
+                    $module = Module::where('uuid', $input['uuid'])->firstOrFail();
+                    // create new
+                    $toCreate[$module['id']] = [
+                        'is_read' => $input['permissions']['isRead'],
+                        'is_write' => $input['permissions']['isWrite'],
+                        'is_delete' => $input['permissions']['isDelete'],
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+
+                } catch (ModelNotFoundException $ex) {
+                    return $this->error('Module does not exist.', 404);
+                }
+            }
+        }
+
+        if (!empty($toUpdate))
+            foreach ($role->modules as $module)
+                if (isset($toUpdate[$module->uuid]))
+                    $module->pivot->update($toUpdate[$module->uuid]);
+
+        if (!empty($toCreate))
+            foreach ($toCreate as $id => $attributes)
+                $role->modules()->attach($id, $attributes);
+        
+        return new RoleResource($role->load('modules'));
+    }
+
+    public function detach(Request $request, string $uuid)
+    {
+        try {
+            $role = Role::where('uuid', $uuid)->firstOrFail();
+            $currentModules = [];
+            foreach ($role->modules as $module)
+                $currentModules[] = $module->uuid;
+
+            $inputModules = $request->input('modules');
+            foreach ($inputModules as $input) {
+                // confirm existence
+                $module = Module::where('uuid', $input['uuid'])->firstOrFail();
+                // remove from role
+                if (in_array($module['uuid'], $currentModules))
+                    $role->modules()->detach($module['id']);
+            }
+            
+            return new RoleResource($role->load('modules'));
+
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('Role or Module does not exist.', 404);
+        }   
     }
 }
