@@ -47,7 +47,7 @@ class Client extends Model
 
     public function internetPlan()
     {
-        return $this->belongsTo(InternetPlan::class, 'internet_plan_id');
+        return $this->belongsTo(internetPlan::class, 'internet_plan_id'); 
     }
 
     public function billingCategory()
