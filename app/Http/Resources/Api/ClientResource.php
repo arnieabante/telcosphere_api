@@ -43,7 +43,7 @@ class ClientResource extends JsonResource
                 ),
             ],
             'relationships' => [
-                'internetPlan' => new InternetPlanResource($this->whenLoaded('internetPlan')),
+                'internetPlan' => new InternetplanResource($this->whenLoaded('internetPlan')),
                 'billingCategory' => new BillingCategoryResource($this->whenLoaded('billingCategory')),
             ],
             'links' => [
