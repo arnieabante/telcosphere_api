@@ -19,14 +19,13 @@ return new class extends Migration
             $table->string('middle_name');
             $table->string('last_name');
             $table->string('mobile_no');
-            $table->string('email');
+            $table->string('email')->nullable();
             $table->string('house_no');
-            $table->string('account_no');
+            $table->string('account_no')->nullable();
             $table->string('installation_date');
-            $table->integer('status');
             $table->string('inactive_date')->nullable();
-            $table->string('notes');
-            $table->string('facebook_profile_url');
+            $table->string('notes')->nullable();
+            $table->string('facebook_profile_url')->nullable();
             $table->integer('billing_category_id');
             $table->integer('server_id');
             $table->integer('internet_plan_id');
