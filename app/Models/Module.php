@@ -15,8 +15,8 @@ class Module extends Model
     protected $attributes = [
        'site_id' => 1,
        'is_active' => 1,
-       'created_by' => 99,
-       'updated_by' => 99
+       'created_by' => 1,
+       'updated_by' => 1
     ];
 
     protected $fillable = [

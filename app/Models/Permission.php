@@ -24,8 +24,8 @@ class Permission extends Pivot
         'is_write' => 0,
         'is_delete' => 0,
         'is_active' => 1,
-       'created_by' => 99, // TODO
-       'updated_by' => 99 // TODO
+       'created_by' => 1, // TODO
+       'updated_by' => 1 // TODO
     ];
     
     protected $fillable = [
