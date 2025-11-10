@@ -7,7 +7,7 @@ use App\Http\Requests\Api\InternetplanRequest\ReplaceInternetplanRequest;
 use App\Http\Requests\Api\InternetplanRequest\StoreInternetplanRequest;
 use App\Http\Requests\Api\InternetplanRequest\UpdateInternetplanRequest;
 use App\Http\Resources\Api\InternetplanResource;
-use App\Models\Internetplan;
+use App\Models\InternetPlan;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -22,7 +22,7 @@ class InternetplanController extends ApiController
      */
     public function index()
     {
-        return InternetplanResource::collection(Internetplan::paginate(10));
+        return InternetplanResource::collection(InternetPlan::paginate(10));
     }
 
     /**
@@ -32,14 +32,14 @@ class InternetplanController extends ApiController
     {
         try {
             // create policy
-            // $this->isAble('create', Internetplan::class);
+            // $this->isAble('create', InternetPlan::class);
 
             return new InternetplanResource(
-                Internetplan::create($request->mappedAttributes())
+                InternetPlan::create($request->mappedAttributes())
             );
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to create a Internetplan.', 401);
+            return $this->error('You are not authorized to create a InternetPlan.', 401);
         }
     }
 
@@ -49,14 +49,14 @@ class InternetplanController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $internetplan = Internetplan::where('uuid', $uuid)->firstOrFail();
+            $internetplan = InternetPlan::where('uuid', $uuid)->firstOrFail();
             return new InternetplanResource($internetplan);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Internetplan does not exist.', 404);
+            return $this->error('InternetPlan does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to view a Internetplan.', 401);
+            return $this->error('You are not authorized to view a InternetPlan.', 401);
         }
     }
 
@@ -67,18 +67,18 @@ class InternetplanController extends ApiController
     {
         try {
             // update policy
-            // $this->isAble('update', Internetplan::class);
+            // $this->isAble('update', InternetPlan::class);
 
-            $internetplan = Internetplan::where('uuid', $uuid)->firstOrFail();
+            $internetplan = InternetPlan::where('uuid', $uuid)->firstOrFail();
             $affected = $internetplan->update($request->mappedAttributes());
 
             return new InternetplanResource($internetplan);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Internetplan does not exist.', 404);
+            return $this->error('InternetPlan does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to update a Internetplan.', 401);
+            return $this->error('You are not authorized to update a InternetPlan.', 401);
         }
     }
 
@@ -89,18 +89,18 @@ class InternetplanController extends ApiController
     {
         try {
             // replace policy
-            // $this->isAble('replace', Internetplan::class);
+            // $this->isAble('replace', InternetPlan::class);
 
-            $internetplan = Internetplan::where('uuid', $uuid)->firstOrFail();
+            $internetplan = InternetPlan::where('uuid', $uuid)->firstOrFail();
             $affected = $internetplan->update($request->mappedAttributes());
 
             return new InternetplanResource($internetplan);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Internetplan does not exist.', 404);
+            return $this->error('InternetPlan does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to replace a Internetplan.', 401);
+            return $this->error('You are not authorized to replace a InternetPlan.', 401);
         }
     }
 
@@ -110,16 +110,16 @@ class InternetplanController extends ApiController
     public function destroy(string $uuid)
     {
         try {
-            $internetplan = Internetplan::where('uuid', $uuid)->firstOrFail();
+            $internetplan = InternetPlan::where('uuid', $uuid)->firstOrFail();
             $affected = $internetplan->delete();
 
             return $this->ok("Deleted $affected record.", []);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Internetplan does not exist.', 404);
+            return $this->error('InternetPlan does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to delete a Internetplan.', 401);
+            return $this->error('You are not authorized to delete a InternetPlan.', 401);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Internetplan;
+use App\Models\InternetPlan;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
