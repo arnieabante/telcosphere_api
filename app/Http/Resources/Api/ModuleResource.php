@@ -21,7 +21,7 @@ class ModuleResource extends JsonResource
                 'uuid' => $this->uuid,
                 'name' => $this->name,
                 'description' => $this->description,
-                'isActive' => $this->is_active, 
+                'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('modules.show'), [
                         'siteId' => $this->site_id,
@@ -31,29 +31,14 @@ class ModuleResource extends JsonResource
                         'updatedAt' => $this->updated_at
                     ]
                 ),
+                'permissions' => $this->whenPivotLoaded('permissions', function () {
+                     return [
+                        'isRead' => $this->pivot->is_read,
+                        'isWrite' => $this->pivot->is_write,
+                        'isDelete' => $this->pivot->is_delete
+                     ];
+                })
             ],
-            /* TODO: load through permissions
-            'relationships' => $this->whenLoaded('roles', function() {
-                return [
-                    'role' => [
-                        'data' => [
-                            'type' => 'role',
-                            'id' => (string) $this->role->id,
-                            'attributes' => [
-                                'uuid' => $this->role->uuid,
-                                'name' => $this->role->name, 
-                                'description' => $this->role->description,
-                                'isActive' => $this->role->is_active
-                            ]
-                        ],
-                        'links' => [
-                            'role' => route('roles.show', $this->role->id),
-                            'related' => '' // TODO
-                        ]
-                    ]
-                ];
-            }), 
-            */
             'links' => [
                 'module' => route('modules.show', $this->uuid)
             ]
