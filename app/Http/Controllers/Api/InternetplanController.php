@@ -7,7 +7,7 @@ use App\Http\Requests\Api\InternetplanRequest\ReplaceInternetplanRequest;
 use App\Http\Requests\Api\InternetplanRequest\StoreInternetplanRequest;
 use App\Http\Requests\Api\InternetplanRequest\UpdateInternetplanRequest;
 use App\Http\Resources\Api\InternetplanResource;
-use App\Models\Internetplan;
+use App\Models\Internetplan; 
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;

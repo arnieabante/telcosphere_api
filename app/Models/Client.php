@@ -10,14 +10,19 @@ class Client extends Model
 {
     use HasFactory, HasUuids;
 
-    // default values
+    /**
+     * Default attribute values
+     */
     protected $attributes = [
-       'site_id' => 1,
-       'is_active' => 1,
-       'created_by' => 99,
-       'updated_by' => 99
+        'site_id' => 1,
+        'is_active' => 1,
+        'created_by' => 1,
+        'updated_by' => 1,
     ];
 
+    /**
+     * Mass assignable attributes
+     */
     protected $fillable = [
         'first_name',
         'middle_name',
@@ -33,16 +38,35 @@ class Client extends Model
         'billing_category_id',
         'server_id',
         'internet_plan_id',
-        'status',
-        'is_active'
+        'is_active',
     ];
 
-    public function getRouteKeyName(): string {
-        // use uuid instead of id in model binding
+    /**
+     * Use UUID for route model binding
+     */
+    public function getRouteKeyName(): string
+    {
         return 'uuid';
     }
 
-    public function uniqueIds(): array {
+    /**
+     * Define which columns should generate UUIDs
+     */
+    public function uniqueIds(): array
+    {
         return ['uuid'];
+    }
+
+    /**
+     * Relationships
+     */
+    public function internetPlan()
+    {
+        return $this->belongsTo(\App\Models\Internetplan::class, 'internet_plan_id');
+    }
+
+    public function billingCategory()
+    {
+        return $this->belongsTo(\App\Models\BillingCategory::class, 'billing_category_id');
     }
 }

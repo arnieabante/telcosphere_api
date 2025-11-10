@@ -20,23 +20,34 @@ class ClientController extends ApiController
     /**
      * Display a listing of the resource.
      */
+
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
 
-        $query = Client::query()
+        $query = Client::with(['internetPlan', 'billingCategory'])
             ->where('is_active', 1);
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
+                $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]) 
+                ->orWhere('first_name', 'like', "%{$search}%")
+                ->orWhere('last_name', 'like', "%{$search}%")
+                ->orWhereHas('internetPlan', function ($planQuery) use ($search) {
+                    $planQuery->where('name', 'like', "%{$search}%"); 
+                })
+                ->orWhereHas('billingCategory', function ($billingQuery) use ($search) {
+                    $billingQuery->where('name', 'like', "%{$search}%"); 
+                });
             });
         }
 
         $clients = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
         return ClientResource::collection($clients);
     }
+
 
     /**
      * Store a newly created resource in storage.

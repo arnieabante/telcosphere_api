@@ -36,8 +36,7 @@ class UpdateClientRequest extends BaseClientRequest
             'billingCategoryId' => 'required|string',
             'serverId' => 'required|string',
             'internetPlanId' => 'required|string',
-            'isActive' => 'required|string',
-            'status' => 'required|string'
+            'isActive' => 'required|string'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
     }

@@ -25,7 +25,7 @@ class UpdateTicketCategoryRequest extends BaseTicketCategoryRequest
         return [
             'name' => ['sometimes', 'required', 'string', 'min:3', Rule::unique('roles')->ignore($this->uuid, 'uuid')],
             'isActive' => 'sometimes|required|boolean',
-            'description' => 'string|min:3'
+            'description' => 'nullable|string|min:3'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
     }
