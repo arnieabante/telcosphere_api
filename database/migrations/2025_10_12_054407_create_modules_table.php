@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id');
+            $table->integer('parent_id');
             $table->string('name')->unique();
             $table->text('description');
             $table->boolean('is_active');

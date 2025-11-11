@@ -32,7 +32,7 @@ class UserFactory extends Factory
             'username' => fake()->userName(),
             'email' => fake()->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'),
-            'is_active' => rand(0, 1),
+            'is_active' => 1,
             'role_id' => NULL,
             'created_by' => 99, // TODO: what is the value for this?
             'updated_by' => 99 // TODO: what is the value for this?
