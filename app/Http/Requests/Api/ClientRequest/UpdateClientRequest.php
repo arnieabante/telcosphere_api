@@ -23,7 +23,7 @@ class UpdateClientRequest extends BaseClientRequest
     {
          return [
             'firstName' => 'required|string|min:2',
-            'middleName' => 'string|min:2',
+            'middleName' => 'nullable|string|min:2',
             'lastName' => 'required|string|min:2',
             'mobileNo' => 'string|min:11',
             'email' => 'string|email|unique:clients',
