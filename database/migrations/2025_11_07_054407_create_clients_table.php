@@ -23,12 +23,18 @@ return new class extends Migration
             $table->string('house_no');
             $table->string('account_no')->nullable();
             $table->string('installation_date');
+            $table->float('installation_fee')->default(0);
+            $table->float('balance_from_prev_billing')->default(0);
+            $table->float('prorate_fee')->default(0);
+            $table->string('prorate_fee_remarks')->nullable();
+            $table->integer('prorate_fee_status')->nullable(); //0 - Pending, 1-Billed, 2-Paid
             $table->string('inactive_date')->nullable();
             $table->string('notes')->nullable();
             $table->string('facebook_profile_url')->nullable();
             $table->integer('billing_category_id');
             $table->integer('server_id');
             $table->integer('internet_plan_id');
+            $table->string('last_auto_billing_date')->nullable();
             $table->integer('is_active');
             $table->integer('created_by');
             $table->integer('updated_by');
