@@ -198,9 +198,9 @@ class RoleController extends ApiController
             $inputModules = $request->input('modules');
             foreach ($inputModules as $input) {
                 // confirm existence
-                $module = Module::where('uuid', $input['uuid'])->firstOrFail();
+                $module = Module::where('uuid', $input['uuid'])->first();
                 // remove from role
-                if (in_array($module['uuid'], $currentModules))
+                if ($module && in_array($module['uuid'], $currentModules))
                     $role->modules()->detach($module['id']);
             }
             

@@ -25,7 +25,7 @@ class InternetplansFactory extends Factory
             'icon' => "fa fa-edit",
             'name' => fake()->unique()->randomElement(['Plan 1000', 'Plan 1499', 'Plan 1699', 'Plan 1999']),
             'monthly_subscription' => fake()->randomFloat(2, 500, 3000),
-            'is_active' => rand(0, 1),
+            'is_active' => 1,
             'created_by' => 99, // TODO: what is the value for this?
             'updated_by' => 99 // TODO: what is the value for this?
         ];
