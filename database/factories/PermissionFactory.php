@@ -26,7 +26,7 @@ class PermissionFactory extends Factory
             'is_read' => rand(0, 1),
             'is_write' => rand(0, 1),
             'is_delete' => rand(0, 1),
-            'is_active' => rand(0, 1),
+            'is_active' => 1,
             'created_by' => 1, // TODO: what is the value for this?
             'updated_by' => 1 // TODO: what is the value for this?
         ];
