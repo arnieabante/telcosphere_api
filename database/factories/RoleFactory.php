@@ -27,8 +27,8 @@ class RoleFactory extends Factory
             'name' => fake()->unique()->randomElement(['guest', 'manager', 'admin']),
             'description' => fake()->text(50),
             'is_active' => rand(0, 1),
-            'created_by' => 99, // TODO: what is the value for this?
-            'updated_by' => 99 // TODO: what is the value for this?
+            'created_by' => 1, // TODO: what is the value for this?
+            'updated_by' => 1 // TODO: what is the value for this?
         ];
     }
 

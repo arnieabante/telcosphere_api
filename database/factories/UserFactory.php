@@ -34,8 +34,8 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'is_active' => rand(0, 1),
             'role_id' => NULL,
-            'created_by' => 99, // TODO: what is the value for this?
-            'updated_by' => 99 // TODO: what is the value for this?
+            'created_by' => 1, // TODO: what is the value for this?
+            'updated_by' => 1 // TODO: what is the value for this?
         ];
     }
 
