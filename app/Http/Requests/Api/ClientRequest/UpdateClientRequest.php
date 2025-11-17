@@ -30,20 +30,19 @@ class UpdateClientRequest extends BaseClientRequest
             'houseNo' => 'string|min:5',
             'accountNo' => 'nullable|string', 
             'installationDate' => 'required|string',
-            'installationFee' => 'string',
-            'balanceFromPrevBilling' => 'string',
+            'installationFee' => 'nullable|string',
+            'balanceFromPrevBilling' => 'nullable|string',
             'prorateFee' => 'string',
-            'prorateFeeRemarks' => 'string',
-            'prorateFeeStatus' => 'string',
+            'prorateFeeRemarks' => 'nullable|string',
+            'prorateFeeStatus' => 'nullable|string',
             'inactiveDate' => 'string|min:5',
             'notes' => 'nullable|string|min:2',
             'facebookProfileUrl' => 'nullable|string|min:5',
             'billingCategoryId' => 'required|string',
             'serverId' => 'required|string',
             'internetPlanId' => 'required|string',
-            'last_auto_billing_date' => 'string',
+            'lastAutoBillingDate' => 'nullable|string',
             'isActive' => 'required|string'
         ];
-        // TODO: improve to accommodate i.e. data.attributes.username
     }
 }

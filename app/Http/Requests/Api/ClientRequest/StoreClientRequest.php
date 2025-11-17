@@ -31,7 +31,7 @@ class StoreClientRequest extends BaseClientRequest
             'accountNo' => 'nullable|string', 
             'installationDate' => 'required|string',
             'installationFee' => 'nullable|string',
-            'balanceFromPrevBilling' => 'string',
+            'balanceFromPrevBilling' => 'nullable|string',
             'prorateFee' => 'string',
             'prorateFeeRemarks' => 'nullable|string',
             'prorateFeeStatus' => 'nullable|string',
