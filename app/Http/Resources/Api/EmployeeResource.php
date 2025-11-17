@@ -23,10 +23,10 @@ class EmployeeResource extends JsonResource
                 'middleName' => $this->middle_name,
                 'lastName' => $this->last_name,
                 'clientName' => trim($this->first_name . ' ' . $this->last_name),
-                'internetPlan' => optional($this->internetPlan)->name, 
-                'monthlySubscription' => optional($this->internetPlan)->monthly_subscription, 
-                'billingCategory' => optional($this->billingCategory)->name, 
-                'dateCycle' => optional($this->billingCategory)->date_cycle, 
+                'internetPlan' => optional($this->internetPlan)->name,
+                'monthlySubscription' => optional($this->internetPlan)->monthly_subscription,
+                'billingCategory' => optional($this->billingCategory)->name,
+                'dateCycle' => optional($this->billingCategory)->date_cycle,
                 'mobileNo' => $this->mobile_no,
                 'houseNo' => $this->house_no,
                 'installationDate' => $this->installation_date,
@@ -42,10 +42,10 @@ class EmployeeResource extends JsonResource
                     ]
                 ),
             ],
-            'relationships' => [
-                'internetPlan' => new InternetplanResource($this->whenLoaded('internetPlan')),
-                'billingCategory' => new BillingCategoryResource($this->whenLoaded('billingCategory')),
-            ],
+            // 'relationships' => [
+            //     'internetPlan' => new InternetplanResource($this->whenLoaded('internetPlan')),
+            //     'billingCategory' => new BillingCategoryResource($this->whenLoaded('billingCategory')),
+            // ],
             'links' => [
                 'client' => route('clients.show', $this->id),
             ],

@@ -26,20 +26,23 @@ class EmployeeController extends ApiController
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
 
-        $query = Employee::with(['internetPlan', 'billingCategory'])
+        $query = Employee::query()
             ->where('is_active', 1);
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]) 
-                ->orWhere('first_name', 'like', "%{$search}%")
-                ->orWhere('last_name', 'like', "%{$search}%")
-                ->orWhereHas('internetPlan', function ($planQuery) use ($search) {
-                    $planQuery->where('name', 'like', "%{$search}%"); 
-                })
-                ->orWhereHas('billingCategory', function ($billingQuery) use ($search) {
-                    $billingQuery->where('name', 'like', "%{$search}%"); 
-                });
+                $q->whereRaw("CONCAT(first_name, ' ', lastname) LIKE ?", ["%{$search}%"])
+                ->orWhere('firstname', 'like', "%{$search}%")
+                ->orWhere('lastname', 'like', "%{$search}%")
+                ->orWhere('department', 'like', "%{$search}%")
+                ->orWhere('designation', 'like', "%{$search}%")
+                ->orWhere('work_location', 'like', "%{$search}%");
+                // ->orWhereHas('internetPlan', function ($planQuery) use ($search) {
+                //     $planQuery->where('name', 'like', "%{$search}%");
+                // })
+                // ->orWhereHas('billingCategory', function ($billingQuery) use ($search) {
+                //     $billingQuery->where('name', 'like', "%{$search}%");
+                // });
             });
         }
 
