@@ -24,9 +24,9 @@ class ServerFactory extends Factory
             'site_id' => 1,
             'icon' => "fa fa-edit",
             'name' => fake()->unique()->randomElement(['Cantinlo', 'Oslob', 'Samboan', 'Liptong']),
-            'is_active' => rand(0, 1),
-            'created_by' => 99, // TODO: what is the value for this?
-            'updated_by' => 99 // TODO: what is the value for this?
+            'is_active' => 1,
+            'created_by' => 1, // TODO: what is the value for this?
+            'updated_by' => 1 // TODO: what is the value for this?
         ];
     }
 }
