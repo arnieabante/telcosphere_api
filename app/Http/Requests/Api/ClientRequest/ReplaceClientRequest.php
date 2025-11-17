@@ -23,19 +23,25 @@ class ReplaceClientRequest extends BaseClientRequest
     {
         return [
             'firstName' => 'required|string|min:2',
-            'middleName' => 'string|min:2',
+            'middleName' => 'nullable|string|min:2',
             'lastName' => 'required|string|min:2',
             'mobileNo' => 'string|min:11',
-            'email' => 'string|email|unique:clients',
+            'email' => 'nullable|string|email|unique:clients',
             'houseNo' => 'string|min:5',
-            'accountNo' => 'string|min:5',
+            'accountNo' => 'nullable|string', 
             'installationDate' => 'required|string',
+            'installationFee' => 'string',
+            'balanceFromPrevBilling' => 'string',
+            'prorateFee' => 'string',
+            'prorateFeeRemarks' => 'string',
+            'prorateFeeStatus' => 'string',
             'inactiveDate' => 'string|min:5',
-            'notes' => 'string|min:2',
-            'facebookProfileUrl' => 'string|min:5',
+            'notes' => 'nullable|string|min:2',
+            'facebookProfileUrl' => 'nullable|string|min:5',
             'billingCategoryId' => 'required|string',
             'serverId' => 'required|string',
             'internetPlanId' => 'required|string',
+            'last_auto_billing_date' => 'string',
             'isActive' => 'required|string'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
