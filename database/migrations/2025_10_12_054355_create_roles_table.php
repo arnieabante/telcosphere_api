@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('uuid');
             $table->integer('site_id');
             $table->string('name')->unique();
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->boolean('is_active');
             $table->integer('created_by');
             $table->integer('updated_by');
