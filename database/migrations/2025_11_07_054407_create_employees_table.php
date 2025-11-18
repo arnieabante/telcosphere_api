@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('civil_status');
             $table->string('email_address');
             $table->string('contact_no');
-            $table->string('home_address ');
+            $table->string('home_address');
             $table->string('emergency_contact_no');
             $table->string('employee_id');
             $table->date('date_hired');
@@ -45,8 +45,6 @@ return new class extends Migration
             $table->string('tin');
             $table->string('employee_type');
             $table->integer('is_active');
-            $table->date('created_at');
-            $table->date('updated_at');
             $table->integer('created_by');
             $table->integer('updated_by');
             $table->timestamps();

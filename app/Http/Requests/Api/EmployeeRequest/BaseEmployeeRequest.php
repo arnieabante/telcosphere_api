@@ -8,23 +8,37 @@ class BaseEmployeeRequest extends FormRequest
 {
     public function mappedAttributes(): array {
         $attributes = [
-            'firstName' => 'first_name',
-            'middleName' => 'middle_name',
-            'lastName' => 'last_name',
-            'mobileNo' => 'mobile_no',
-            'email' => 'email',
-            'houseNo' => 'house_no',
-            'accountNo' => 'account_no',
-            'installationDate' => 'installation_date',
-            'inactiveDate' => 'inactive_date',
-            'notes' => 'notes',
-            'facebookProfileUrl' => 'facebook_profile_url',
-            'billingCategoryId' => 'billing_category_id',
-            'serverId' => 'server_id',
-            'internetPlanId' => 'internet_plan_id',
-            'isActive' => 'is_active'
+            'firstName' => 'firstname',
+            'middleName' => 'middlename',
+            'lastName' => 'lastname',
+            'birthDate' => 'birth_date',
+            'gender' => 'gender',
+            'civilStatus' => 'civil_status',
+            'emailAddress' => 'email_address',
+            'contactNo' => 'contact_no',
+            'homeAddress' => 'home_address',
+            'emergencyContactNo' => 'emergency_contact_no',
+            'employeeId' => 'employee_id',
+            'dateHired' => 'date_hired',
+            'department' => 'department',
+            'designation' => 'designation',
+            'workLocation' => 'work_location',
+            'accessLevel' => 'access_level',
+            'userId' => 'user_id',
+            'shiftScheduleFrom' => 'shift_schedule_from',
+            'shiftScheduleTo' => 'shift_schedule_to',
+            'salaryRatePerDay' => 'salary_rate_per_day',
+            'hourlyRatePerDay' => 'hourly_rate_per_day',
+            'paymentMethod' => 'payment_method',
+            'bankName' => 'bank_name',
+            'bankAccountNo' => 'bank_account_no',
+            'sssNo' => 'sss_no',
+            'pagibigNo' => 'pagibig_no',
+            'philhealthNo' => 'philhealth_no',
+            'tin' => 'tin',
+            'employeeType' => 'employee_type',
+            'isActive' => 'is_active',
         ];
-        // TODO: Need to update the data once UI is already finished
         $attributesToUpdate = [];
 
         foreach ($attributes as $key => $attribute) {

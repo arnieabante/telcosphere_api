@@ -46,9 +46,9 @@ class EmployeeController extends ApiController
             });
         }
 
-        $clients = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        $employees = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        return EmployeeResource::collection($clients);
+        return EmployeeResource::collection($employees);
     }
 
 
@@ -76,8 +76,8 @@ class EmployeeController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $client = Employee::where('uuid', $uuid)->firstOrFail();
-            return new EmployeeResource($client);
+            $employee = Employee::where('uuid', $uuid)->firstOrFail();
+            return new EmployeeResource($employee);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Employee does not exist.', 404);
@@ -96,10 +96,10 @@ class EmployeeController extends ApiController
             // update policy
             // $this->isAble('update', Employee::class);
 
-            $client = Employee::where('uuid', $uuid)->firstOrFail();
-            $affected = $client->update($request->mappedAttributes());
+            $employee = Employee::where('uuid', $uuid)->firstOrFail();
+            $affected = $employee->update($request->mappedAttributes());
 
-            return new EmployeeResource($client);
+            return new EmployeeResource($employee);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Employee does not exist.', 404);
@@ -118,10 +118,10 @@ class EmployeeController extends ApiController
             // replace policy
             // $this->isAble('replace', Employee::class);
 
-            $client = Employee::where('uuid', $uuid)->firstOrFail();
-            $affected = $client->update($request->mappedAttributes());
+            $employee = Employee::where('uuid', $uuid)->firstOrFail();
+            $affected = $employee->update($request->mappedAttributes());
 
-            return new EmployeeResource($client);
+            return new EmployeeResource($employee);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Employee does not exist.', 404);
@@ -137,8 +137,8 @@ class EmployeeController extends ApiController
     public function destroy(string $uuid)
     {
         try {
-            $client = Employee::where('uuid', $uuid)->firstOrFail();
-            $affected = $client->delete();
+            $employee = Employee::where('uuid', $uuid)->firstOrFail();
+            $affected = $employee->delete();
 
             return $this->ok("Deleted $affected record.", []);
 
