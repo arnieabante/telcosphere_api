@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Billing;
 use App\Models\Item;
 use App\Models\Module;
 use App\Models\Permission;
@@ -30,7 +31,7 @@ class DatabaseSeeder extends Seeder
         // then Roles 
         // triggers Users, assigns permissions
         Role::factory()
-            ->count(3)
+            ->count(1)
             ->create();
 
         BillingCategory::factory()
@@ -45,13 +46,8 @@ class DatabaseSeeder extends Seeder
             ->count(2)
             ->create();
 
-        /*User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );*/
+        Billing::factory()
+            ->count(3)
+            ->create();
     }
 }
