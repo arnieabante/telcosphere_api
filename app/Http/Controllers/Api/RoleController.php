@@ -89,7 +89,7 @@ class RoleController extends ApiController
             return new RoleResource($role);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('User does not exist.', 404);
+            return $this->error('Role does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to update a Role.', 401);
@@ -111,7 +111,7 @@ class RoleController extends ApiController
             return new RoleResource($role);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Roles does not exist.', 404);
+            return $this->error('Role does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to replace a Role.', 401);
