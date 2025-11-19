@@ -61,7 +61,7 @@ class EmployeeResource extends JsonResource
                 ),
             ],
             'relationships' => [
-                'user' => new UserResource($this->whenLoaded('user')),
+                'role' => new RoleResource($this->whenLoaded('roles')),
             ],
             'links' => [
                 'employee' => route('employees.show', $this->id),
