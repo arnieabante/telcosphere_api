@@ -9,6 +9,7 @@ use App\Models\Permission;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\BillingCategory;
+use App\Models\BillingItem;
 use App\Models\Client;
 use App\Models\TicketCategory;
 
@@ -47,6 +48,10 @@ class DatabaseSeeder extends Seeder
             ->create();
 
         Billing::factory()
+            ->count(3)
+            ->create();
+
+        BillingItem::factory()
             ->count(3)
             ->create();
     }
