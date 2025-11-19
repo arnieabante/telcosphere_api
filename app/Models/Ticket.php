@@ -61,7 +61,7 @@ class Ticket extends Model
 
     public function ticketCategory()
     {
-        return $this->belongsTo(\App\Models\BillingCategory::class, 'category_id');
+        return $this->belongsTo(\App\Models\TicketCategory::class, 'category_id');
     }
 
     public function assignedTo()

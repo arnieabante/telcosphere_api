@@ -26,7 +26,7 @@ class TicketController extends ApiController
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
 
-        $query = Ticket::with(['client', 'billingCategory', 'assignedTo'])
+        $query = Ticket::with(['client', 'ticketCategory', 'assignedTo'])
             ->where('is_active', 1);
 
         if (!empty($search)) {
@@ -40,7 +40,7 @@ class TicketController extends ApiController
                     $ticketCategoryQuery->where('name', 'like', "%{$search}%");
                 })
                 ->orWhereHas('assignedTo', function ($userQuery) use ($search) {
-                    $userQuery->where('full_name', 'like', "%{$search}%");
+                    $userQuery->where('fullname', 'like', "%{$search}%");
                 });
             });
         }

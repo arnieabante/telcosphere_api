@@ -4,6 +4,7 @@ namespace App\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\Ticket; 
 
 class TicketResource extends JsonResource
 {
@@ -42,7 +43,7 @@ class TicketResource extends JsonResource
                 'requestedDate' => $this->requested_date,
                 'dueDate' => $this->due_date,
                 'assignedTo' => optional($this->assignedTo)->full_name, 
-                'remarks' => $this->remars,
+                'remarks' => $this->remarks,
                 'status' => $this->status,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
