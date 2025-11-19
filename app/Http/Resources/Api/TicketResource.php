@@ -42,7 +42,7 @@ class TicketResource extends JsonResource
                 'category' => optional($this->ticketCategory)->name,
                 'requestedDate' => $this->requested_date,
                 'dueDate' => $this->due_date,
-                'assignedTo' => optional($this->assignedTo)->full_name, 
+                'assignedTo' => optional($this->assignedTo)->fullname, 
                 'remarks' => $this->remarks,
                 'status' => $this->status,
                 'isActive' => $this->is_active,
