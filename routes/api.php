@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\InternetplanController;
 use App\Http\Controllers\Api\ServerController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\TicketCategoryController;
+use App\Http\Controllers\Api\TicketController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login']);
@@ -50,6 +51,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('ticketcategories', TicketCategoryController::class)->except(['update']);
     Route::patch('ticketcategories/{uuid}', [TicketCategoryController::class, 'update']);
     Route::put('ticketcategories/{uuid}', [TicketCategoryController::class, 'replace']);
+
+    Route::apiResource('tickets',TicketController::class)->except(['update']);
+    Route::patch('tickets/{uuid}', [TicketController::class, 'update']);
+    Route::put('tickets/{uuid}', [TicketController::class, 'replace']);
 
     Route::apiResource('billing', BillingController::class)->except(['update']);
     Route::patch('billing/{uuid}', [BillingController::class, 'update']);
