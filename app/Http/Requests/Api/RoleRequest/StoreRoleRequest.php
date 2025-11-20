@@ -23,7 +23,7 @@ class StoreRoleRequest extends BaseRoleRequest
     {
         return [
             'name' => 'required|string|min:3|unique:roles',
-            'description' => 'required|string|max:100'
+            'description' => 'max:100'
         ];
     }
 }
