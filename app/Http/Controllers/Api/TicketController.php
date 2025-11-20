@@ -12,6 +12,7 @@ use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class TicketController extends ApiController
 {
@@ -47,7 +48,7 @@ class TicketController extends ApiController
             });
         }
 
-        if (!empty($statusFilter)) {
+        if (!empty($statusFilter) && $statusFilter != 'due') {
             $statusMap = [
                 'new'     => ['new'],
                 'ongoing' => ['assigned', 'ongoing'],
@@ -60,6 +61,10 @@ class TicketController extends ApiController
             }
         }
 
+        if (!empty($statusFilter) && $statusFilter == 'due') {
+            $query->whereDate('due_date', '<=', Carbon::today());
+        }
+
         $tickets = $query->orderBy('created_at', 'desc')
                  ->paginate($perPage)
                  ->appends($request->only(['status', 'search', 'per_page']));
@@ -68,10 +73,14 @@ class TicketController extends ApiController
         ->additional([
             'meta' => [
                 'status' => [
+                    'total'   => Ticket::where('is_active', 1)->count(),
                     'new' => Ticket::where('status', 'new')->where('is_active', 1)->count(),
                     'ongoing' => Ticket::whereIn('status', ['assigned', 'ongoing'])->where('is_active', 1)->count(),
                     'done' => Ticket::where('status', 'done')->where('is_active', 1)->count(),
                     'hold' => Ticket::where('status', 'hold')->where('is_active', 1)->count(),
+                    'due' => Ticket::where('is_active', 1)
+                            ->whereDate('due_date', '<=', Carbon::today())
+                            ->count(),
                 ]
             ]
         ]);
