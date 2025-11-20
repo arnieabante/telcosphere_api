@@ -32,6 +32,7 @@ class TicketController extends ApiController
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
+                ->orWhere('status', 'like', "%{$search}%") 
                 ->orWhereHas('client', function ($clientQuery) use ($search) {
                     $clientQuery->where('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%");
