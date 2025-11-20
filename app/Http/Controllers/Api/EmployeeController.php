@@ -31,18 +31,13 @@ class EmployeeController extends ApiController
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->whereRaw("CONCAT(first_name, ' ', lastname) LIKE ?", ["%{$search}%"])
+                $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$search}%"])
                 ->orWhere('firstname', 'like', "%{$search}%")
                 ->orWhere('lastname', 'like', "%{$search}%")
                 ->orWhere('department', 'like', "%{$search}%")
                 ->orWhere('designation', 'like', "%{$search}%")
-                ->orWhere('work_location', 'like', "%{$search}%");
-                // ->orWhereHas('internetPlan', function ($planQuery) use ($search) {
-                //     $planQuery->where('name', 'like', "%{$search}%");
-                // })
-                // ->orWhereHas('billingCategory', function ($billingQuery) use ($search) {
-                //     $billingQuery->where('name', 'like', "%{$search}%");
-                // });
+                ->orWhere('work_location', 'like', "%{$search}%")
+                ->orWhere('employee_type', 'like', "%{$search}%");
             });
         }
 
