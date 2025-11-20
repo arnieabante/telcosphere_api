@@ -22,15 +22,15 @@ class UpdateTicketRequest extends BaseTicketRequest
     public function rules(): array
     {
         return [
-            'clientId' => 'required|string',
-            'name' => 'required|string|max:50',
+            'clientId' => 'sometimes|required|string',
+            'name' => 'sometimes|required|string|max:50',
             'description' => 'nullable|string|max:100',
-            'categoryId' => 'required|string',
-            'requestedDate' => 'required|string',
+            'categoryId' => 'sometimes|required|string',
+            'requestedDate' => 'sometimes|required|string',
             'dueDate' => 'nullable|string',
             'assignedTo' => 'nullable|string', 
-            'status' => 'required|string',
-            'isActive' => 'required|string'
+            'status' => 'sometimes|required|string',
+            'isActive' => 'sometimes|required|string'
         ];
     }
 }
