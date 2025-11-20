@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Billing;
+use App\Models\BillingItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,10 +25,27 @@ class BillingFactory extends Factory
             'billing_date' => fake()->dateTimeThisYear(),
             'billing_remarks' => fake()->text(50),
             'billing_total' => fake()->randomFloat(2, 100, 10000),
-            'billing_status' => fake()->randomElement(['paid', 'unpaid', 'pending']) ,
+            'billing_status' => fake()->randomElement(['paid', 'unpaid', 'due', 'overdue']) ,
             'is_active' => 1,
             'created_by' => 1,
             'updated_by' => 1
         ];
+    }
+
+    public function configure(): static {
+        // create fix billing items with equal amounts to match billing total
+        return $this->afterCreating(function (Billing $billing) {
+            $itemCount = 3;
+            $billingItemTotal = number_format(
+                ($billing->billing_total / $itemCount), 2, '.', ''
+            );
+
+            BillingItem::factory()
+                ->count($itemCount)
+                ->create([
+                    'billing_id' => $billing->id,
+                    'billing_item_total' => $billingItemTotal
+                ]);
+        });
     }
 }

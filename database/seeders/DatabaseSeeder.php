@@ -46,12 +46,8 @@ class DatabaseSeeder extends Seeder
         TicketCategory::factory()
             ->count(2)
             ->create();
-
+            
         Billing::factory()
-            ->count(3)
-            ->create();
-
-        BillingItem::factory()
             ->count(3)
             ->create();
     }
