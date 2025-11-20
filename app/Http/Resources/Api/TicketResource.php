@@ -19,10 +19,10 @@ class TicketResource extends JsonResource
     {
         if (self::$statusSummary === null) {
             self::$statusSummary = [
-                'new' => Ticket::where('status', 'new')->count(),
-                'assigned' => Ticket::whereIn('status', ['assigned', 'ongoing'])->count(),
-                'done' => Ticket::where('status', 'done')->count(),
-                'hold' => Ticket::where('status', 'hold')->count(),
+                'new' => Ticket::where('status', 'new')->where('is_active', 1)->count(),
+                'assigned' => Ticket::whereIn('status', ['assigned', 'ongoing'])->where('is_active', 1)->count(),
+                'done' => Ticket::where('status', 'done')->where('is_active', 1)->count(),
+                'hold' => Ticket::where('status', 'hold')->where('is_active', 1)->count(),
             ];
         }
 
