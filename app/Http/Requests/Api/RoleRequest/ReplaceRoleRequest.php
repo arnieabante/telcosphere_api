@@ -23,7 +23,7 @@ class ReplaceRoleRequest extends BaseRoleRequest
     {
         return [
             'name' => 'required|string|min:3|unique:roles',
-            'description' => 'required|string|max:100',
+            'description' => 'nullable|max:100',
             'isActive' => 'required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
