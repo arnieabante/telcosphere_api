@@ -25,6 +25,7 @@ class TicketController extends ApiController
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
+        $statusFilter = $request->get('status');
 
         $query = Ticket::with(['client', 'ticketCategory', 'assignedTo'])
             ->where('is_active', 1);
@@ -46,9 +47,34 @@ class TicketController extends ApiController
             });
         }
 
-        $tickets = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        if (!empty($statusFilter)) {
+            $statusMap = [
+                'new'     => ['new'],
+                'ongoing' => ['assigned', 'ongoing'],
+                'done'    => ['done'],
+                'hold'    => ['hold'],
+            ];
 
-        return TicketResource::collection($tickets);
+            if (isset($statusMap[$statusFilter])) {
+                $query->whereIn('status', $statusMap[$statusFilter]);
+            }
+        }
+
+        $tickets = $query->orderBy('created_at', 'desc')
+                 ->paginate($perPage)
+                 ->appends($request->only(['status', 'search', 'per_page']));
+
+        return TicketResource::collection($tickets)
+        ->additional([
+            'meta' => [
+                'status' => [
+                    'new' => Ticket::where('status', 'new')->where('is_active', 1)->count(),
+                    'ongoing' => Ticket::whereIn('status', ['assigned', 'ongoing'])->where('is_active', 1)->count(),
+                    'done' => Ticket::where('status', 'done')->where('is_active', 1)->count(),
+                    'hold' => Ticket::where('status', 'hold')->where('is_active', 1)->count(),
+                ]
+            ]
+        ]);
     }
 
 
