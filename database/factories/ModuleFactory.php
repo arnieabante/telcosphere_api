@@ -22,12 +22,21 @@ class ModuleFactory extends Factory
         return [
             'uuid' => fake()->uuid(),
             'site_id' => 1,
+            'parent_id' => 1,
             'icon' => "fa fa-edit",
-            'name' => fake()->unique()->randomElement(['tickets', 'billing', 'reports', 'employees']),
+            'name' => fake()->unique()->randomElement([
+                'Internet Plans',
+                'Servers', 
+                'SR Categories',
+                'Billing Categories',
+                'Employees',
+                'Roles',
+                'Users'
+            ]),
             'description' => fake()->text(50),
-            'is_active' => rand(0, 1),
-            'created_by' => 99, // TODO: what is the value for this?
-            'updated_by' => 99 // TODO: what is the value for this?
+            'is_active' => 1,
+            'created_by' => 1, // TODO: what is the value for this?
+            'updated_by' => 1 // TODO: what is the value for this?
         ];
     }
 }
