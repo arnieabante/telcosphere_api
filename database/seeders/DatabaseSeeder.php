@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
     {
         // seed Modules first
         Module::factory()
-            ->count(7)
+            ->count(15)
             ->create();
 
         // then Roles 

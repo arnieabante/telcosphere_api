@@ -24,7 +24,6 @@ class RoleFactory extends Factory
         return [
             'uuid' => fake()->uuid(),
             'site_id' => 1,
-            // 'name' => fake()->unique()->randomElement(['guest', 'manager', 'admin']),
             'name' => 'admin',
             'description' => fake()->text(50),
             'is_active' => 1,
