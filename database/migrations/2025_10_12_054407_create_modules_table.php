@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('description');
             $table->boolean('is_active');
             $table->longText('icon')->nullable();
+            $table->string('url');
             $table->integer('created_by');
             $table->integer('updated_by');
             $table->timestamps();
