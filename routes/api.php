@@ -6,11 +6,13 @@ use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\BillingCategoryController;
+use App\Http\Controllers\Api\BillingItemController;
 use App\Http\Controllers\Api\InternetplanController;
 use App\Http\Controllers\Api\ServerController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\TicketCategoryController;
 use App\Http\Controllers\Api\TicketController;
+use App\Http\Controllers\BillingController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login']);
@@ -56,8 +58,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('tickets/{uuid}', [TicketController::class, 'update']);
     Route::put('tickets/{uuid}', [TicketController::class, 'replace']);
 
-    Route::apiResource('billing', BillingController::class)->except(['update']);
-    Route::patch('billing/{uuid}', [BillingController::class, 'update']);
-    Route::put('billing/{uuid}', [BillingController::class, 'replace']);
+    Route::apiResource('billings', BillingController::class)->except(['update']);
+    Route::patch('billings/{uuid}', [BillingController::class, 'update']);
+    Route::put('billings/{uuid}', [BillingController::class, 'replace']);
+
+    Route::apiResource('billingitems', BillingItemController::class)->except(['update']);
+    Route::patch('billingitems/{uuid}', [BillingItemController::class, 'update']);
+    Route::put('billingitems/{uuid}', [BillingItemController::class, 'replace']);
 
 });

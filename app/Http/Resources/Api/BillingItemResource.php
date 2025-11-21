@@ -5,7 +5,7 @@ namespace App\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class BillingResource extends JsonResource
+class BillingItemResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,14 +15,16 @@ class BillingResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'type' => 'billing',
+            'type' => 'billingitem',
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
-                'clientId' => $this->client_id,
-                'billingDate' => $this->billing_date,
-                'billingRemarks' => $this->billing_remarks,
-                'billingTotal' => $this->billing_total,
+                'billingId' => $this->billing_id,
+                'billingItemName' => $this->billing_item_name,
+                'billingItemQuantity' => $this->billing_item_quantity,
+                'billingItemRemark' => $this->billing_item_remark,
+                'billingItemAmount' => $this->billing_item_amount,
+                'billingItemTotal' => $this->billing_item_total,
                 'billingStatus' => $this->billing_status,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
@@ -36,7 +38,7 @@ class BillingResource extends JsonResource
                 )
             ],
             'links' => [
-                'billing' => route('billings.show', $this->uuid)
+                'billingitem' => route('billingitems.show', $this->uuid)
             ]
         ];
     }

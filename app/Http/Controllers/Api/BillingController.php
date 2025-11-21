@@ -28,7 +28,10 @@ class BillingController extends Controller
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('billing_status', 'like', "%{$search}%");
+                $q->where('billing_date', 'like', "%{$search}%")
+                    ->orWhere('billing_remarks', 'like', "%{$search}%")
+                    ->orWhere('billing_total', 'like', "%{$search}%")
+                    ->orWhere('billing_status', 'like', "%{$search}%");
             });
         }
 
