@@ -12,6 +12,7 @@ use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class TicketController extends ApiController
 {
@@ -25,9 +26,16 @@ class TicketController extends ApiController
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
+        $statusFilter = $request->get('status');
+        $clientUuid = $request->get('client_id');
 
         $query = Ticket::with(['client', 'ticketCategory', 'assignedTo'])
             ->where('is_active', 1);
+
+        if(!empty($clientUuid) || $clientUuid != ''){
+            $client = \App\Models\Client::where('uuid', $clientUuid)->first();
+            $query->where('client_id', $client->id);
+        }
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
@@ -46,9 +54,42 @@ class TicketController extends ApiController
             });
         }
 
-        $tickets = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        if (!empty($statusFilter) && $statusFilter != 'due') {
+            $statusMap = [
+                'new'     => ['new'],
+                'ongoing' => ['assigned', 'ongoing'],
+                'done'    => ['done'],
+                'hold'    => ['hold'],
+            ];
 
-        return TicketResource::collection($tickets);
+            if (isset($statusMap[$statusFilter])) {
+                $query->whereIn('status', $statusMap[$statusFilter]);
+            }
+        }
+
+        if (!empty($statusFilter) && $statusFilter == 'due') {
+            $query->whereDate('due_date', '<=', Carbon::today());
+        }
+
+        $tickets = $query->orderBy('created_at', 'desc')
+                 ->paginate($perPage)
+                 ->appends($request->only(['status', 'search', 'per_page']));
+
+        return TicketResource::collection($tickets)
+        ->additional([
+            'meta' => [
+                'status' => [
+                    'total'   => Ticket::where('is_active', 1)->count(),
+                    'new' => Ticket::where('status', 'new')->where('is_active', 1)->count(),
+                    'ongoing' => Ticket::whereIn('status', ['assigned', 'ongoing'])->where('is_active', 1)->count(),
+                    'done' => Ticket::where('status', 'done')->where('is_active', 1)->count(),
+                    'hold' => Ticket::where('status', 'hold')->where('is_active', 1)->count(),
+                    'due' => Ticket::where('is_active', 1)
+                            ->whereDate('due_date', '<=', Carbon::today())
+                            ->count(),
+                ]
+            ]
+        ]);
     }
 
 

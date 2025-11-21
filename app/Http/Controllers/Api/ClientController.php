@@ -34,6 +34,8 @@ class ClientController extends ApiController
                 $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]) 
                 ->orWhere('first_name', 'like', "%{$search}%")
                 ->orWhere('last_name', 'like', "%{$search}%")
+                ->orWhere('installation_date', 'like', "%{$search}%")
+                ->orWhere('house_no', 'like', "%{$search}%")
                 ->orWhereHas('internetPlan', function ($planQuery) use ($search) {
                     $planQuery->where('name', 'like', "%{$search}%"); 
                 })

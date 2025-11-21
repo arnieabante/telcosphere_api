@@ -13,21 +13,7 @@ class TicketResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    protected static $statusSummary = null;
 
-    protected function getStatusSummary()
-    {
-        if (self::$statusSummary === null) {
-            self::$statusSummary = [
-                'new' => Ticket::where('status', 'new')->count(),
-                'assigned' => Ticket::whereIn('status', ['assigned', 'ongoing'])->count(),
-                'done' => Ticket::where('status', 'done')->count(),
-                'hold' => Ticket::where('status', 'hold')->count(),
-            ];
-        }
-
-        return self::$statusSummary;
-    }
 
     public function toArray(Request $request): array
     {
@@ -64,9 +50,6 @@ class TicketResource extends JsonResource
             ],
             'links' => [
                 'ticket' => route('tickets.show', $this->id),
-            ],
-            'meta' => [
-                'status' => $this->getStatusSummary()
             ]
         ];
     }
