@@ -27,9 +27,15 @@ class TicketController extends ApiController
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
         $statusFilter = $request->get('status');
+        $clientUuid = $request->get('client_id');
 
         $query = Ticket::with(['client', 'ticketCategory', 'assignedTo'])
             ->where('is_active', 1);
+
+        if(!empty($clientUuid) || $clientUuid != ''){
+            $client = \App\Models\Client::where('uuid', $clientUuid)->first();
+            $query->where('client_id', $client->id);
+        }
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
