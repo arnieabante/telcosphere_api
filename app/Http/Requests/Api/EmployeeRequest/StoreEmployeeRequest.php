@@ -38,7 +38,6 @@ class StoreEmployeeRequest extends BaseEmployeeRequest
             'designation' => 'nullable|string|min:2',
             'workLocation' => 'nullable|string|min:2',
             'accessLevel' => 'required|string',
-            'userId' => 'nullable|string|unique:employees,user_id',
             'shiftScheduleFrom' => 'nullable|string|min:2',
             'shiftScheduleTo' => 'nullable|string|min:2',
             'salaryRatePerDay' => 'required|string|min:2',
@@ -49,7 +48,7 @@ class StoreEmployeeRequest extends BaseEmployeeRequest
             'sssNo' => 'nullable|string|unique:employees,sss_no',
             'pagibigNo' => 'nullable|string|unique:employees,pagibig_no',
             'philhealthNo' => 'nullable|string|unique:employees,philhealth_no',
-            'tin' => 'nullable|string|unique:employees,tin',
+            'tin' => 'nullable|string|string|unique:employees,tin',
             'employeeType' => 'required|string',
             'isActive' => 'required|string'
         ];
