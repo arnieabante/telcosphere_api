@@ -36,7 +36,6 @@ class EmployeeResource extends JsonResource
                 'designation' => $this->designation,
                 'workLocation' => $this->work_location,
                 'accessLevel' => $this->access_level,
-                'userId' => $this->user_id,
                 'shiftScheduleFrom' => $this->shift_schedule_from,
                 'shiftScheduleTo' => $this->shift_schedule_to,
                 'salaryRatePerDay' => $this->salary_rate_per_day,
@@ -49,6 +48,7 @@ class EmployeeResource extends JsonResource
                 'philhealthNo' => $this->philhealth_no,
                 'tin' => $this->tin,
                 'employeeType' => $this->employee_type,
+                'roleName' => $this->role?->name,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('employees.show'),
@@ -61,8 +61,8 @@ class EmployeeResource extends JsonResource
                     ]
                 ),
             ],
-            'relationships' => [
-                'role' => new RoleResource($this->whenLoaded('roles')),
+           'relationships' => [
+                'role' => new RoleResource($this->whenLoaded('role')),
             ],
             'links' => [
                 'employee' => route('employees.show', $this->id),

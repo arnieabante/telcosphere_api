@@ -34,8 +34,8 @@ class EmployeeController extends ApiController
                 $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$search}%"])
                 ->orWhere('firstname', 'like', "%{$search}%")
                 ->orWhere('lastname', 'like', "%{$search}%")
-                ->orWhere('department', 'like', "%{$search}%")
-                ->orWhere('designation', 'like', "%{$search}%")
+                ->orWhere('date_hired', 'like', "%{$search}%")
+                ->orWhere('access_level', 'like', "%{$search}%")
                 ->orWhere('work_location', 'like', "%{$search}%")
                 ->orWhere('employee_type', 'like', "%{$search}%");
             });
@@ -71,7 +71,7 @@ class EmployeeController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $employee = Employee::where('uuid', $uuid)->firstOrFail();
+           $employee = Employee::with(['role'])->where('uuid', $uuid)->firstOrFail();
             return new EmployeeResource($employee);
 
         } catch (ModelNotFoundException $ex) {

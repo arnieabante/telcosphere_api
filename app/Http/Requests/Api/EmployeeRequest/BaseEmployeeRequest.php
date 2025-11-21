@@ -24,7 +24,6 @@ class BaseEmployeeRequest extends FormRequest
             'designation' => 'designation',
             'workLocation' => 'work_location',
             'accessLevel' => 'access_level',
-            'userId' => 'user_id',
             'shiftScheduleFrom' => 'shift_schedule_from',
             'shiftScheduleTo' => 'shift_schedule_to',
             'salaryRatePerDay' => 'salary_rate_per_day',

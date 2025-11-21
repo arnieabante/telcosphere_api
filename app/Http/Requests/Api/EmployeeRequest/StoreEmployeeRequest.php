@@ -49,8 +49,7 @@ class StoreEmployeeRequest extends BaseEmployeeRequest
             'pagibigNo' => 'nullable|string|unique:employees,pagibig_no',
             'philhealthNo' => 'nullable|string|unique:employees,philhealth_no',
             'tin' => 'nullable|string|string|unique:employees,tin',
-            'employeeType' => 'required|string',
-            'isActive' => 'required|string'
+            'employeeType' => 'required|string'
         ];
     }
 }

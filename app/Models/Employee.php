@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
@@ -40,7 +41,6 @@ class Employee extends Model
         'designation',
         'work_location',
         'access_level',
-        'user_id',
         'shift_schedule_from',
         'shift_schedule_to',
         'salary_rate_per_day',
@@ -75,13 +75,11 @@ class Employee extends Model
     /**
      * Relationships
      */
-    // public function internetPlan()
-    // {
-    //     return $this->belongsTo(\App\Models\Internetplan::class, 'internet_plan_id');
+    // public function role(): BelongsTo {
+    //     return $this->belongsTo(Role::class, 'role_id');
     // }
-
-    // public function billingCategory()
-    // {
-    //     return $this->belongsTo(\App\Models\BillingCategory::class, 'billing_category_id');
-    // }
+    public function role()
+    {
+        return $this->belongsTo(\App\Models\Role::class, 'role_id');
+    }
 }
