@@ -22,7 +22,7 @@ class ModuleController extends ApiController
      */
     public function index()
     {
-        return ModuleResource::collection(Module::paginate(10));
+        return ModuleResource::collection(Module::all());
     }
 
     /**
