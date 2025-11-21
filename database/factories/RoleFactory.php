@@ -24,7 +24,7 @@ class RoleFactory extends Factory
         return [
             'uuid' => fake()->uuid(),
             'site_id' => 1,
-            'name' => fake()->unique()->randomElement(['guest', 'manager', 'admin']),
+            'name' => 'admin',
             'description' => fake()->text(50),
             'is_active' => 1,
             'created_by' => 1, // TODO: what is the value for this?
