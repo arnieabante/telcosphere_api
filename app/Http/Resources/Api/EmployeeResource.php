@@ -22,6 +22,7 @@ class EmployeeResource extends JsonResource
                 'firstName' => $this->firstname,
                 'middleName' => $this->middlename,
                 'lastName' => $this->lastname,
+                'employeeName' => trim($this->firstname . ' ' . $this->lastname),
                 'birthDate' => $this->birth_date,
                 'gender' => $this->gender,
                 'civilStatus' => $this->civil_status,
