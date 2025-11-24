@@ -7,7 +7,6 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use PhpParser\Node\Expr\AssignOp\Mod;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Role>
@@ -24,7 +23,7 @@ class RoleFactory extends Factory
         return [
             'uuid' => fake()->uuid(),
             'site_id' => 1,
-            'name' => 'admin',
+            'name' => 'Admin',
             'description' => fake()->text(50),
             'is_active' => 1,
             'created_by' => 1, // TODO: what is the value for this?
@@ -34,17 +33,8 @@ class RoleFactory extends Factory
 
     public function configure(): static {
         return $this->afterCreating(function (Role $role) {
-
             if ($role->name == 'admin') {
-                User::factory()->create([
-                    'role_id' => $role->id,
-                    'fullname' => 'Admin User',
-                    'username' => 'admin',
-                    'email' => 'admin@telcosphere.co'
-                ]);
-
                 $modules = Module::all();
-
                 foreach ($modules as $module) {
                     Permission::factory()->create([
                         'role_id' => $role->id,
@@ -55,12 +45,7 @@ class RoleFactory extends Factory
                     ]);
                 }
             } else {
-                User::factory()->create([
-                    'role_id' => $role->id
-                ]);
-
                 $modules = Module::inRandomOrder()->take(3)->get();
-
                 foreach ($modules as $module) {
                     Permission::factory()->create([
                         'role_id' => $role->id,
