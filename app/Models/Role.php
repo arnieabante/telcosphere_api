@@ -35,6 +35,16 @@ class Role extends Model
     public function uniqueIds(): array {
         return ['uuid'];
     }
+    
+    /**
+     * Mutator to capitalize the first letter of name attribute.
+     */
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value) => ucfirst(strtolower($value)),
+        );
+    }
 
     public function users() : HasMany {
         return $this->hasMany(User::class);
