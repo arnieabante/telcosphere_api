@@ -15,23 +15,33 @@ class AuthController extends Controller
 {
     use ApiResponses;
 
-    public function login(LoginUserRequest $request) {
-        $request->validated($request->all());
+   public function login(LoginUserRequest $request)
+    {
+        $request->validated();
 
         if (!Auth::attempt($request->only('username', 'password'))) {
             return $this->error('Invalid Credentials.', 400);
         }
 
-        $user = User::firstWhere('username', $request->username);
+        $user = User::with('role')->where('username', $request->username)->first();
+
+        $token = $user->createToken(
+            'API Token for ' . $user->email,
+            Abilties::getAbilities($user),
+            now()->addDay()
+        )->plainTextToken;
 
         return $this->ok('Authenticated.', [
-            'token' => $user->createToken(
-                'API Token for ' . $user->email,
-                Abilties::getAbilities($user),
-                now()->addDay() // expires in 1 day
-            )->plainTextToken
+            'token' => $token,
+            'user' => [
+                'uuid'     => $user->uuid,
+                'fullname' => $user->fullname,
+                'roleUuid'     => $user->role->uuid ?? null,  
+                'role'     => $user->role->name ?? null,  
+            ]
         ]);
     }
+
 
     public function logout(Request $request) {
         $request->user()->currentAccessToken()->delete();
