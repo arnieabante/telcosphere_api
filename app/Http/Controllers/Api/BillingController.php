@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\BillingRequest\ReplaceBillingRequest;
 use App\Http\Requests\Api\BillingRequest\StoreBillingRequest;
@@ -12,7 +12,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
-class BillingController extends Controller
+class BillingController extends ApiController
 {
     use ApiResponses;
 
@@ -60,7 +60,7 @@ class BillingController extends Controller
     public function show(string $uuid)
     {
         try {
-            $billing = Billing::where('uuid', $uuid)->firstOrFail();
+            $billing = Billing::with('billingItems')->where('uuid', $uuid)->firstOrFail();
             return new BillingResource($billing);
 
         } catch (ModelNotFoundException $ex) {

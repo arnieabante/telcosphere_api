@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\ServerController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\TicketCategoryController;
 use App\Http\Controllers\Api\TicketController;
-use App\Http\Controllers\BillingController;
+use App\Http\Controllers\Api\BillingController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login']);

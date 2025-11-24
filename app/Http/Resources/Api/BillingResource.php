@@ -35,6 +35,11 @@ class BillingResource extends JsonResource
                     ]
                 )
             ],
+            'relationships' => $this->whenLoaded('billingItems', function () {
+                return [
+                    'billingItems' => BillingItemResource::collection($this->billingItems)
+                ];
+            }),
             'links' => [
                 'billing' => route('billings.show', $this->uuid)
             ]
