@@ -136,7 +136,7 @@ class ModuleFactory extends Factory
                 'icon' => 'fa fa-key',
                 'parent_id' => 14,
                 'description' => 'Generation of Statemement of Account',
-                'url' => 'statementofaccount'
+                'url' => ''
             ],
         ];
 
