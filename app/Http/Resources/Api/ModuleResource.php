@@ -21,6 +21,9 @@ class ModuleResource extends JsonResource
                 'uuid' => $this->uuid,
                 'name' => $this->name,
                 'description' => $this->description,
+                'parent_id' => $this->parent_id,
+                'icon' => $this->icon,
+                'url'  => $this->url,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('modules.show'), [
