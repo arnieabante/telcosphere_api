@@ -33,7 +33,7 @@ class RoleFactory extends Factory
 
     public function configure(): static {
         return $this->afterCreating(function (Role $role) {
-            if ($role->name == 'admin') {
+            if ($role->name == 'Admin') {
                 $modules = Module::all();
                 foreach ($modules as $module) {
                     Permission::factory()->create([
