@@ -24,13 +24,13 @@ class DatabaseSeeder extends Seeder
     {
         // seed Modules first
         Module::factory()
-            ->count(4)
+            ->count(15)
             ->create();
 
         // then Roles 
         // triggers Users, assigns permissions
         Role::factory()
-            ->count(3)
+            ->count(1)
             ->create();
 
         BillingCategory::factory()

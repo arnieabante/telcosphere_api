@@ -16,12 +16,18 @@ class BaseClientRequest extends FormRequest
             'houseNo' => 'house_no',
             'accountNo' => 'account_no',
             'installationDate' => 'installation_date',
+            'installationFee' => 'installation_fee',
+            'balanceFromPrevBilling' => 'balance_from_prev_billing',
+            'prorateFee' => 'prorate_fee',
+            'prorateFeeRemarks' => 'prorate_fee_remarks',
+            'prorateFeeStatus' => 'prorate_fee_status',
             'inactiveDate' => 'inactive_date',
             'notes' => 'notes',
             'facebookProfileUrl' => 'facebook_profile_url',
             'billingCategoryId' => 'billing_category_id',
             'serverId' => 'server_id',
             'internetPlanId' => 'internet_plan_id',
+            'lastAutoBillingDate' => 'last_auto_billing_date',
             'isActive' => 'is_active'
         ];
 

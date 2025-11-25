@@ -32,12 +32,18 @@ class Client extends Model
         'house_no',
         'account_no',
         'installation_date',
+        'installation_fee',
+        'balance_from_prev_billing',
+        'prorate_fee',
+        'prorate_fee_remarks',
+        'prorate_fee_status',
         'inactive_date',
         'notes',
         'facebook_profile_url',
         'billing_category_id',
         'server_id',
         'internet_plan_id',
+        'last_auto_billing_date',
         'is_active',
     ];
 
@@ -68,5 +74,10 @@ class Client extends Model
     public function billingCategory()
     {
         return $this->belongsTo(\App\Models\BillingCategory::class, 'billing_category_id');
+    }
+
+    public function server()
+    {
+        return $this->belongsTo(\App\Models\Server::class, 'server_id');
     }
 }

@@ -26,7 +26,7 @@ class ClientController extends ApiController
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
 
-        $query = Client::with(['internetPlan', 'billingCategory'])
+        $query = Client::with(['internetPlan', 'billingCategory', 'server'])
             ->where('is_active', 1);
 
         if (!empty($search)) {
@@ -34,7 +34,12 @@ class ClientController extends ApiController
                 $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]) 
                 ->orWhere('first_name', 'like', "%{$search}%")
                 ->orWhere('last_name', 'like', "%{$search}%")
+                ->orWhere('installation_date', 'like', "%{$search}%")
+                ->orWhere('house_no', 'like', "%{$search}%")
                 ->orWhereHas('internetPlan', function ($planQuery) use ($search) {
+                    $planQuery->where('name', 'like', "%{$search}%"); 
+                })
+                ->orWhereHas('server', function ($planQuery) use ($search) {
                     $planQuery->where('name', 'like', "%{$search}%"); 
                 })
                 ->orWhereHas('billingCategory', function ($billingQuery) use ($search) {
@@ -73,8 +78,9 @@ class ClientController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $client = Client::where('uuid', $uuid)->firstOrFail();
+            $client = Client::with(['internetPlan', 'billingCategory', 'server'])->where('uuid', $uuid)->firstOrFail();
             return new ClientResource($client);
+            
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Client does not exist.', 404);
