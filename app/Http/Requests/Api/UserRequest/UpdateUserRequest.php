@@ -23,7 +23,7 @@ class UpdateUserRequest extends BaseUserRequest
     public function rules(): array
     {
         return [
-            'fullname' => 'sometimes|required|string|min:3',
+            'fullname' => 'sometimes|required|string|min:2',
             'username' => ['sometimes', 'required', 'string', Rule::unique('users')->ignore($this->uuid, 'uuid')],
             'email' => ['sometimes', 'required', 'email', Rule::unique('users')->ignore($this->uuid, 'uuid')],
             'password' => 'sometimes|required|string|min:8',
