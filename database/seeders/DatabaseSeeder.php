@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\BillingCategory;
 use App\Models\Client;
 use App\Models\TicketCategory;
+use App\Models\Site;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -42,6 +43,10 @@ class DatabaseSeeder extends Seeder
             ->create();
             
         TicketCategory::factory()
+            ->count(2)
+            ->create();
+            
+        Site::factory()
             ->count(2)
             ->create();
 
