@@ -7,9 +7,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -69,6 +69,17 @@ class User extends Authenticatable
 
     public function uniqueIds(): array {
         return ['uuid'];
+    }
+
+    /**
+     * Mutator to capitalize the first letter of each word in the fullname attribute.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setFullnameAttribute($value)
+    {
+        $this->attributes['fullname'] = Str::title($value);
     }
 
     public function role(): BelongsTo {
