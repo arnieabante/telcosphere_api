@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
         // triggers Users, assigns permissions
         Role::factory()
             ->count(1)
+            ->hasUsers(6)
             ->create();
 
         BillingCategory::factory()
