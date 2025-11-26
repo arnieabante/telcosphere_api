@@ -12,6 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Scopes\SiteScope;
 
 class User extends Authenticatable
 {
@@ -39,6 +40,21 @@ class User extends Authenticatable
         'role_id',
         'is_active'
     ];
+
+    protected static function booted()
+    {
+        // Apply global site filter
+        static::addGlobalScope(new SiteScope);
+
+        // Auto-assign site_id when creating a billingcategory
+        static::creating(function ($billingcategory) {
+            $billingcategory->site_id = $billingcategory->site_id ?? (
+                auth()->check()
+                    ? auth()->user()->site_id
+                    : session('site_id') ?? request()->header('site_id') ?? 1
+            );
+        });
+    }
 
     /**
      * The attributes that should be hidden for serialization.
