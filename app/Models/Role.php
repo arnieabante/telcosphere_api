@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Scopes\SiteScope;
 
 class Role extends Model
 {
@@ -26,6 +27,11 @@ class Role extends Model
         'description',
         'is_active'
     ];
+    
+    protected static function booted()
+    {
+        static::addGlobalScope(new SiteScope);
+    }
 
     public function getRouteKeyName(): string {
         // use uuid instead of id in model binding

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\SiteScope;
 
 class Server extends Model
 {
@@ -22,6 +23,21 @@ class Server extends Model
         'name',
         'is_active'
     ];
+
+    protected static function booted()
+    {
+        // Apply global site filter
+        static::addGlobalScope(new SiteScope);
+
+        // Auto-assign site_id when creating a billingcategory
+        static::creating(function ($billingcategory) {
+            $billingcategory->site_id = $billingcategory->site_id ?? (
+                auth()->check()
+                    ? auth()->user()->site_id
+                    : session('site_id') ?? request()->header('site_id') ?? 1
+            );
+        });
+    }
 
     public function getRouteKeyName(): string {
         // use uuid instead of id in model binding

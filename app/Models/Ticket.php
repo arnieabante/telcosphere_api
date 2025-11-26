@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\SiteScope;
 
 class Ticket extends Model
 {
@@ -34,6 +35,23 @@ class Ticket extends Model
         'status',
         'is_active'
     ];
+
+    
+    protected static function booted()
+    {
+        // Apply global site filter
+        static::addGlobalScope(new SiteScope);
+
+        // Auto-assign site_id when creating a role
+        static::creating(function ($role) {
+            $role->site_id = $role->site_id ?? (
+                auth()->check()
+                    ? auth()->user()->site_id
+                    : session('site_id') ?? request()->header('site_id') ?? 1
+            );
+        });
+    }
+
 
     /**
      * Use UUID for route model binding
