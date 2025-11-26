@@ -24,14 +24,19 @@ class ServerController extends ApiController
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
+        $include = $request->get('include');
 
         $query = Server::query()
             ->where('is_active', 1);
-
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
+        if (!empty($include) && $include == 'all') {
+            $servers = $query->orderBy('name', 'asc')->get();
+            return ServerResource::collection($servers);
+        } else {
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            }
         }
 
         $servers = $query->orderBy('created_at', 'desc')->paginate($perPage);
