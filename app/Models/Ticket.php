@@ -42,9 +42,9 @@ class Ticket extends Model
         // Apply global site filter
         static::addGlobalScope(new SiteScope);
 
-        // Auto-assign site_id when creating a role
-        static::creating(function ($role) {
-            $role->site_id = $role->site_id ?? (
+        // Auto-assign site_id when creating a ticket
+        static::creating(function ($ticket) {
+            $ticket->site_id = $ticket->site_id ?? (
                 auth()->check()
                     ? auth()->user()->site_id
                     : session('site_id') ?? request()->header('site_id') ?? 1
