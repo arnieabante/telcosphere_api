@@ -25,14 +25,19 @@ class TicketCategoryController extends ApiController
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
+        $include = $request->get('include');
 
         $query = TicketCategory::query()
             ->where('is_active', 1);
-
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
+        if (!empty($include) && $include == 'all') {
+            $ticketcategories = $query->orderBy('name', 'asc')->get();
+            return TicketCategoryResource::collection($ticketcategories);
+        } else {
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            }
         }
 
         $ticketcategories = $query->orderBy('created_at', 'desc')->paginate($perPage);

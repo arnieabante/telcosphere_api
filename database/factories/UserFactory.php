@@ -29,15 +29,15 @@ class UserFactory extends Factory
 
         return [
             'uuid' => fake()->uuid(),
-            'site_id' => 1,
+            'site_id' => $user['site_id'],
             'fullname' => $user['fullname'],
             'username' => $user['username'],
             'email' => $user['email'],
             'password' => static::$password ??= Hash::make('password'),
             'is_active' => 1,
-            'role_id' => NULL,
-            'created_by' => 1, // TODO: what is the value for this?
-            'updated_by' => 1 // TODO: what is the value for this?
+            'role_id' => null,
+            'created_by' => 1,
+            'updated_by' => 1
         ];
     }
 
@@ -52,43 +52,32 @@ class UserFactory extends Factory
     }
 
     /**
-     * Pull the next static module record.
+     * Pull the next static user record, fallback to Faker if exhausted.
      */
     private function getStaticUser()
     {
         static $users = [
-            [
-                'fullname' => 'Janice Laurel',
-                'username' => 'jlaurel',
-                'email' => 'jlaurel@telcosphere.co'
-            ],
-            [
-                'fullname' => 'Rodel Laurel',
-                'username' => 'rlaurel',
-                'email' => 'rlaurel@telcosphere.co'
-            ],
-            [
-                'fullname' => 'Arnie Abante',
-                'username' => 'aabante',
-                'email' => 'aabante@telcoshpere.co'
-            ],
-            [
-                'fullname' => 'Melanie Abante',
-                'username' => 'mabante',
-                'email' => 'mabante@telcoshpere.co'
-            ],
-            [
-                'fullname' => 'Elmar Malazarte',
-                'username' => 'emalazarte',
-                'email' => 'emalazarte@telcosphere.co'
-            ],
-            [
-                'fullname' => 'Jeb Saldariega',
-                'username' => 'jsaldariega',
-                'email' => 'jsaldariega@telcosphere.co'
-            ]
+            ['site_id' => 1, 'fullname' => 'Janice Laurel', 'username' => 'jlaurel', 'email' => 'jlaurel@telcosphere.co'],
+            ['site_id' => 1, 'fullname' => 'Rodel Laurel', 'username' => 'rlaurel', 'email' => 'rlaurel@telcosphere.co'],
+            ['site_id' => 1, 'fullname' => 'Arnie Abante', 'username' => 'aabante', 'email' => 'aabante@telcosphere.co'],
+            ['site_id' => 1, 'fullname' => 'Melanie Abante', 'username' => 'mabante', 'email' => 'mabante@telcosphere.co'],
+            ['site_id' => 1, 'fullname' => 'Elmar Malazarte', 'username' => 'emalazarte', 'email' => 'emalazarte@telcosphere.co'],
+            ['site_id' => 1, 'fullname' => 'Jeb Saldariega', 'username' => 'jsaldariega', 'email' => 'jsaldariega@telcosphere.co'],
+            ['site_id' => 2, 'fullname' => 'Janice Laurel', 'username' => 'jlaurel2', 'email' => 'jlaurel2@telcosphere.co']
         ];
 
-        return array_shift($users);
+        $user = array_shift($users);
+
+        // Fallback to faker if static users are exhausted
+        if (!$user) {
+            $user = [
+                'site_id' => rand(1, 2),
+                'fullname' => fake()->name(),
+                'username' => fake()->unique()->userName(),
+                'email' => fake()->unique()->safeEmail(),
+            ];
+        }
+
+        return $user;
     }
 }

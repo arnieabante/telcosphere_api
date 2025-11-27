@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\BillingCategory;
 use App\Models\Client;
 use App\Models\TicketCategory;
+use App\Models\Site;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -31,8 +32,10 @@ class DatabaseSeeder extends Seeder
         // triggers Users, assigns permissions
         Role::factory()
             ->count(1)
-            ->hasUsers(6)
+            ->hasUsers(7)
             ->create();
+            
+        Role::factory()->adminForSite(2)->create();
 
         BillingCategory::factory()
             ->count(3)
@@ -43,6 +46,10 @@ class DatabaseSeeder extends Seeder
             ->create();
             
         TicketCategory::factory()
+            ->count(2)
+            ->create();
+            
+        Site::factory()
             ->count(2)
             ->create();
 
