@@ -37,8 +37,9 @@ class BillingItemFactory extends Factory
         // set item_amount base on item_total and quantity
         return $this->afterCreating(function (BillingItem $item) {
             $item->update([
-                'billing_item_amount' => number_format(
-                    ($item->billing_item_total / $item->billing_item_quantity), 2, '.', ''
+                'billing_item_amount' => round(
+                    ($item->billing_item_total / $item->billing_item_quantity), 
+                    2
                 )
             ]);
         });

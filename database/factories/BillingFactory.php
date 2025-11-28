@@ -25,7 +25,7 @@ class BillingFactory extends Factory
             'billing_date' => fake()->dateTimeThisYear(),
             'billing_remarks' => fake()->text(50),
             'billing_total' => fake()->randomFloat(2, 100, 10000),
-            'billing_status' => fake()->randomElement(['paid', 'unpaid', 'due', 'overdue']) ,
+            'billing_status' => fake()->randomElement(['paid', 'unpaid', 'due', 'overdue', ]) ,
             'is_active' => 1,
             'created_by' => 1,
             'updated_by' => 1
@@ -36,9 +36,7 @@ class BillingFactory extends Factory
         // create fix billing items with equal amounts to match billing total
         return $this->afterCreating(function (Billing $billing) {
             $itemCount = 3;
-            $billingItemTotal = number_format(
-                ($billing->billing_total / $itemCount), 2, '.', ''
-            );
+            $billingItemTotal = round(($billing->billing_total / $itemCount), 2);
 
             BillingItem::factory()
                 ->count($itemCount)

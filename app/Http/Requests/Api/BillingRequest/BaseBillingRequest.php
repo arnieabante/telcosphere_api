@@ -11,7 +11,11 @@ class BaseBillingRequest extends FormRequest
             'billingDate' => 'billing_date',
             'billingRemarks' => 'billing_remarks',
             'billingTotal' => 'billing_total',
-            'billingStatus' => 'billing_status'
+            'billingStatus' => 'billing_status',
+
+            // fields not from model
+            'billingType' => 'billing_type',
+            'billingCategory' => 'billing_category'
         ];
 
         $attributesToUpdate = [];

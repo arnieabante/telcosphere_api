@@ -7,6 +7,8 @@ use App\Http\Requests\Api\BillingRequest\StoreBillingRequest;
 use App\Http\Requests\Api\BillingRequest\UpdateBillingRequest;
 use App\Http\Resources\Api\BillingResource;
 use App\Models\Billing;
+use App\Models\Client;
+use App\Models\Internetplan;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -45,12 +47,52 @@ class BillingController extends ApiController
     public function store(StoreBillingRequest $request)
     {
         try {
-            return new BillingResource(
-                Billing::create($request->mappedAttributes())
-            );
+            $attributes = $request->mappedAttributes();
+
+            // create Billing for all clients under the same billing category/cycle
+            $clients = Client::where(
+                    'billing_category_id', '=', $attributes['billing_category']
+                )
+                ->get(['id', 'internet_plan_id']);
+            
+            foreach ($clients as $client) {
+                Billing::create([
+                    'client_id' => $client->id, 
+                    'billing_date' => $attributes['billing_date'],
+                    'billing_remarks' => $attributes['billing_remarks'],
+                    'billing_total' => $this->getBalance($client),
+                    'biling_status' => $attributes['billing_status'],
+                ]);
+            }
+            
+            // return created models(?)
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to create a Billing.', 401);
+        }
+    }
+
+    public function getBalance($client)
+    {
+        $previous = Billing::where('client_id', '=', $client->id)
+            ->where('billing_status', '=', 'pending')
+            ->get(['id', 'billing_status', 'billing_total']);
+        
+        $plan = Internetplan::where('internet_plan_id', '=', $client->internet_plan_id)
+            ->get(['monthly_subscription']);
+
+        if ($client->prorate_fee_status === 'pending') {
+            // TODO: calculate pro-rated subscription rates
+            $proratedRate = 0.00;
+            return round (
+                floatVal($previous['billing_total']) + floatVal($proratedRate), 
+                2
+            );
+        } else {
+            return round (
+                floatVal($previous['billing_total']) + floatVal($plan['monthly_subscription']), 
+                2
+            );
         }
     }
 
