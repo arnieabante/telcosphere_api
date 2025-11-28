@@ -7,11 +7,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Scopes\SiteScope;
 
 class User extends Authenticatable
 {
@@ -39,6 +40,21 @@ class User extends Authenticatable
         'role_id',
         'is_active'
     ];
+
+    protected static function booted()
+    {
+        // Apply global site filter
+        static::addGlobalScope(new SiteScope);
+
+        // Auto-assign site_id when creating a user
+        static::creating(function ($user) {
+            $user->site_id = $user->site_id ?? (
+                auth()->check()
+                    ? auth()->user()->site_id
+                    : session('site_id') ?? request()->header('site_id') ?? 1
+            );
+        });
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -69,6 +85,17 @@ class User extends Authenticatable
 
     public function uniqueIds(): array {
         return ['uuid'];
+    }
+
+    /**
+     * Mutator to capitalize the first letter of each word in the fullname attribute.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setFullnameAttribute($value)
+    {
+        $this->attributes['fullname'] = Str::title($value);
     }
 
     public function role(): BelongsTo {

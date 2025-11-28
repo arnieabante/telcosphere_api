@@ -12,6 +12,7 @@ use App\Models\BillingCategory;
 use App\Models\BillingItem;
 use App\Models\Client;
 use App\Models\TicketCategory;
+use App\Models\Site;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -33,6 +34,11 @@ class DatabaseSeeder extends Seeder
         // triggers Users, assigns permissions
         Role::factory()
             ->count(1)
+            ->hasUsers(7)
+            ->create();
+            
+        Role::factory()
+            ->adminForSite(2)
             ->create();
 
         BillingCategory::factory()
@@ -50,5 +56,18 @@ class DatabaseSeeder extends Seeder
         Billing::factory()
             ->count(3)
             ->create();
+
+        Site::factory()
+            ->count(2)
+            ->create();
+
+        /*User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );*/
     }
 }

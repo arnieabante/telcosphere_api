@@ -26,15 +26,36 @@ class UserController extends ApiController
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
+        $include = $request->get('include');
+        $filter = $request->get('filter'); // e.g. "role"
+        $value = $request->get('value');   // e.g. "Technician"
 
         $query = User::query()->with('role');
+            if (!empty($filter) && !empty($value)) {
 
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('username', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('fullname', 'like', "%{$search}%");
-            });
+            if ($filter === 'role') {
+                // filter through relationship
+                $query->whereHas('role', function ($q) use ($value) {
+                    $q->where('name', 'like', "%{$value}%");
+                });
+
+            } else {
+                // filter user fields
+                $query->where($filter, 'like', "%{$value}%");
+            }
+        }
+
+        if (!empty($include) && $include == 'all') {
+            $users = $query->orderBy('fullname', 'asc')->get();
+            return UserResource::collection($users);
+        } else {
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('username', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('fullname', 'like', "%{$search}%");
+                });
+            }
         }
 
         $users = $query->orderBy('created_at', 'desc')->paginate($perPage);

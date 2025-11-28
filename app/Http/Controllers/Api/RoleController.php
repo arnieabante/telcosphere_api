@@ -26,17 +26,24 @@ class RoleController extends ApiController
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
+        $include = $request->get('include');
 
         $query = Role::query()->where('is_active', '=', '1');
 
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
-        }
+        if (!empty($include) && $include == 'all') {
+            $roles = $query->orderBy('name', 'asc')->get();
+            return RoleResource::collection($roles);
+            
+        } else {
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            }
 
-        $roles = $query->orderBy('created_at', 'desc')->paginate($perPage);
-        return RoleResource::collection($roles);
+            $roles = $query->orderBy('created_at', 'desc')->paginate($perPage);
+            return RoleResource::collection($roles);
+        }
     }
 
     /**

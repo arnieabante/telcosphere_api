@@ -14,8 +14,10 @@ use App\Http\Controllers\Api\TicketCategoryController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\EmployeeController;
+use App\Http\Controllers\Api\SiteController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('sites/url/{url}', [SiteController::class, 'showByUrl']);
 Route::post('login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
