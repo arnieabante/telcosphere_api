@@ -25,7 +25,7 @@ class ClientResource extends JsonResource
                 'clientName' => trim($this->first_name . ' ' . $this->last_name),
                 'internetPlan' => optional($this->internetPlan)->name, 
                 'server' => optional($this->server)->name, 
-                'monthlySubscription' => optional($this->internetPlan)->monthly_subscription, 
+                'internetPlanPrice' => optional($this->internetPlan)->monthly_subscription, 
                 'billingCategory' => optional($this->billingCategory)->name, 
                 'dateCycle' => optional($this->billingCategory)->date_cycle, 
                 'mobileNo' => $this->mobile_no,
@@ -41,6 +41,9 @@ class ClientResource extends JsonResource
                 'prorateFeeRemarks' => $this->prorate_fee_remarks,
                 'prorateFeeStatus' => $this->prorate_fee_status,
                 'lastAutoBillingDate' => $this->last_auto_billing_date,
+                'internetPlanId' => $this->internet_plan_id,
+                'serverId' => $this->server_id,
+                'billingCategoryId' => $this->billing_category_id,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('clients.show'),

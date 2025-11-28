@@ -33,8 +33,8 @@ class ReplaceClientRequest extends BaseClientRequest
             'accountNo' => 'nullable|string', 
             'installationDate' => 'required|string',
             'installationFee' => 'string',
-            'balanceFromPrevBilling' => 'string',
-            'prorateFee' => 'string',
+            'balanceFromPrevBilling' => 'numeric',
+            'prorateFee' => 'numeric',
             'prorateStartDate' => 'nullable|string',
             'prorateEndDate' => 'nullable|string',
             'prorateFeeRemarks' => 'string',
@@ -42,9 +42,9 @@ class ReplaceClientRequest extends BaseClientRequest
             'inactiveDate' => 'string|min:5',
             'notes' => 'nullable|string|min:2',
             'facebookProfileUrl' => 'nullable|string|min:5',
-            'billingCategoryId' => 'required|string',
-            'serverId' => 'required|string',
-            'internetPlanId' => 'required|string',
+            'billingCategoryId' => 'required|int',
+            'serverId' => 'required|int',
+            'internetPlanId' => 'required|int',
             'last_auto_billing_date' => 'string',
             'isActive' => 'required|string'
         ];

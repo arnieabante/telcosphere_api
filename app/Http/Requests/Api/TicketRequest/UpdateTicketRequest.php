@@ -30,6 +30,7 @@ class UpdateTicketRequest extends BaseTicketRequest
             'dueDate' => 'nullable|string',
             'assignedTo' => 'nullable|string', 
             'status' => 'sometimes|required|string',
+            'remarks' => 'nullable|string',
             'isActive' => 'sometimes|required|string'
         ];
     }

@@ -30,6 +30,7 @@ class StoreTicketRequest extends BaseTicketRequest
             'dueDate' => 'nullable|string',
             'assignedTo' => 'nullable|string', 
             'status' => 'required|string',
+            'remarks' => 'nullable|string',
             'isActive' => 'required|string'
         ];
     }
