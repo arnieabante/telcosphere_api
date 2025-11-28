@@ -11,6 +11,8 @@ use App\Models\BillingCategory;
 use App\Models\Client;
 use App\Models\TicketCategory;
 use App\Models\Site;
+use App\Models\Server;
+use App\Models\InternetPlan;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -47,6 +49,14 @@ class DatabaseSeeder extends Seeder
             
         TicketCategory::factory()
             ->count(2)
+            ->create();
+
+        Server::factory()
+            ->count(3)
+            ->create();
+
+        InternetPlan::factory()
+            ->count(3)
             ->create();
             
         Site::factory()
