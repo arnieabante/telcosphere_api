@@ -25,11 +25,7 @@ class StoreBillingRequest extends BaseBillingRequest
             'billingDate' => 'required|date',
             'billingRemarks' => 'required|string|max:100|nullable',
             'billingTotal' => 'required|digits_between:1,8|decimal:0,2',
-            'billingStatus' => 'required|string',
-
-            // fields not from model
-            'billingType' => 'integer',
-            'billingCategory' => 'integer'
+            'billingStatus' => 'required|string'
         ];
     }
 }

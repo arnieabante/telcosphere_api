@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\BillingCategory;
 use App\Models\BillingItem;
 use App\Models\Client;
+use App\Models\Internetplan;
 use App\Models\TicketCategory;
 use App\Models\Site;
 
@@ -39,6 +40,10 @@ class DatabaseSeeder extends Seeder
             
         Role::factory()
             ->adminForSite(2)
+            ->create();
+
+        Internetplan::factory()
+            ->count(3)
             ->create();
 
         BillingCategory::factory()

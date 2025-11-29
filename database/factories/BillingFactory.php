@@ -25,7 +25,7 @@ class BillingFactory extends Factory
             'billing_date' => fake()->dateTimeThisYear(),
             'billing_remarks' => fake()->text(50),
             'billing_total' => fake()->randomFloat(2, 100, 10000),
-            'billing_status' => fake()->randomElement(['paid', 'pending']) ,
+            'billing_status' => fake()->randomElement(['Pending', 'Billed', 'Paid']) ,
             'is_active' => 1,
             'created_by' => 1,
             'updated_by' => 1

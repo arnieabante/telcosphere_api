@@ -57,6 +57,11 @@ class ClientResource extends JsonResource
                 'internetPlan' => new InternetplanResource($this->whenLoaded('internetPlan')),
                 'billingCategory' => new BillingCategoryResource($this->whenLoaded('billingCategory')),
                 'server' => new ServerResource($this->whenLoaded('server')),
+                'billings' => $this->whenLoaded('billings', function () {
+                    return [
+                        'billings' => BillingResource::collection($this->billings)
+                    ];
+                })
             ],
             'links' => [
                 'client' => route('clients.show', $this->id),

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Billing extends Model
@@ -21,6 +22,7 @@ class Billing extends Model
     ];
 
     protected $fillable = [
+        'client_id',
         'billing_date',
         'billing_remarks',
         'billing_total',
@@ -38,5 +40,9 @@ class Billing extends Model
 
     public function billingItems(): HasMany {
         return $this->hasMany(BillingItem::class);
+    }
+
+    public function client(): BelongsTo {
+        return $this->belongsTo(Client::class);
     }
 }
