@@ -15,17 +15,21 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id');
-            $table->string('first_name')->unique();
+            $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
             $table->string('mobile_no');
-            $table->string('email')->nullable();
+            $table->string('email')->nullable()->nullable();
             $table->string('house_no');
+            $table->float('latitude')->nullable();
+            $table->float('longitude')->nullable();
             $table->string('account_no')->nullable();
             $table->string('installation_date');
             $table->float('installation_fee')->default(0);
             $table->float('balance_from_prev_billing')->default(0);
             $table->float('prorate_fee')->default(0);
+            $table->float('prorate_start_date')->nullable();
+            $table->float('prorate_end_date')->nullable();
             $table->string('prorate_fee_remarks')->nullable();
             $table->integer('prorate_fee_status')->nullable(); //0 - Pending, 1-Billed, 2-Paid
             $table->string('inactive_date')->nullable();

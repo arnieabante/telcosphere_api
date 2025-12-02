@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\SiteScope;
 
 class Client extends Model
 {
@@ -30,10 +31,15 @@ class Client extends Model
         'mobile_no',
         'email',
         'house_no',
+        'latitude',
+        'longitude',
         'account_no',
         'installation_date',
         'installation_fee',
         'balance_from_prev_billing',
+        'prorate_fee',
+        'prorate_start_date',
+        'prorate_end_date',
         'prorate_fee',
         'prorate_fee_remarks',
         'prorate_fee_status',
@@ -46,6 +52,21 @@ class Client extends Model
         'last_auto_billing_date',
         'is_active',
     ];
+
+    protected static function booted()
+    {
+        // Apply global site filter
+        static::addGlobalScope(new SiteScope);
+
+        // Auto-assign site_id when creating a client
+        static::creating(function ($client) {
+            $client->site_id = $client->site_id ?? (
+                auth()->check()
+                    ? auth()->user()->site_id
+                    : session('site_id') ?? request()->header('site_id') ?? 1
+            );
+        });
+    }
 
     /**
      * Use UUID for route model binding
