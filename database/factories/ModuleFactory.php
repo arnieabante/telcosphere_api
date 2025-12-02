@@ -59,7 +59,7 @@ class ModuleFactory extends Factory
                 'icon' => 'fa fa-ticket',
                 'parent_id' => 0,
                 'description' => 'Manage collection and payments',
-                'url' => ''
+                'url' => 'collections'
             ],
             [
                 'name' => 'Service Request',
