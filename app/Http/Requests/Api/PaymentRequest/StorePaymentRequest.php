@@ -23,11 +23,15 @@ class StorePaymentRequest extends BasePaymentRequest
     {
         return [
             'clientId' => 'required|number',
-            'paymentDate' => 'nullable|string',
+            'receiptNo' => 'required|string',
             'paymentName' => 'required|string|max:50',
             'paymentAmount' => 'required|number',
             'paymentMethod' => 'required|string',
             'reference' => 'string|nullable',
+            'discount' => 'required|number',
+            'discount_total' => 'required|number',
+            'discount_reason' => 'required|string',
+            'paymentDate' => 'nullable|string',
             'collectedBy' => 'nullable|number', 
             'isActive' => 'required|string'
         ];
