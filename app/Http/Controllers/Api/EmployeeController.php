@@ -25,20 +25,25 @@ class EmployeeController extends ApiController
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
+        $include = $request->get('include');
 
         $query = Employee::query()
             ->where('is_active', 1);
-
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$search}%"])
-                ->orWhere('firstname', 'like', "%{$search}%")
-                ->orWhere('lastname', 'like', "%{$search}%")
-                ->orWhere('date_hired', 'like', "%{$search}%")
-                ->orWhere('access_level', 'like', "%{$search}%")
-                ->orWhere('work_location', 'like', "%{$search}%")
-                ->orWhere('employee_type', 'like', "%{$search}%");
-            });
+        if (!empty($include) && $include == 'all') {
+            $employees = $query->orderBy('firstname', 'asc')->get();
+            return EmployeeResource::collection($employees);
+        } else {
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$search}%"])
+                    ->orWhere('firstname', 'like', "%{$search}%")
+                    ->orWhere('lastname', 'like', "%{$search}%")
+                    ->orWhere('date_hired', 'like', "%{$search}%")
+                    ->orWhere('access_level', 'like', "%{$search}%")
+                    ->orWhere('work_location', 'like', "%{$search}%")
+                    ->orWhere('employee_type', 'like', "%{$search}%");
+                });
+            }
         }
 
         $employees = $query->orderBy('created_at', 'desc')->paginate($perPage);

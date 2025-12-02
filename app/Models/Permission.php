@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use App\Models\Scopes\SiteScope;
 
 class Permission extends Pivot
 {
@@ -38,6 +39,21 @@ class Permission extends Pivot
         'created_at', // assign manually
         'updated_at' // assign manually
     ];
+
+    protected static function booted()
+    {
+        // Apply global site filter
+        static::addGlobalScope(new SiteScope);
+
+        // Auto-assign site_id when creating a role
+        static::creating(function ($role) {
+            $role->site_id = $role->site_id ?? (
+                auth()->check()
+                    ? auth()->user()->site_id
+                    : session('site_id') ?? request()->header('site_id') ?? 1
+            );
+        });
+    }
 
     public function uniqueIds(): array {
         return ['uuid'];

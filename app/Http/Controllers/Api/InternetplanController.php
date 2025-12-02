@@ -24,15 +24,20 @@ class InternetplanController extends ApiController
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
+        $include = $request->get('include');
 
         $query = Internetplan::query()
             ->where('is_active', 1);
-
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('monthly_subscription', 'like', "%{$search}%");
-            });
+        if (!empty($include) && $include == 'all') {
+            $internetplan = $query->orderBy('name', 'asc')->get();
+            return InternetplanResource::collection($internetplan);
+        } else {
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('monthly_subscription', 'like', "%{$search}%");
+                });
+            }
         }
 
         $internetplan = $query->orderBy('created_at', 'desc')->paginate($perPage);

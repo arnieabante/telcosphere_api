@@ -25,14 +25,21 @@ class BillingCategoryController extends ApiController
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
+        $include = $request->get('include');
 
         $query = BillingCategory::query()
             ->where('is_active', 1);
-
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
+        
+        if (!empty($include) && $include == 'all') {
+            $billingcategories = $query->orderBy('name', 'asc')->get();
+            return BillingCategoryResource::collection($billingcategories);
+            
+        } else {
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            }
         }
 
         $billingcategories = $query->orderBy('created_at', 'desc')->paginate($perPage);

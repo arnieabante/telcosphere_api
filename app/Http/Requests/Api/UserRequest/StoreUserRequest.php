@@ -22,8 +22,8 @@ class StoreUserRequest extends BaseUserRequest
     public function rules(): array
     {
         return [
-            'fullname' => 'required|string|min:5',
-            'username' => 'required|string|min:5|unique:users',
+            'fullname' => 'required|string|min:2',
+            'username' => 'required|string|min:2',
             'email' => 'required|string|email|unique:users',
             'password' => 'required|string|min:8',
             'roleId' => 'required|string'

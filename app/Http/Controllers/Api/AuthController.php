@@ -18,12 +18,16 @@ class AuthController extends Controller
    public function login(LoginUserRequest $request)
     {
         $request->validated();
+        $siteId = $request->site_id;
 
         if (!Auth::attempt($request->only('username', 'password'))) {
             return $this->error('Invalid Credentials.', 400);
         }
 
-        $user = User::with('role')->where('username', $request->username)->first();
+        $user = User::with('role')
+            ->where('username', $request->username)
+            ->where('site_id', $request->siteId)
+            ->first();
 
         $token = $user->createToken(
             'API Token for ' . $user->email,

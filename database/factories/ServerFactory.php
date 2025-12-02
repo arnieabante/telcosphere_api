@@ -23,7 +23,7 @@ class ServerFactory extends Factory
             'uuid' => fake()->uuid(),
             'site_id' => 1,
             'icon' => "fa fa-edit",
-            'name' => fake()->unique()->randomElement(['Cantinlo', 'Oslob', 'Samboan', 'Liptong']),
+            'name' => fake()->unique()->randomElement(['Cantinlo Server', 'Oslob Server', 'Samboan Server']),
             'is_active' => 1,
             'created_by' => 1, // TODO: what is the value for this?
             'updated_by' => 1 // TODO: what is the value for this?
