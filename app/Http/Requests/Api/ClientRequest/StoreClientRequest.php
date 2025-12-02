@@ -33,8 +33,8 @@ class StoreClientRequest extends BaseClientRequest
             'accountNo' => 'nullable|string', 
             'installationDate' => 'required|string',
             'installationFee' => 'nullable|string',
-            'balanceFromPrevBilling' => 'nullable|string',
-            'prorateFee' => 'string',
+            'balanceFromPrevBilling' => 'nullable|numeric',
+            'prorateFee' => 'numeric',
             'prorateStartDate' => 'nullable|string',
             'prorateEndDate' => 'nullable|string',
             'prorateFeeRemarks' => 'nullable|string',
@@ -42,9 +42,9 @@ class StoreClientRequest extends BaseClientRequest
             'inactiveDate' => 'string|min:5',
             'notes' => 'nullable|string|min:2',
             'facebookProfileUrl' => 'nullable|string|min:5',
-            'billingCategoryId' => 'required|string',
-            'serverId' => 'required|string',
-            'internetPlanId' => 'required|string',
+            'billingCategoryId' => 'required|int',
+            'serverId' => 'required|int',
+            'internetPlanId' => 'required|int',
             'lastAutoBillingDate' => 'nullable|string',
             'isActive' => 'required|string'
         ];

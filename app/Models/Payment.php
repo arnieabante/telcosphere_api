@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Scopes\SiteScope;
 
-class Ticket extends Model
+class Payment extends Model
 {
     use HasFactory, HasUuids;
 
@@ -26,14 +26,15 @@ class Ticket extends Model
      */
     protected $fillable = [
         'client_id',
-        'name',
-        'description',
-        'category_id',
-        'requested_date',
-        'due_date',
-        'assigned_to',
-        'status',
-        'remarks',
+        'receipt_no',
+        'payment_amount',
+        'payment_method',
+        'reference',
+        'discount',
+        'discount_total',
+        'discount_reason',
+        'payment_date',
+        'collected_by',
         'is_active'
     ];
 
@@ -78,13 +79,8 @@ class Ticket extends Model
         return $this->belongsTo(\App\Models\Client::class, 'client_id');
     }
 
-    public function ticketCategory()
+    public function collectedBy()
     {
-        return $this->belongsTo(\App\Models\TicketCategory::class, 'category_id');
-    }
-
-    public function assignedTo()
-    {
-        return $this->belongsTo(\App\Models\User::class, 'assigned_to');
+        return $this->belongsTo(\App\Models\User::class, 'collected_by');
     }
 }
