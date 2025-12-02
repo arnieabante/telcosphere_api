@@ -33,6 +33,7 @@ class Ticket extends Model
         'due_date',
         'assigned_to',
         'status',
+        'remarks',
         'is_active'
     ];
 
