@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\SiteScope;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,6 +30,21 @@ class BillingItem extends Model
         'billing_item_total',
         'billing_status'
     ];
+
+    protected static function booted()
+    {
+        // Apply global site filter
+        static::addGlobalScope(new SiteScope);
+
+        // Auto-assign site_id when creating a billing
+        static::creating(function ($billingItem) {
+            $billingItem->site_id = $billingItem->site_id ?? (
+                auth()->check()
+                    ? auth()->user()->site_id
+                    : session('site_id') ?? request()->header('site_id') ?? 1
+            );
+        });
+    }
 
     public function getRouteKeyName(): string {
         // use uuid instead of id in model binding
