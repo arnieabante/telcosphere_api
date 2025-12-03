@@ -20,6 +20,8 @@ return new class extends Migration
             $table->tinyText('billing_remarks');
             $table->decimal('billing_total', 8, 2);
             $table->string('billing_status');
+            $table->date('billing_cutoff');
+            $table->date('disconnection_date');
             $table->boolean('is_active');
             $table->integer('created_by');
             $table->integer('updated_by');

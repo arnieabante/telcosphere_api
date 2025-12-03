@@ -15,7 +15,6 @@ use App\Models\Internetplan;
 use App\Models\TicketCategory;
 use App\Models\Site;
 use App\Models\Server;
-use App\Models\Internetplan;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -61,10 +60,6 @@ class DatabaseSeeder extends Seeder
             ->create();
 
         Server::factory()
-            ->count(3)
-            ->create();
-
-        Internetplan::factory()
             ->count(3)
             ->create();
             

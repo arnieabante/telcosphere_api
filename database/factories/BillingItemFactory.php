@@ -23,9 +23,9 @@ class BillingItemFactory extends Factory
             'billing_id' => NULL,
             'billing_item_name' => fake()->words(2, true),
             'billing_item_quantity' => fake()->numberBetween(1, 20),
+            'billing_item_price' => '0.00',
+            'billing_item_amount' => NULL,
             'billing_item_remark' => fake()->text(50),
-            'billing_item_amount' => '0.00',
-            'billing_item_total' => NULL,
             'billing_status' => fake()->randomElement(['Pending', 'Billed', 'Paid']),
             'is_active' => 1,
             'created_by' => 1,
@@ -34,11 +34,11 @@ class BillingItemFactory extends Factory
     }
 
     public function configure(): static {
-        // set item_amount base on item_total and quantity
+        // set item price base on item_total and quantity
         return $this->afterCreating(function (BillingItem $item) {
             $item->update([
-                'billing_item_amount' => round(
-                    ($item->billing_item_total / $item->billing_item_quantity), 
+                'billing_item_price' => round(
+                    ($item->billing_item_amount / $item->billing_item_quantity), 
                     2
                 )
             ]);

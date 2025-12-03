@@ -25,9 +25,9 @@ class BillingItem extends Model
         'billing_id',
         'billing_item_name',
         'billing_item_quantity',
-        'billing_item_remark',
+        'billing_item_price',
         'billing_item_amount',
-        'billing_item_total',
+        'billing_item_remark',
         'billing_status'
     ];
 

@@ -18,9 +18,9 @@ return new class extends Migration
             $table->integer('billing_id');
             $table->string('billing_item_name', 100);
             $table->integer('billing_item_quantity');
-            $table->tinyText('billing_item_remark');
+            $table->decimal('billing_item_price', 8, 2);
             $table->decimal('billing_item_amount', 8, 2);
-            $table->decimal('billing_item_total', 8, 2);
+            $table->tinyText('billing_item_remark');
             $table->string('billing_status');
             $table->boolean('is_active');
             $table->integer('created_by');
