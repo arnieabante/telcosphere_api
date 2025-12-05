@@ -80,7 +80,8 @@ class BillingController extends ApiController
                 'internet_plan_id', 
                 'prorate_fee', 
                 'prorate_fee_status', 
-                'prorate_end_date'
+                'prorate_end_date',
+                'installation_fee'
             ]);
         
         foreach ($clients as $client) {

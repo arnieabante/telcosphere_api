@@ -25,7 +25,7 @@ class BillingFactory extends Factory
             'billing_date' => fake()->dateTimeThisYear(),
             'billing_remarks' => fake()->text(50),
             'billing_total' => fake()->randomFloat(2, 100, 10000),
-            'billing_status' => fake()->randomElement(['Pending', 'Billed', 'Paid']),
+            'billing_status' => 'Paid', // fake()->randomElement(['Pending', 'Billed', 'Paid']),
             'billing_cutoff' => fake()->dateTimeThisYear(),
             'disconnection_date' => fake()->dateTimeThisYear(),
             'is_active' => 1,
@@ -37,7 +37,7 @@ class BillingFactory extends Factory
     public function configure(): static {
         // create fix billing items with equal amounts to match billing total
         return $this->afterCreating(function (Billing $billing) {
-            $itemCount = 3;
+            $itemCount = 2;
             $billingItemAmount = round(($billing->billing_total / $itemCount), 2);
 
             BillingItem::factory()
