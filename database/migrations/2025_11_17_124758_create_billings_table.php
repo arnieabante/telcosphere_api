@@ -16,6 +16,7 @@ return new class extends Migration
             $table->uuid('uuid');
             $table->integer('site_id');
             $table->integer('client_id');
+            $table->string('invoice_number');
             $table->timestamp('billing_date');
             $table->tinyText('billing_remarks');
             $table->decimal('billing_total', 8, 2);
