@@ -37,7 +37,7 @@ class ReplaceEmployeeRequest extends BaseEmployeeRequest
             'department' => 'nullable|string|min:2',
             'designation' => 'nullable|string|min:2',
             'workLocation' => 'nullable|string|min:2',
-            'accessLevel' => 'sometimesstring',
+            'accessLevel' => 'nullable|sometimes|string',
             'shiftScheduleFrom' => 'nullable|string|min:2',
             'shiftScheduleTo' => 'nullable|string|min:2',
             'salaryRatePerDay' => 'sometimes|numeric|min:2',
@@ -46,11 +46,14 @@ class ReplaceEmployeeRequest extends BaseEmployeeRequest
             'bankName' => 'nullable|string|min:2',
             'bankAccountNo' => 'sometimes|nullable|string|min:2',
             'sssNo' => 'sometimes|nullable|string|min:2',
+            'sssAmount' => 'sometimes|nullable|string|min:2',
             'pagibigNo' => 'sometimes|nullable|string|min:2',
+            'pagibigAmount' => 'sometimes|nullable|string|min:2',
             'philhealthNo' => 'sometimes|nullable|string|min:2',
+            'philhealthAmount' => 'sometimes|nullable|string|min:2',
             'tin' => 'sometimes|nullable|string|string|min:2',
             'employeeType' => 'sometimes|string',
-            'isActive' => 'required|string'
+            'isActive' => 'sometimes|required|boolean'
         ];
     }
 }
