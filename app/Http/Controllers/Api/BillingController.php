@@ -8,6 +8,7 @@ use App\Http\Resources\Api\BillingResource;
 use App\Models\Billing;
 use App\Models\BillingItem;
 use App\Models\Client;
+use App\Services\InvoiceService;
 use App\Traits\ApiResponses;
 use App\Traits\BillingTrait;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -26,7 +27,9 @@ class BillingController extends ApiController
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
 
-        $query = Billing::query()->where('is_active', '=', '1');
+        $query = Billing::query()
+            ->with('client')
+            ->where('is_active', '=', '1');
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
@@ -44,7 +47,7 @@ class BillingController extends ApiController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, InvoiceService $service)
     {
         /**
          * Request sample (for each Client)
@@ -86,8 +89,10 @@ class BillingController extends ApiController
         
         foreach ($clients as $client) {
             // create individual Billing
+            $invoice = $service->generateInvoice();
             $billing = Billing::create([
                 'client_id' => $client->id, 
+                'invoice_number' => $invoice->invoice_number,
                 'billing_date' => $attributes['billingDate'],
                 'billing_remarks' => $attributes['billingRemarks'],
                 'billing_total' => 0.00, // update base on total amt in BillingItems
