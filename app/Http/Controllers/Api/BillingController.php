@@ -5,19 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\BillingRequest\ReplaceBillingRequest;
 use App\Http\Requests\Api\BillingRequest\UpdateBillingRequest;
 use App\Http\Resources\Api\BillingResource;
+use App\Libraries\Billing\Installation;
+use App\Libraries\Billing\MonthlySubscription;
+use App\Libraries\Billing\Repair;
 use App\Models\Billing;
-use App\Models\BillingItem;
-use App\Models\Client;
-use App\Services\InvoiceService;
+use App\Services\BillingService;
 use App\Traits\ApiResponses;
-use App\Traits\BillingTrait;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class BillingController extends ApiController
 {
-    use ApiResponses, BillingTrait;
+    use ApiResponses;
 
     /**
      * Display a listing of the resource.
@@ -47,90 +47,25 @@ class BillingController extends ApiController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, InvoiceService $service)
+    public function store(Request $request, BillingService $service)
     {
-        /**
-         * Request sample (for each Client)
-         * {
-         *  billing: {
-         *      billingType: 1, // Monthly Subscription
-         *      billingCategory: 1,
-         *      billingDate: '2025-12-05',
-         *      billingCutoff: '2025-11-30',
-         *      disconnectionDate: '2025-12-10',
-         *      billingRemarks: 'Test Billing',
-         *      billingStatus: 'Pending'
-         *      billingItems: [
-         *          {
-         *              // billingItemName: 'Monthly Subscription'
-         *              billingItemQuantity: 1,
-         *              billingItemPrice: 1000,
-         *              billingItemAmount 1000,
-         *              billingItemRemark: 'Test Billing Item 1'
-         *          }
-         *      ]
-         *  }
-         * }
-         * 
-         */
         $attributes = $request->input('billing');
-
-        // get clients with the same billing category/cycle
-        $clients = Client::where('billing_category_id', $attributes['billingCategory'])
-            ->get([
-                'id', 
-                'billing_category_id', 
-                'internet_plan_id', 
-                'prorate_fee', 
-                'prorate_fee_status', 
-                'prorate_end_date',
-                'installation_fee'
-            ]);
-        
-        foreach ($clients as $client) {
-            // create individual Billing
-            $invoice = $service->generateInvoice();
-            $billing = Billing::create([
-                'client_id' => $client->id, 
-                'invoice_number' => $invoice->invoice_number,
-                'billing_date' => $attributes['billingDate'],
-                'billing_remarks' => $attributes['billingRemarks'],
-                'billing_total' => 0.00, // update base on total amt in BillingItems
-                'billing_status' => $attributes['billingStatus'],
-                'billing_cutoff' => $attributes['billingCutoff'],
-                'disconnection_date' => $attributes['disconnectionDate']
-            ]);
-
-            // create Billing Items
-            $billingItems = $this->generateBillingIems(
-                $attributes['billingItems'],
-                $attributes['billingType'],
-                $client
-            );
-
-            if (count($billingItems) > 1)
-                $billing->billingItems()->createMany($billingItems);
-            else 
-                $billing->billingItems()->create($billingItems[0]);
-
-            // update Billing Total
-            $latestBilling = Billing::latest()->first();
-            $latestBilling->load('billingItems');
-            $latestBillingTotal = $latestBilling->billingItems()->sum('billing_item_amount');
-
-            $billing->update([
-                'billing_total' => $latestBillingTotal
-            ]);
-
-            // update Client Balance
-            $latestClientBalance = Billing::where('client_id', $client->id)
-                ->where('billing_status', 'pending')
-                ->sum('billing_total');
-
-            $billing->client()->update([
-                'balance_from_prev_billing' => $latestClientBalance
-            ]);
+        switch ($attributes['billingType']) {
+            case '1':
+                $billingType = new MonthlySubscription();
+                break;
+            case '2':
+                $billingType = new Installation();
+                break;
+            case '3':
+                $billingType = new Repair();
+                break;
+            case '4':
+                // others
+                break;
         }
+
+        $service->generateBilling($billingType, $attributes);
 
         return $this->ok('Billings are created for affected clients');
     }
