@@ -36,6 +36,7 @@ class EmployeeResource extends JsonResource
                 'designation' => $this->designation,
                 'workLocation' => $this->work_location,
                 'accessLevel' => $this->access_level,
+                'user_id' => $this->user_id,
                 'shiftScheduleFrom' => $this->shift_schedule_from,
                 'shiftScheduleTo' => $this->shift_schedule_to,
                 'salaryRatePerDay' => $this->salary_rate_per_day,

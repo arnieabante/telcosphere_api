@@ -42,6 +42,7 @@ class Employee extends Model
         'designation',
         'work_location',
         'access_level',
+        'user_id',
         'shift_schedule_from',
         'shift_schedule_to',
         'salary_rate_per_day',
