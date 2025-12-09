@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('client_id');
             $table->string('invoice_number');
             $table->timestamp('billing_date');
-            $table->tinyText('billing_remarks');
+            $table->tinyText('billing_remarks')->nullable();
             $table->decimal('billing_total', 8, 2);
             $table->string('billing_status');
             $table->date('billing_cutoff');

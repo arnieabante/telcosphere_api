@@ -65,9 +65,10 @@ class BillingController extends ApiController
                 break;
         }
 
-        $service->generateBilling($billingType, $attributes);
-
-        return $this->ok('Billings are created for affected clients');
+        if (!$service->generateBilling($billingType, $attributes))
+            return $this->error('Failed to create Billing', 400);
+        
+        return $this->ok('Billing is created for each client.');
     }
 
     /**
