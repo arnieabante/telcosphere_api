@@ -27,7 +27,7 @@ class ClientController extends ApiController
         $search = $request->get('search');
         $include = $request->get('include');
 
-        $query = Client::with(['internetPlan', 'billingCategory', 'server'])
+        $query = Client::with(['internetPlan', 'billingCategory', 'server', 'billings'])
             ->where('is_active', 1);
 
         if (!empty($include) && $include == 'all') {

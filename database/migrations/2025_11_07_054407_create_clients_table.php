@@ -31,7 +31,7 @@ return new class extends Migration
             $table->date('prorate_start_date')->nullable();
             $table->date('prorate_end_date')->nullable();
             $table->string('prorate_fee_remarks')->nullable();
-            $table->integer('prorate_fee_status')->nullable(); //0 - Pending, 1-Billed, 2-Paid
+            $table->string('prorate_fee_status')->nullable(); //Pending, Billed, Paid
             $table->string('inactive_date')->nullable();
             $table->string('notes')->nullable();
             $table->string('facebook_profile_url')->nullable();

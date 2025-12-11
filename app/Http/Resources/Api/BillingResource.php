@@ -20,6 +20,7 @@ class BillingResource extends JsonResource
             'attributes' => [
                 'uuid' => $this->uuid,
                 'clientId' => $this->client_id,
+                'invoiceNumber' => $this->invoice_number,
                 'billingDate' => $this->billing_date,
                 'billingRemarks' => $this->billing_remarks,
                 'billingTotal' => $this->billing_total,
@@ -38,9 +39,7 @@ class BillingResource extends JsonResource
             'relationships' => [
                 'client' => new ClientResource($this->whenLoaded('client')),
                 'billingItems' => $this->whenLoaded('billingItems', function () {
-                    return [
-                        'billingItems' => BillingItemResource::collection($this->billingItems)
-                    ];
+                    return BillingItemResource::collection($this->billingItems);
                 })
             ],
             'links' => [
