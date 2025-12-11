@@ -11,6 +11,10 @@ use Illuminate\Validation\ValidationException;
 
 class BillingService
 {
+    const STATUS_PENDING = 'Pending';
+    const STATUS_PAID = 'Paid';
+    const STATUS_BILLED = 'Billed';
+
     protected $invoice;
 
     public function __construct(InvoiceService $invoice) {
@@ -40,7 +44,7 @@ class BillingService
                     // 'billing_date' => $billing['billingDate'],
                     'billing_remarks' => $data['billingRemarks'],
                     'billing_total' => 0.00, // update base on total amt in BillingItems
-                    'billing_status' => 'Pending',
+                    'billing_status' => self::STATUS_PENDING,
                     'billing_cutoff' => $data['billingCutoff'],
                     'disconnection_date' => $data['disconnectionDate']
                 ]);
@@ -64,11 +68,12 @@ class BillingService
 
                 // update Client Balance
                 $latestClientBalance = Billing::where('client_id', $client->id)
-                    ->where('billing_status', 'pending')
+                    ->where('billing_status', self::STATUS_PENDING)
                     ->sum('billing_total');
 
                 $billing->client()->update([
-                    'balance_from_prev_billing' => $latestClientBalance
+                    'balance_from_prev_billing' => $latestClientBalance,
+                    'prorate_fee_status' => self::STATUS_BILLED
                 ]);
             }
             

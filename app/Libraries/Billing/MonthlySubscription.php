@@ -18,18 +18,10 @@ class MonthlySubscription implements BillingInterface
         return self::ITEM_NAME;
     }
 
-    protected function getSubscriptionRate(string $plan): float {
-        $plan = Internetplan::select(['monthly_subscription'])
-            ->where('id', $plan)
-            ->first();
-
-        return round($plan->monthly_subscription, 2);
-    }
-
     public function generateBillingItems($billing, $items): array {
         $data = [];
         foreach ($items as $item) {
-            if ($billing->client->prorate_fee_status == '0') { // Pending
+            if ($billing->client->prorate_fee_status === 'Pending') {
                 $data = [
                     $this->generateProratedPrevious($billing->client, $item),
                     $this->generateProratedCurrent($billing->client, $item)
@@ -50,8 +42,23 @@ class MonthlySubscription implements BillingInterface
         return $data;
     }
 
-    protected function generateProratedPrevious($client, $item): array
-    {
+    protected function getSubscriptionRate(string $planId): float {
+        $plan = Internetplan::select(['monthly_subscription'])
+            ->where('id', $planId)
+            ->first();
+
+        return round($plan->monthly_subscription, 2);
+    }
+
+    protected function getBillingCycle($categoryId): string {
+        $cycle = BillingCategory::select(['date_cycle'])
+            ->where('id', $categoryId)
+            ->first();
+        
+        return $cycle->date_cycle;
+    }
+
+    protected function generateProratedPrevious($client, $item): array {
         return [
             'billing_item_name' => self::ITEM_NAME_PRORATED_PREV,
             'billing_item_quantity' => $item['billingItemQuantity'],
@@ -62,8 +69,7 @@ class MonthlySubscription implements BillingInterface
         ];
     }
 
-    protected function generateProratedCurrent($client, $item): array
-    {
+    protected function generateProratedCurrent($client, $item): array {
         $proratedCurrent = $this->calculateProratedCurrent($client);
         return [
             'billing_item_name' => self::ITEM_NAME_PRORATED_CUR,
@@ -76,31 +82,27 @@ class MonthlySubscription implements BillingInterface
 
     }
 
-    protected function calculateProratedCurrent($client): float
-    {
+    protected function calculateProratedCurrent($client): float {
         $monthlyRate = $this->getSubscriptionRate($client->internet_plan_id); // 1499
         $totalDaysOfMonth = date('t'); // 31
         $dailyRate = $monthlyRate / $totalDaysOfMonth; // 48.35484
     
-        $cycle = BillingCategory::select(['date_cycle']) // 15
-            ->where('id', $client->billing_category_id)
-            ->first();
-
-        switch ($cycle->date_cycle) {
-            case 30:
+        $cycle = $this->getBillingCycle($client->billing_category_id);
+        switch ($cycle) {
+            case '30':
                 // regular billing cycle (30th), end date is end of month
                 $proratedCurrentPlanEnd = new DateTime(date('Y-m-t'));
                 break;
 
-            case 15:
-                // irregular billing cycle (15th)
+            default:
+                // irregular billing cycle
                 // if prorated previous end date falls on current month
                 if (date('m', strtotime($client->prorate_end_date)) === date('m')) {
-                    // end date is 15th of current month
-                    $proratedCurrentPlanEnd = new DateTime(date('Y-m-15'));
+                    // end date is of current month
+                    $proratedCurrentPlanEnd = new DateTime(date('Y-m-' . $cycle));
                 } else {
-                    // else, end date is 15th of next month
-                    $proratedCurrentPlanEnd = new DateTime(date('Y-m-15', strtotime('next month')));
+                    // else, end date is of next month
+                    $proratedCurrentPlanEnd = new DateTime(date('Y-m-' . $cycle, strtotime('next month')));
                 }
                 break;
         }
