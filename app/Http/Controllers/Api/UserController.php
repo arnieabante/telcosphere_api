@@ -11,14 +11,14 @@ use App\Policies\Api\UserPolicy;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request; 
+use Illuminate\Http\Request;
 
 class UserController extends ApiController
 {
     use ApiResponses;
 
     protected $policyClass = UserPolicy::class;
-    
+
     /**
      * Display a listing of the resource.
      */
@@ -83,10 +83,18 @@ class UserController extends ApiController
     /**
      * Display the specified resource.
      */
-    public function show(string $uuid)
+    public function show(string $ids)
     {
         try {
-            $user = User::with('role')->where('uuid', $uuid)->firstOrFail();
+            // $user = User::with('role')->where('uuid', $uuid)->firstOrFail();
+            // return new UserResource($user);
+            $user = User::with('role')
+                ->where(function ($q) use ($ids) {
+                    $q->where('uuid', $ids)
+                    ->orWhere('id', $ids);
+                })
+                ->firstOrFail();
+
             return new UserResource($user);
 
         } catch (ModelNotFoundException $ex) {
@@ -100,15 +108,21 @@ class UserController extends ApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, string $uuid)
+    public function update(UpdateUserRequest $request, string $ids)
     {
-        try { 
+        try {
             // update policy
             // $this->isAble('update', User::class);
 
-            $user = User::where('uuid', $uuid)->firstOrFail();
-            $affected = $user->update($request->mappedAttributes());
-            
+             $user = User::where(function ($q) use ($ids) {
+                if (is_numeric($ids)) {
+                    $q->where('id', $ids);
+                } else {
+                    $q->where('uuid', $ids);
+                }
+            })->firstOrFail();
+            $user->update($request->mappedAttributes());
+
             return new UserResource($user);
 
         } catch (ModelNotFoundException $ex) {
@@ -127,10 +141,10 @@ class UserController extends ApiController
         try {
             // replace policy
             // $this->isAble('replace', User::class);
-            
+
             $user = User::where('uuid', $uuid)->firstOrFail();
             $affected = $user->update($request->mappedAttributes());
-            
+
             return new UserResource($user);
 
         } catch (ModelNotFoundException $ex) {

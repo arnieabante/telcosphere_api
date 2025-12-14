@@ -23,7 +23,7 @@ class UpdateEmployeeRequest extends BaseEmployeeRequest
     {
         return [
             'firstName' => 'sometimes|string|min:2',
-            'middleName' => 'string|min:2',
+            'middleName' => 'string',
             'lastName' => 'sometimes|string|min:2',
             'birthDate' => 'nullable|string|min:2',
             'gender' => 'nullable|int',
