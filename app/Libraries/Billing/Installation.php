@@ -3,6 +3,7 @@
 namespace App\Libraries\Billing;
 
 use App\Interfaces\BillingInterface;
+use App\Models\Client;
 
 class Installation implements BillingInterface
 {
@@ -13,15 +14,28 @@ class Installation implements BillingInterface
         return self::ITEM_NAME;
     }
 
+    public function getClients($data): object {
+        return Client::where('id', $data['clientId'])
+            ->get([
+                'id', 
+                'billing_category_id', 
+                'internet_plan_id', 
+                'prorate_fee', 
+                'prorate_fee_status', 
+                'prorate_end_date',
+                'installation_fee'
+            ]);
+    }
+
     public function generateBillingItems($billing, $items): array {
         $data = [];
         foreach ($items as $item) {
-            $price = $billing->client()->installation_fee;
+            // $price = $billing->client()->installation_fee;
             $data[] = [
-                'billing_item_name' => $this->getName(),
+                'billing_item_name' => $item['billingItemName'], // $this->getName(),
                 'billing_item_quantity' => $item['billingItemQuantity'],
-                'billing_item_price' => $price,
-                'billing_item_amount' => floatVal($price) * $item['billingItemQuantity'],
+                'billing_item_price' => $item['billingItemPrice'], // $price,
+                'billing_item_amount' => $item['billingItemAmount'], // floatVal($price) * $item['billingItemQuantity'],
                 'billing_item_remark' => $item['billingItemRemark'],
                 'billing_status' => self::ITEM_STATUS_DEFAULT
             ];

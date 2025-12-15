@@ -13,7 +13,9 @@ use App\Services\BillingService;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class BillingController extends ApiController
 {
@@ -65,10 +67,21 @@ class BillingController extends ApiController
                 break;
         }
 
-        if (!$service->generateBilling($billingType, $attributes))
-            return $this->error('Failed to create Billing', 400);
+        try {
+            $service->generateBilling($billingType, $attributes);
+            
+        } catch (ValidationException $ex) {
+            return $this->error($ex->getMessage(), 400);
+
+        } catch (QueryException $ex) {
+            return $this->error($ex->getMessage(), 400);
+
+        } catch (\Exception $ex) {
+            return $this->error($ex->getMessage(), 400);
+
+        }
         
-        return $this->ok('Billing is created for each client.');
+        return $this->ok('Billing is successfully created for client/s.');
     }
 
     /**

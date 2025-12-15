@@ -4,6 +4,7 @@ namespace App\Libraries\Billing;
 
 use App\Interfaces\BillingInterface;
 use App\Models\BillingCategory;
+use App\Models\Client;
 use App\Models\Internetplan;
 use DateTime;
 
@@ -16,6 +17,20 @@ class MonthlySubscription implements BillingInterface
 
     public function getName(): string {
         return self::ITEM_NAME;
+    }
+
+    public function getClients($data): object {
+        // get clients with the same billing category/cycle
+        return Client::where('billing_category_id', $data['billingCategory'])
+            ->get([
+                'id', 
+                'billing_category_id', 
+                'internet_plan_id', 
+                'prorate_fee', 
+                'prorate_fee_status', 
+                'prorate_end_date',
+                'installation_fee'
+            ]);
     }
 
     public function generateBillingItems($billing, $items): array {

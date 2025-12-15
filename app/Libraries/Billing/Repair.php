@@ -3,6 +3,7 @@
 namespace App\Libraries\Billing;
 
 use App\Interfaces\BillingInterface;
+use App\Models\Client;
 
 class Repair implements BillingInterface
 {
@@ -13,14 +14,27 @@ class Repair implements BillingInterface
         return self::ITEM_NAME;
     }
 
+    public function getClients($data): object {
+        return Client::where('id', $data['clientId'])
+            ->get([
+                'id', 
+                'billing_category_id', 
+                'internet_plan_id', 
+                'prorate_fee', 
+                'prorate_fee_status', 
+                'prorate_end_date',
+                'installation_fee'
+            ]);
+    }
+
     public function generateBillingItems($billing, $items): array {
         $data = [];
         foreach ($items as $item) {
             $data[] = [
-                'billing_item_name' => $this->getName(),
+                'billing_item_name' => $item['billingItemName'], // $this->getName(),
                 'billing_item_quantity' => $item['billingItemQuantity'],
                 'billing_item_price' => $item['billingItemPrice'],
-                'billing_item_amount' => floatVal($item['billingItemPrice']) * $item['billingItemQuantity'],
+                'billing_item_amount' => $item['billingItemAmount'], // floatVal($item['billingItemPrice']) * $item['billingItemQuantity'],
                 'billing_item_remark' => $item['billingItemRemark'],
                 'billing_status' => self::ITEM_STATUS_DEFAULT
             ];
