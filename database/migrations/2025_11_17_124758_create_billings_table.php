@@ -16,12 +16,13 @@ return new class extends Migration
             $table->uuid('uuid');
             $table->integer('site_id');
             $table->integer('client_id');
+            $table->string('invoice_number');
             $table->timestamp('billing_date');
-            $table->tinyText('billing_remarks');
+            $table->tinyText('billing_remarks')->nullable();
             $table->decimal('billing_total', 8, 2);
             $table->string('billing_status');
-            $table->date('billing_cutoff');
-            $table->date('disconnection_date');
+            $table->date('billing_cutoff')->nullable();
+            $table->date('disconnection_date')->nullable();
             $table->boolean('is_active');
             $table->integer('created_by');
             $table->integer('updated_by');
