@@ -7,6 +7,7 @@ use App\Http\Requests\Api\BillingRequest\UpdateBillingRequest;
 use App\Http\Resources\Api\BillingResource;
 use App\Libraries\Billing\Installation;
 use App\Libraries\Billing\MonthlySubscription;
+use App\Libraries\Billing\OtherServices;
 use App\Libraries\Billing\Repair;
 use App\Models\Billing;
 use App\Services\BillingService;
@@ -63,7 +64,7 @@ class BillingController extends ApiController
                 $billingType = new Repair();
                 break;
             case '4':
-                // others
+                $billingType = new OtherServices();
                 break;
         }
 
