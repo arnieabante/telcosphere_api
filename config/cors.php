@@ -17,7 +17,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    'allowed_origins' => ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://192.168.254.102:5173','https://app.telcosphere.co'],
 
     'allowed_origins_patterns' => [],
 

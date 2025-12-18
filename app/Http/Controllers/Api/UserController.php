@@ -86,7 +86,6 @@ class UserController extends ApiController
     public function show(string $ids)
     {
         try {
-            // $user = User::with('role')->where('uuid', $uuid)->firstOrFail();
             // return new UserResource($user);
             $user = User::with('role')
                 ->where(function ($q) use ($ids) {
@@ -113,7 +112,6 @@ class UserController extends ApiController
         try {
             // update policy
             // $this->isAble('update', User::class);
-
              $user = User::where(function ($q) use ($ids) {
                 if (is_numeric($ids)) {
                     $q->where('id', $ids);
@@ -141,7 +139,6 @@ class UserController extends ApiController
         try {
             // replace policy
             // $this->isAble('replace', User::class);
-
             $user = User::where('uuid', $uuid)->firstOrFail();
             $affected = $user->update($request->mappedAttributes());
 

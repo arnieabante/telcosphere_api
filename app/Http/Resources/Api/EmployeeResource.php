@@ -52,7 +52,7 @@ class EmployeeResource extends JsonResource
                 'philhealthAmount' => $this->philhealth_amount,
                 'tin' => $this->tin,
                 'employeeType' => $this->employee_type,
-                'roleName' => $this->role?->name,
+                'roleName' => $this->role_name,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('employees.show'),
