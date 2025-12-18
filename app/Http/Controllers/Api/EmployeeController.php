@@ -27,8 +27,7 @@ class EmployeeController extends ApiController
         $search = $request->get('search');
         $include = $request->get('include');
 
-        $query = Employee::query()
-            ->where('is_active', 1);
+        $query = Employee::query();
         if (!empty($include) && $include == 'all') {
             $employees = $query->orderBy('firstname', 'asc')->get();
             return EmployeeResource::collection($employees);
@@ -50,7 +49,6 @@ class EmployeeController extends ApiController
 
         return EmployeeResource::collection($employees);
     }
-
 
     /**
      * Store a newly created resource in storage.

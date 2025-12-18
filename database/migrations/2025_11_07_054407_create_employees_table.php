@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id');
-            $table->string('firstname')->unique();
+            $table->string('firstname');
             $table->string('middlename')->nullable();
             $table->string('lastname');
             $table->date('birth_date')->nullable();
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->string('department')->nullable();
             $table->string('designation')->nullable();
             $table->string('work_location')->nullable();
-            $table->string('access_level');
+            $table->string('access_level')->nullable();
             $table->integer('user_id')->nullable();
             $table->string('shift_schedule_from')->nullable();
             $table->string('shift_schedule_to')->nullable();
@@ -40,8 +40,11 @@ return new class extends Migration
             $table->string('bank_name')->nullable();
             $table->string('bank_account_no')->nullable();
             $table->string('sss_no')->nullable();
+            $table->float('sss_amount')->nullable();
             $table->string('pagibig_no')->nullable();
+            $table->float('pagibig_amount')->nullable();
             $table->string('philhealth_no')->nullable();
+            $table->float('philhealth_amount')->nullable();
             $table->string('tin')->nullable();
             $table->string('employee_type');
             $table->integer('is_active');

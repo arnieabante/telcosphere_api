@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Scopes\SiteScope;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Client extends Model
 {
@@ -100,5 +101,10 @@ class Client extends Model
     public function server()
     {
         return $this->belongsTo(\App\Models\Server::class, 'server_id');
+    }
+
+    public function billings()
+    {
+        return $this->hasMany(Billing::class);
     }
 }
