@@ -53,7 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('clients', ClientController::class)->except(['update']);
     Route::patch('clients/{uuid}', [ClientController::class, 'update']);
     Route::put('clients/{uuid}', [ClientController::class, 'replace']);
-    
+
     Route::apiResource('ticketcategories', TicketCategoryController::class)->except(['update']);
     Route::patch('ticketcategories/{uuid}', [TicketCategoryController::class, 'update']);
     Route::put('ticketcategories/{uuid}', [TicketCategoryController::class, 'replace']);
@@ -69,7 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('billingitems', BillingItemController::class)->except(['update']);
     Route::patch('billingitems/{uuid}', [BillingItemController::class, 'update']);
     Route::put('billingitems/{uuid}', [BillingItemController::class, 'replace']);
-    
+
     Route::apiResource('employees', EmployeeController::class)->except(['update']);
     Route::patch('employees/{uuid}', [EmployeeController::class, 'update']);
     Route::put('employees/{uuid}', [EmployeeController::class, 'replace']);
@@ -77,5 +77,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('payments', PaymentController::class)->except(['update']);
     Route::patch('payments/{uuid}', [PaymentController::class, 'update']);
     Route::put('payments/{uuid}', [PaymentController::class, 'replace']);
+
+    Route::apiResource('expensecategories', BillingCategoryController::class)->except(['update']);
+    Route::patch('expensecategories/{uuid}', [BillingCategoryController::class, 'update']);
+    Route::put('expensecategories/{uuid}', [BillingCategoryController::class, 'replace']);
 
 });
