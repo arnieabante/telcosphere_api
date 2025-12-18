@@ -25,13 +25,13 @@ return new class extends Migration
             $table->float('longitude')->nullable();
             $table->string('account_no')->nullable();
             $table->string('installation_date');
-            $table->float('installation_fee')->default(0);
-            $table->float('balance_from_prev_billing')->default(0);
-            $table->float('prorate_fee')->default(0);
-            $table->float('prorate_start_date')->nullable();
-            $table->float('prorate_end_date')->nullable();
+            $table->decimal('installation_fee', 8, 2)->default(0.00);
+            $table->decimal('balance_from_prev_billing', 8, 2)->default(0.00);
+            $table->decimal('prorate_fee', 8, 2)->default(0.00);
+            $table->date('prorate_start_date')->nullable();
+            $table->date('prorate_end_date')->nullable();
             $table->string('prorate_fee_remarks')->nullable();
-            $table->integer('prorate_fee_status')->nullable(); //0 - Pending, 1-Billed, 2-Paid
+            $table->string('prorate_fee_status')->nullable(); //Pending, Billed, Paid
             $table->string('inactive_date')->nullable();
             $table->string('notes')->nullable();
             $table->string('facebook_profile_url')->nullable();

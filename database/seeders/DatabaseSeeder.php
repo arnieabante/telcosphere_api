@@ -2,17 +2,19 @@
 
 namespace Database\Seeders;
 
+use App\Models\Billing;
 use App\Models\Item;
 use App\Models\Module;
 use App\Models\Permission;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\BillingCategory;
+use App\Models\BillingItem;
 use App\Models\Client;
+use App\Models\Internetplan;
 use App\Models\TicketCategory;
 use App\Models\Site;
 use App\Models\Server;
-use App\Models\InternetPlan;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -37,7 +39,13 @@ class DatabaseSeeder extends Seeder
             ->hasUsers(7)
             ->create();
             
-        Role::factory()->adminForSite(2)->create();
+        Role::factory()
+            ->adminForSite(2)
+            ->create();
+
+        Internetplan::factory()
+            ->count(3)
+            ->create();
 
         BillingCategory::factory()
             ->count(3)
@@ -54,11 +62,11 @@ class DatabaseSeeder extends Seeder
         Server::factory()
             ->count(3)
             ->create();
-
-        InternetPlan::factory()
+            
+        Billing::factory()
             ->count(3)
             ->create();
-            
+
         Site::factory()
             ->count(2)
             ->create();
