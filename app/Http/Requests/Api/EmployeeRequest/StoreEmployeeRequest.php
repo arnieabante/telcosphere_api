@@ -53,6 +53,7 @@ class StoreEmployeeRequest extends BaseEmployeeRequest
             'philhealthNo' => 'sometimes|nullable|string|min:2',
             'philhealthAmount' => 'sometimes|nullable|string|min:2',
             'tin' => 'sometimes|nullable|string|string|min:2',
+            'withHoldingTax' => 'sometimes|nullable|string|min:2',
             'employeeType' => 'sometimes|string',
         ];
     }
