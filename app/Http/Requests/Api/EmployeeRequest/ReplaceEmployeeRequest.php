@@ -23,7 +23,7 @@ class ReplaceEmployeeRequest extends BaseEmployeeRequest
     {
         return [
             'firstName' => 'sometimes|string|min:2',
-            'middleName' => 'string|min:2',
+            'middleName' => 'string',
             'lastName' => 'sometimes|string|min:2',
             'birthDate' => 'nullable|string|min:2',
             'gender' => 'nullable|string',
@@ -37,20 +37,24 @@ class ReplaceEmployeeRequest extends BaseEmployeeRequest
             'department' => 'nullable|string|min:2',
             'designation' => 'nullable|string|min:2',
             'workLocation' => 'nullable|string|min:2',
-            'accessLevel' => 'sometimesstring',
+            'accessLevel' => 'nullable|sometimes|string',
+            'user_id' => 'nullable|sometimes|numeric',
             'shiftScheduleFrom' => 'nullable|string|min:2',
             'shiftScheduleTo' => 'nullable|string|min:2',
             'salaryRatePerDay' => 'sometimes|numeric|min:2',
             'hourlyRatePerDay' => 'sometimes|numeric|min:2',
-            'paymentMethod' => 'sometimes|string|min:2',
+            'paymentMethod' => 'sometimes|numeric',
             'bankName' => 'nullable|string|min:2',
             'bankAccountNo' => 'sometimes|nullable|string|min:2',
             'sssNo' => 'sometimes|nullable|string|min:2',
+            'sssAmount' => 'sometimes|nullable|string|min:2',
             'pagibigNo' => 'sometimes|nullable|string|min:2',
+            'pagibigAmount' => 'sometimes|nullable|string|min:2',
             'philhealthNo' => 'sometimes|nullable|string|min:2',
+            'philhealthAmount' => 'sometimes|nullable|string|min:2',
             'tin' => 'sometimes|nullable|string|string|min:2',
             'employeeType' => 'sometimes|string',
-            'isActive' => 'required|string'
+            'isActive' => 'sometimes|required|boolean'
         ];
     }
 }
