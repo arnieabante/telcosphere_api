@@ -91,7 +91,12 @@ class BillingController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $billing = Billing::with('billingItems')->where('uuid', $uuid)->firstOrFail();
+            $billing = Billing::with([
+                'billingItems', 
+                'client'
+            ])
+            ->where('uuid', $uuid)->firstOrFail();
+
             return new BillingResource($billing);
 
         } catch (ModelNotFoundException $ex) {

@@ -30,6 +30,7 @@ class BillingService
             $billing = Billing::create([
                 'client_id' => $client->id, 
                 'invoice_number' => $this->invoice->generateInvoice()->invoice_number,
+                'billing_type' => $data['billingType'],
                 'billing_date' => date('Y-m-d H:i:s'), // current date
                 'billing_remarks' => $data['billingRemarks'] ?? NULL,
                 'billing_total' => 0.00, // update base on total amt in BillingItems
