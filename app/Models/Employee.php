@@ -57,6 +57,7 @@ class Employee extends Model
         'philhealth_no',
         'philhealth_amount',
         'tin',
+        'withholding_tax',
         'employee_type',
         'is_active',
     ];

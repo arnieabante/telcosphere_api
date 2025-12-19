@@ -51,6 +51,7 @@ class EmployeeResource extends JsonResource
                 'philhealthNo' => $this->philhealth_no,
                 'philhealthAmount' => $this->philhealth_amount,
                 'tin' => $this->tin,
+                'withHoldingTax' => $this->withholding_tax,
                 'employeeType' => $this->employee_type,
                 'roleName' => $this->role_name,
                 'isActive' => $this->is_active,

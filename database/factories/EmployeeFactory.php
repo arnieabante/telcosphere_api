@@ -51,6 +51,7 @@ class ClientFactory extends Factory
             'philhealth_no' => '123-123-123',
             'philhealth_amount' => '300.00',
             'tin' => 'TIN-000001',
+            'withholding_tax' => '300.00',
             'employee_type' => fake()->randomElement('Casual', 'Regular', 'Contractor'),
             'is_active' => 1,
             'created_by' => 1,
