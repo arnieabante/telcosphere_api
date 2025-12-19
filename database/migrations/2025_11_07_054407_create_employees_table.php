@@ -46,6 +46,7 @@ return new class extends Migration
             $table->string('philhealth_no')->nullable();
             $table->float('philhealth_amount')->nullable();
             $table->string('tin')->nullable();
+            $table->float('withholding_tax')->nullable();
             $table->string('employee_type');
             $table->integer('is_active');
             $table->integer('created_by');

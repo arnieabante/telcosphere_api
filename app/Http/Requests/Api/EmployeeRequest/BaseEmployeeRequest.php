@@ -39,6 +39,7 @@ class BaseEmployeeRequest extends FormRequest
             'philhealthNo' => 'philhealth_no',
             'philhealthAmount' => 'philhealth_amount',
             'tin' => 'tin',
+            'withHoldingTax' => 'withholding_tax',
             'employeeType' => 'employee_type',
             'isActive' => 'is_active',
         ];
