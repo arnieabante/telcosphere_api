@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\BillingCategoryController;
+use App\Http\Controllers\Api\ExpenseCategoryController;
 use App\Http\Controllers\Api\BillingItemController;
 use App\Http\Controllers\Api\InternetplanController;
 use App\Http\Controllers\Api\ServerController;
@@ -78,8 +79,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('payments/{uuid}', [PaymentController::class, 'update']);
     Route::put('payments/{uuid}', [PaymentController::class, 'replace']);
 
-    Route::apiResource('expensecategories', BillingCategoryController::class)->except(['update']);
-    Route::patch('expensecategories/{uuid}', [BillingCategoryController::class, 'update']);
-    Route::put('expensecategories/{uuid}', [BillingCategoryController::class, 'replace']);
+    Route::apiResource('expensecategories', ExpenseCategoryController::class)->except(['update']);
+    Route::patch('expensecategories/{uuid}', [ExpenseCategoryController::class, 'update']);
+    Route::put('expensecategories/{uuid}', [ExpenseCategoryController::class, 'replace']);
 
 });

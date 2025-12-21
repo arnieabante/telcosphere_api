@@ -31,9 +31,9 @@ class ExpenseCategory extends Model
         // Apply global site filter
         static::addGlobalScope(new SiteScope);
 
-        // Auto-assign site_id when creating a billingcategory
-        static::creating(function ($billingcategory) {
-            $billingcategory->site_id = $billingcategory->site_id ?? (
+        // Auto-assign site_id when creating a expensecategory
+        static::creating(function ($expensecategory) {
+            $expensecategory->site_id = $expensecategory->site_id ?? (
                 auth()->check()
                     ? auth()->user()->site_id
                     : session('site_id') ?? request()->header('site_id') ?? 1

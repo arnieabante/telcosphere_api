@@ -23,7 +23,7 @@ class StoreExpenseCategoryRequest extends BaseExpenseCategoryRequest
     {
         return [
             'name' => 'required|string|min:3|unique:billing_categories',
-            'description' => 'nullable|string|min:3',
+            'description' => 'nullable|string',
             'isActive' => 'sometimes|required|boolean'
         ];
     }

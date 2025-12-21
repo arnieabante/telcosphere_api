@@ -24,7 +24,7 @@ class UpdateExpenseCategoryRequest extends BaseExpenseCategoryRequest
     {
         return [
             'name' => ['sometimes', 'required', 'string', 'min:3', Rule::unique('expense_categories')->ignore($this->uuid, 'uuid')],
-            'description' => 'sometimes|required|string',
+            'description' => 'sometimes|string',
             'isActive' => 'sometimes|required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username

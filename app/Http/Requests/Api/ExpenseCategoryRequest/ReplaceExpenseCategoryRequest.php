@@ -23,7 +23,7 @@ class ReplaceExpenseCategoryRequest extends BaseExpenseCategoryRequest
     {
         return [
             'name' => 'required|string|min:3|unique:billing_categories',
-            'description' => 'string',
+            'description' => 'nullable|string',
             'isActive' => 'sometimes|required|boolean'
         ];
     }
