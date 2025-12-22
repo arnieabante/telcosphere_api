@@ -90,6 +90,13 @@ class ModuleFactory extends Factory
                 'url' => 'servers'
             ],
             [
+                'name' => 'Expense Categories',
+                'icon' => 'fa fa-money-bill-wave',
+                'parent_id' => 6,
+                'description' => 'List of Expense Categories',
+                'url' => 'expensecategories'
+            ],
+            [
                 'name' => 'SR Categories',
                 'icon' => 'fa fa-server',
                 'parent_id' => 6,

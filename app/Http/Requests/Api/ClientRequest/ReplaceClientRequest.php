@@ -29,7 +29,7 @@ class ReplaceClientRequest extends BaseClientRequest
             'email' => 'nullable|string|email|unique:clients',
             'houseNo' => 'string|min:5',
             'latitude' => 'nullable|string',
-            'latitude' => 'nullable|string',
+            'longitude' => 'nullable|string',
             'accountNo' => 'nullable|string', 
             'installationDate' => 'required|string',
             'installationFee' => 'string',
