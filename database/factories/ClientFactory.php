@@ -35,6 +35,7 @@ class ClientFactory extends Factory
             'prorate_fee' => '0.00',
             'prorate_start_date' => null, 
             'prorate_end_date' => null,
+            'last_auto_billing_date' => '2025-12-15',
             'inactive_date' => $this->faker->optional()->date(),
             'notes' => 'Seeded from our database',
             'facebook_profile_url' => 'https://www.messenger.com/e2ee/t/7850110205011996',
