@@ -8,17 +8,18 @@ class BasePaymentRequest extends FormRequest
 {
     public function mappedAttributes(): array {
         $attributes = [
-            'clientId' => 'client_id',
             'receiptNo' => 'receipt_no',
-            'paymentDate' => 'payment_date',
-            'paymentName' => 'payment_name',
-            'paymentAmount' => 'payment_amount',
-            'reference' => 'reference',
+            'clientId' => 'client_id',
+            'collectionDate' => 'collection_date',
+            'collectedBy' => 'collected_by',
+            'paymentMethod' => 'payment_method',
+            'paymentReference' => 'payment_reference',
+            'subtotal' => 'subtotal',
             'discount' => 'discount',
-            'discount_total' => 'discount_total',
+            'total' => 'total',
+            'amountReceived' => 'amount_received',
+            'amountChanged' => 'amount_changed',
             'discount_reason' => 'discount_reason',
-            'payment_date' => 'payment_date',
-            'collected_by' => 'collected_by',
             'isActive' => 'is_active'
         ];
 

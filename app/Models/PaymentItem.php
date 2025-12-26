@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Scopes\SiteScope;
 
-class Payment extends Model
+class PaymentItem extends Model
 {
     use HasFactory, HasUuids;
 
@@ -25,18 +25,12 @@ class Payment extends Model
      * Mass assignable attributes
      */
     protected $fillable = [
-        'receipt_no',
-        'client_id',
-        'collection_date',
-        'collected_by',
-        'payment_method',
-        'payment_reference',
-        'subtotal',
-        'discount',
-        'total',
-        'amount_received',
-        'amount_change',
-        'discount_reason',
+        'blling_id',
+        'blling_item_id',
+        'particulars',
+        'amount',
+        'amount_paid',
+        'amount_balance',
         'is_active'
     ];
 
@@ -71,18 +65,5 @@ class Payment extends Model
     public function uniqueIds(): array
     {
         return ['uuid'];
-    }
-
-    /**
-     * Relationships
-     */
-    public function client()
-    {
-        return $this->belongsTo(\App\Models\Client::class, 'client_id');
-    }
-
-    public function collectedBy()
-    {
-        return $this->belongsTo(\App\Models\User::class, 'collected_by');
     }
 }
