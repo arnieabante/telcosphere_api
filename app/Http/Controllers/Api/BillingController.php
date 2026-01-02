@@ -110,13 +110,12 @@ class BillingController extends ApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBillingRequest $request, string $uuid)
+    public function update(Request $request, BillingService $service, string $uuid)
     {
         try {
-            $billing = Billing::where('uuid', $uuid)->firstOrFail();
-            $affected = $billing->update($request->mappedAttributes());
-            
-            return new BillingResource($billing);
+            $attributes = $request->input('billing');
+            $billing = $service->updateBilling($uuid, $attributes);
+            return $billing;
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Billing does not exist.', 404);

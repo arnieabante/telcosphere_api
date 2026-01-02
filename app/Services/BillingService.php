@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Interfaces\BillingInterface;
 use App\Models\Billing;
 use Exception;
+use App\Http\Resources\Api\BillingResource;
 
 class BillingService
 {
@@ -14,7 +15,8 @@ class BillingService
 
     protected $invoice;
 
-    public function __construct(InvoiceService $invoice) {
+    public function __construct(InvoiceService $invoice) 
+    {
         $this->invoice = $invoice;
     }
 
@@ -66,5 +68,49 @@ class BillingService
                 'prorate_fee_status' => self::STATUS_BILLED
             ]);
         }
+    }
+
+    public function updateBilling($uuid, $data)
+    {
+        $billing = Billing::where('uuid', $uuid)->firstOrFail();
+
+        foreach ($data['billingItems'] as $item) {
+            $billing->billingItems()->updateOrCreate([
+                'uuid' => $item['uuid']
+            ], [
+                'billing_item_name' => $item['particulars'],
+                'billing_item_quantity' => $item['qty'],
+                'billing_item_price' => $item['price'],
+                'billing_item_amount' => $item['amount'],
+                'billing_status' => self::STATUS_PENDING
+            ]);
+        }
+
+        $billing->client()->update([
+            'house_no' => $data['billingDescription']
+        ]);
+
+        $billing->update([
+            'billing_type' => $data['billingType'],
+            'billing_remarks' => $data['billingRemarks'],
+            'client_id' => $data['clientId']
+        ]);
+
+        // update Billing Total
+        $latestBillingTotal = $billing->billingItems()->sum('billing_item_amount');
+        $billing->update([
+            'billing_total' => $latestBillingTotal
+        ]);
+
+        // update Client Balance
+        $latestClientBalance = $billing->where('client_id', $data['clientId'])
+            ->where('billing_status', self::STATUS_PENDING)
+            ->sum('billing_total');
+
+        $billing->client()->update([
+            'balance_from_prev_billing' => $latestClientBalance
+        ]);
+
+        return new BillingResource($billing);
     }
 }
