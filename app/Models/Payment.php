@@ -30,13 +30,15 @@ class Payment extends Model
         'collection_date',
         'collected_by',
         'payment_method',
-        'payment_reference',
+        'reference',
         'subtotal',
         'discount',
         'total',
         'amount_received',
         'amount_change',
+        'amount_paid',
         'discount_reason',
+        'balance',
         'is_active'
     ];
 
@@ -46,9 +48,9 @@ class Payment extends Model
         // Apply global site filter
         static::addGlobalScope(new SiteScope);
 
-        // Auto-assign site_id when creating a ticket
-        static::creating(function ($ticket) {
-            $ticket->site_id = $ticket->site_id ?? (
+        // Auto-assign site_id when creating a payment
+        static::creating(function ($payment) {
+            $payment->site_id = $payment->site_id ?? (
                 auth()->check()
                     ? auth()->user()->site_id
                     : session('site_id') ?? request()->header('site_id') ?? 1

@@ -22,18 +22,19 @@ class StorePaymentRequest extends BasePaymentRequest
     public function rules(): array
     {
         return [
-            'receiptNo' => 'required|string',
-            'clientId' => 'required|number',
+            'clientId' => 'required|int',
             'collectionDate' => 'nullable|string',
-            'collectedBy' => 'nullable|number', 
+            'collectedBy' => 'nullable|string', 
             'paymentMethod' => 'required|string|max:50',
-            'paymentReference' => 'string|nullable',
-            'subtotal' => 'required|number',
-            'discount' => 'number|nullable',
-            'total' => 'required|number',
-            'amountReceived' => 'required|number',
-            'amountChanged' => 'number|nullable',
-            'discount_reason' => 'required|string',
+            'reference' => 'string|nullable',
+            'subtotal' => 'required|decimal:2',
+            'discount' => 'decimal:2|nullable',
+            'total' => 'required|decimal:2',
+            'amountReceived' => 'required|decimal:2',
+            'amountChange' => 'decimal:2|nullable',
+            'amountPaid' => 'decimal:2|nullable',
+            'discount_reason' => 'nullable|string',
+            'balance' => 'decimal:2|nullable',
             'isActive' => 'required|string'
         ];
     }

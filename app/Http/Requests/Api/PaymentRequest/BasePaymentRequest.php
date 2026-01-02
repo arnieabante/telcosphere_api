@@ -13,13 +13,15 @@ class BasePaymentRequest extends FormRequest
             'collectionDate' => 'collection_date',
             'collectedBy' => 'collected_by',
             'paymentMethod' => 'payment_method',
-            'paymentReference' => 'payment_reference',
+            'reference' => 'reference',
             'subtotal' => 'subtotal',
             'discount' => 'discount',
             'total' => 'total',
             'amountReceived' => 'amount_received',
-            'amountChanged' => 'amount_changed',
+            'amountPaid' => 'amount_paid',
+            'amountChange' => 'amount_change',
             'discount_reason' => 'discount_reason',
+            'balance' => 'balance',
             'isActive' => 'is_active'
         ];
 
