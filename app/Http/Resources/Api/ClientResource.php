@@ -30,6 +30,7 @@ class ClientResource extends JsonResource
                 'dateCycle' => optional($this->billingCategory)->date_cycle, 
                 'mobileNo' => $this->mobile_no,
                 'houseNo' => $this->house_no,
+                'accountNo' => $this->account_no,
                 'latitude' => $this->latitude,
                 'longitude' => $this->longitude,
                 'installationDate' => $this->installation_date,

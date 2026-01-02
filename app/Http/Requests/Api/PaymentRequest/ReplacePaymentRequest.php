@@ -22,13 +22,20 @@ class ReplacePaymentRequest extends BasePaymentRequest
     public function rules(): array
     {
         return [
-            'clientId' => 'required|number',
-            'paymentDate' => 'nullable|string',
-            'paymentName' => 'required|string|max:50',
-            'paymentAmount' => 'required|number',
-            'paymentMethod' => 'required|string',
+            'receiptNo' => 'required|string',
+            'clientId' => 'required|decimal:2',
+            'collectionDate' => 'nullable|string',
+            'collectedBy' => 'nullable|string', 
+            'paymentMethod' => 'required|string|max:50',
             'reference' => 'string|nullable',
-            'collectedBy' => 'nullable|number', 
+            'subtotal' => 'required|decimal:2',
+            'discount' => 'decimal:2|nullable',
+            'total' => 'required|decimal:2',
+            'amountReceived' => 'required|decimal:2',
+            'amountChange' => 'decimal:2|nullable',
+            'amountPaid' => 'decimal:2|nullable',
+            'discount_reason' => 'nullable|string',
+            'balance' => 'decimal:2|nullable',
             'isActive' => 'required|string'
         ];
     }

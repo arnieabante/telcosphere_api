@@ -11,24 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payments', function (Blueprint $table) {
+        Schema::create('payment_items', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id')->nullable();
-            $table->integer('client_id');
-            $table->string('receipt_no');
-            $table->date('collection_date')->nullable();
-            $table->string('collected_by')->nullable();
-            $table->string('payment_method', 50);
-            $table->string('reference')->nullable();
-            $table->decimal('subtotal', 12, 2);
-            $table->decimal('discount', 12, 2)->nullable();
-            $table->decimal('total', 12, 2);
-            $table->decimal('amount_received', 12, 2);
-            $table->decimal('amount_change', 12, 2);
+            $table->integer('billing_id');
+            $table->string('particulars');
+            $table->decimal('amount', 12, 2);
             $table->decimal('amount_paid', 12, 2);
-            $table->string('discount_reason')->nullable();
-            $table->decimal('balance', 12, 2);
+            $table->decimal('amount_balance', 12, 2);
             $table->boolean('is_active');
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();

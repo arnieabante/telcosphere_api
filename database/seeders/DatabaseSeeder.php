@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\BillingCategory;
 use App\Models\BillingItem;
 use App\Models\Client;
+use App\Models\ExpenseCategory;
 use App\Models\Internetplan;
 use App\Models\TicketCategory;
 use App\Models\Site;
@@ -32,13 +33,13 @@ class DatabaseSeeder extends Seeder
             ->count(15)
             ->create();
 
-        // then Roles 
+        // then Roles
         // triggers Users, assigns permissions
         Role::factory()
             ->count(1)
             ->hasUsers(7)
             ->create();
-            
+
         Role::factory()
             ->adminForSite(2)
             ->create();
@@ -47,14 +48,18 @@ class DatabaseSeeder extends Seeder
             ->count(3)
             ->create();
 
+        ExpenseCategory::factory()
+            ->count(8)
+            ->create();
+
         BillingCategory::factory()
             ->count(3)
             ->create();
-        
+
         Client::factory()
             ->count(1)
             ->create();
-            
+
         TicketCategory::factory()
             ->count(2)
             ->create();
@@ -62,10 +67,12 @@ class DatabaseSeeder extends Seeder
         Server::factory()
             ->count(3)
             ->create();
-            
+
+        /*
         Billing::factory()
             ->count(3)
             ->create();
+        */
 
         Site::factory()
             ->count(2)
