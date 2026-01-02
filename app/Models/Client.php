@@ -105,6 +105,6 @@ class Client extends Model
 
     public function billings()
     {
-        return $this->hasMany(Billing::class);
+        return $this->hasMany(\App\Models\Billing::class, 'client_id', 'id');
     }
 }
