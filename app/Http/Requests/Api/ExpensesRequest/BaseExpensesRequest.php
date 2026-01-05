@@ -10,7 +10,7 @@ class BaseExpensesRequest extends FormRequest
         $attributes = [
             'expenseDate' => 'expense_date',
             'staffName' => 'staff_name',
-            'total' => 'total',
+            'expenseTotal' => 'total',
             'isActive' => 'is_active'
         ];
 

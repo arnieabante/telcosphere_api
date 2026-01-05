@@ -13,18 +13,10 @@ class ExpenseItem extends Model
     /** @use HasFactory<\Database\Factories\Api\BillingItemsFactory> */
     use HasFactory, HasUlids;
 
-    // default values
-    protected $attributes = [
-        'site_id' => 1,
-        'is_active' => 1,
-        'created_by' => 1, // TODO
-        'updated_by' => 1 // TODO
-    ];
-
     protected $fillable = [
-        'expense_id',
+        'uuid',
+        'expenses_id',
         'expense_category',
-        'description',
         'expense_remark',
         'amount'
     ];

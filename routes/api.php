@@ -89,8 +89,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('expenses/{uuid}', [ExpensesController::class, 'update']);
     Route::put('expenses/{uuid}', [ExpensesController::class, 'replace']);
 
-    Route::apiResource('expenseitem', ExpenseItemController::class)->except(['update']);
-    Route::patch('expenseitem/{uuid}', [ExpenseItemController::class, 'update']);
-    Route::put('expenseitem/{uuid}', [ExpenseItemController::class, 'replace']);
+    Route::apiResource('expenseitems', ExpenseItemController::class)->except(['update']);
+    Route::patch('expenseitems/{uuid}', [ExpenseItemController::class, 'update']);
+    Route::put('expenseitems/{uuid}', [ExpenseItemController::class, 'replace']);
 
 });

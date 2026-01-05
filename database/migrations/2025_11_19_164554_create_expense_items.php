@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id');
-            $table->integer('expense_id');
+            $table->integer('expenses_id');
             $table->string('expense_category');
-            $table->integer('expense_remark');
+            $table->string('expense_remark');
             $table->decimal('amount', 8, 2);
             $table->boolean('is_active');
             $table->integer('created_by');

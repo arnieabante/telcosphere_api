@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Scopes\SiteScope;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Expenses extends Model
 {
@@ -23,9 +23,6 @@ class Expenses extends Model
     protected $fillable = [
         'expense_date',
         'staff_name',
-        'expense_category',
-        'remarks',
-        'amount',
         'total',
         'is_active'
     ];
@@ -52,5 +49,9 @@ class Expenses extends Model
 
     public function uniqueIds(): array {
         return ['uuid'];
+    }
+
+    public function expenseItems(): HasMany {
+        return $this->hasMany(ExpenseItem::class);
     }
 }

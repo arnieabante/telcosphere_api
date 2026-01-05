@@ -32,8 +32,9 @@ class ExpensesController extends ApiController
 
         if (!empty($include) && $include == 'all') {
             $expenses = $query->orderBy('expense_date', 'asc')->get();
-            return ExpensesResource::collection($expenses);
-
+            return ExpensesResource::collection(
+                Expenses::with('expenseItems')->paginate()
+            );
         } else {
             if (!empty($search)) {
                 $query->where(function ($q) use ($search) {
@@ -44,8 +45,10 @@ class ExpensesController extends ApiController
             }
         }
 
-        $expensecategories = $query->orderBy('created_at', 'desc')->paginate($perPage);
-        return ExpensesResource::collection($expensecategories);
+        $expenses = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        return ExpensesResource::collection(
+            Expenses::with('expenseItems')->paginate()
+        );
     }
 
     /**
@@ -72,8 +75,8 @@ class ExpensesController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $expensecategory = Expenses::where('uuid', $uuid)->firstOrFail();
-            return new ExpensesResource($expensecategory);
+            $expenses = Expenses::where('uuid', $uuid)->firstOrFail();
+            return new ExpensesResource($expenses);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Expense Category does not exist.', 404);

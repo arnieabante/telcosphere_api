@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id');
-            $table->timestamp('expense_date');
+            $table->date('expense_date');
             $table->string('staff_name');
             $table->float('total');
             $table->boolean('is_active');

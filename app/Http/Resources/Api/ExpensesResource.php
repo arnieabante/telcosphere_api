@@ -15,16 +15,16 @@ class ExpensesResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'type' => 'expensecategory',
+            'type' => 'expenses',
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
-                'expense_date' => $this->expense_date,
-                'staff_name' => $this->staff_name,
+                'expenseDate' => $this->expense_date,
+                'staffName' => $this->staff_name,
                 'total' => $this->total,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
-                    request()->routeIs('expensecategories.show'), [
+                    request()->routeIs('expenses.show'), [
                         'siteId' => $this->site_id,
                         'createdBy' => $this->created_by,
                         'updatedBy' => $this->updated_by,
@@ -33,8 +33,14 @@ class ExpensesResource extends JsonResource
                     ]
                 ),
             ],
+             'relationships' => [
+                'expenseCategory' => new ExpenseCategoryResource($this->whenLoaded('expensecategory')),
+                'expenseItems' => $this->whenLoaded('expenseItems', function () {
+                    return ExpenseItemResource::collection($this->expenseItems);
+                })
+            ],
             'links' => [
-                'expensecategory' => route('expensecategories.show', $this->id)
+                'expense' => route('expenses.show', $this->id)
             ]
         ];
     }

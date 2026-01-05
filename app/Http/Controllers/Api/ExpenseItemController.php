@@ -46,12 +46,28 @@ class ExpenseItemController extends ApiController
     public function store(StoreExpenseItemRequest $request)
     {
         try {
-            return new ExpenseItemResource(
-                ExpenseItem::create($request->mappedAttributes())
-            );
+            $defaults = [
+                'site_id' => 1,
+                'is_active' => 1,
+                'created_by' => 1,
+                'updated_by' => 1,
+            ];
+
+            $expenseItems = collect($request->mappedAttributes())
+            ->map(fn($item) => array_merge($defaults, $item))
+            ->toArray();
+
+            ExpenseItem::insert($expenseItems);
+
+            return response()->json([
+                'message' => 'Expense items saved successfully'
+            ], 201);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to create a Expense Category.', 401);
+            return $this->error(
+                'You are not authorized to create expense items.',
+                401
+            );
         }
     }
 
@@ -67,7 +83,7 @@ class ExpenseItemController extends ApiController
         } catch (ModelNotFoundException $ex) {
             return $this->error('Expense Category does not exist.', 404);
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to view a Expense Category.', 401);
+            return $this->error('You are not authorized to view a Expense Items.', 401);
         }
     }
 
@@ -89,7 +105,7 @@ class ExpenseItemController extends ApiController
             return $this->error('Expense Category does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to update a Expense Category.', 401);
+            return $this->error('You are not authorized to update a Expense Items.', 401);
         }
     }
 
@@ -111,7 +127,7 @@ class ExpenseItemController extends ApiController
             return $this->error('Expense Category does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to replace a Expense Category.', 401);
+            return $this->error('You are not authorized to replace a Expense Items.', 401);
         }
     }
 
@@ -130,7 +146,7 @@ class ExpenseItemController extends ApiController
             return $this->error('Expense Category does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to delete a Expense Category.', 401);
+            return $this->error('You are not authorized to delete a Expense Items.', 401);
         }
     }
 }
