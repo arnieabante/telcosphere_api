@@ -61,6 +61,13 @@ class ModuleFactory extends Factory
                 'description' => 'Manage collection and payments',
                 'url' => 'collections'
             ],
+             [
+                'name' => 'Expenses',
+                'icon' => '<svg xmlns="http://www.w3.org/2000/svg" className="side-menu__icon" width="24" height="24"  viewBox="0 0 24 24"><path d="M15 16.69V13H16.5V15.82L18.94 17.23L18.19 18.53L15 16.69M10.87 20.76L9 22L6 20L3 22V3H21V11.1C22.24 12.36 23 14.09 23 16C23 19.87 19.87 23 16 23C13.97 23 12.14 22.14 10.87 20.76M9.73 19.11C9.26 18.17 9 17.12 9 16C9 12.13 12.13 9 16 9C17.07 9 18.09 9.24 19 9.67V5H5V18.26L6 17.6L9 19.6L9.73 19.11M16 21C18.76 21 21 18.76 21 16C21 13.24 18.76 11 16 11C13.24 11 11 13.24 11 16C11 18.76 13.24 21 16 21Z" /></svg>',
+                'parent_id' => 0,
+                'description' => 'Manage expenses',
+                'url' => 'expenses'
+            ],
             [
                 'name' => 'Service Request',
                 'icon' => '<svg xmlns="http://www.w3.org/2000/svg" className="side-menu__icon" width="24" height="24"  viewBox="0 0 24 24"><path d="M20,12A2,2 0 0,0 22,14V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V14C3.11,14 4,13.1 4,12A2,2 0 0,0 2,10V6C2,4.89 2.9,4 4,4H20A2,2 0 0,1 22,6V10A2,2 0 0,0 20,12M16.5,16.25C16.5,14.75 13.5,14 12,14C10.5,14 7.5,14.75 7.5,16.25V17H16.5V16.25M12,12.25A2.25,2.25 0 0,0 14.25,10A2.25,2.25 0 0,0 12,7.75A2.25,2.25 0 0,0 9.75,10A2.25,2.25 0 0,0 12,12.25Z" /></svg>',
@@ -91,7 +98,7 @@ class ModuleFactory extends Factory
             ],
             [
                 'name' => 'Expense Categories',
-                'icon' => 'fa fa-money-bill-wave',
+                'icon' => 'fa fa-money',
                 'parent_id' => 6,
                 'description' => 'List of Expense Categories',
                 'url' => 'expensecategories'
