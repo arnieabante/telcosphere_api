@@ -31,7 +31,7 @@ class ExpenseItemController extends ApiController
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('expense_category', 'like', "%{$search}%")
-                    ->orWhere('expense_remark', 'like', "%{$search}%")
+                    ->orWhere('remark', 'like', "%{$search}%")
                     ->orWhere('amount', 'like', "%{$search}%");
             });
         }
@@ -78,7 +78,10 @@ class ExpenseItemController extends ApiController
     {
         try {
             $expenseitem = ExpenseItem::where('uuid', $uuid)->firstOrFail();
-            return new ExpenseItemResource($expenseitem);
+            //return new ExpenseItemResource($expenseitem);
+            return ExpenseItemResource::collection(
+                ExpenseItem::where('expense_id', $request->expense_id)->get()
+            );
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Expense Category does not exist.', 404);

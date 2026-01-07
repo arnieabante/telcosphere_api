@@ -15,9 +15,9 @@ class ExpenseItem extends Model
 
     protected $fillable = [
         'uuid',
-        'expenses_id',
+        'expense_id',
         'expense_category',
-        'expense_remark',
+        'remark',
         'amount'
     ];
 
