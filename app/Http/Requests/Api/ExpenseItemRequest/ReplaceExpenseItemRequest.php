@@ -21,12 +21,12 @@ class ReplaceExpenseItemRequest extends BaseExpenseItemRequest
      */
     public function rules(): array
     {
-         return [
-            'expenseId' => 'required|numeric',
-            'expenseCategory' => 'required|numeric',
-            'expenseRemark' => 'required|string|min:5',
-            'expenseAmount' => 'required|numeric|decimal:2',
-            'isActive' => 'required|boolean'
+        return [
+            'items' => ['required', 'array'],
+            'items.*.expenseId' => ['required', 'numeric'],
+            'items.*.expenseCategory' => ['required', 'numeric'],
+            'items.*.expenseRemark' => ['nullable', 'string'],
+            'items.*.expenseAmount' => ['required', 'numeric'],
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
     }

@@ -75,7 +75,9 @@ class ExpensesController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $expenses = Expenses::where('uuid', $uuid)->firstOrFail();
+             $expenses = Expenses::with([
+                'expenseItems.expenseCategory'
+            ])->where('uuid', $uuid)->firstOrFail();
             return new ExpensesResource($expenses);
 
         } catch (ModelNotFoundException $ex) {

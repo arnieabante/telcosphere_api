@@ -20,10 +20,14 @@ class ExpenseItemResource extends JsonResource
             'attributes' => [
                 'uuid' => $this->uuid,
                 'expenseId' => $this->expense_id,
-                'expenseCategory' => $this->expense_category,
                 'expenseRemark' => $this->remark,
                 'expenseAmount' => $this->amount,
                 'isActive' => $this->is_active,
+                'expenseCategory' => [
+                    'id' => $this->expenseCategory->id,
+                    'name' => $this->expenseCategory->name,
+                    'description' => $this->expenseCategory->description,
+                ],
                 $this->mergeWhen(
                     request()->routeIs('expenseitem.show'), [
                         'siteId' => $this->site_id,

@@ -96,19 +96,35 @@ class ExpenseItemController extends ApiController
     public function update(UpdateExpenseItemRequest $request, string $uuid)
     {
         try {
-            // update policy
-            // $this->isAble('update', ExpenseItem::class);
+            $defaults = [
+                'site_id' => 1,
+                'is_active' => 1,
+                'created_by' => 1,
+                'updated_by' => 1,
+            ];
 
-            $expenseitem = ExpenseItem::where('uuid', $uuid)->firstOrFail();
-            $affected = $expenseitem->update($request->mappedAttributes());
+            foreach ($request->mappedAttributes() as $item) {
 
-            return new ExpenseItemResource($expenseitem);
+                ExpenseItem::updateOrCreate(
+                    ['uuid' => $item['uuid'] ?? \Str::uuid()],
+                    array_merge($defaults, [
+                        'expense_id' => $item['expense_id'],
+                        'expense_category' => $item['expense_category'],
+                        'remark' => $item['remark'],
+                        'amount' => $item['amount'],
+                    ])
+                );
+            }
 
-        } catch (ModelNotFoundException $ex) {
-            return $this->error('Expense Category does not exist.', 404);
+            return response()->json([
+                'message' => 'Expense items saved successfully'
+            ], 201);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to update a Expense Items.', 401);
+            return $this->error(
+                'You are not authorized to create expense items.',
+                401
+            );
         }
     }
 

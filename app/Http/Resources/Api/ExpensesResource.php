@@ -34,10 +34,9 @@ class ExpensesResource extends JsonResource
                 ),
             ],
              'relationships' => [
-                'expenseCategory' => new ExpenseCategoryResource($this->whenLoaded('expensecategory')),
-                'expenseItems' => $this->whenLoaded('expenseItems', function () {
-                    return ExpenseItemResource::collection($this->expenseItems);
-                })
+               'expenseItems' => ExpenseItemResource::collection(
+                    $this->whenLoaded('expenseItems')
+                ),
             ],
             'links' => [
                 'expense' => route('expenses.show', $this->id)
