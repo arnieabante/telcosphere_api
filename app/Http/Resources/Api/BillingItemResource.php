@@ -21,6 +21,7 @@ class BillingItemResource extends JsonResource
                 'uuid' => $this->uuid,
                 'billingId' => $this->billing_id,
                 'billingItemName' => $this->billing_item_name,
+                'billingItemParticulars' => $this->billing_item_particulars,
                 'billingItemQuantity' => $this->billing_item_quantity,
                 'billingItemPrice' => $this->billing_item_price,
                 'billingItemRemark' => $this->billing_item_remark,

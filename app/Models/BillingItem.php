@@ -24,6 +24,7 @@ class BillingItem extends Model
     protected $fillable = [
         'billing_id',
         'billing_item_name',
+        'billing_item_particulars',
         'billing_item_quantity',
         'billing_item_price',
         'billing_item_amount',

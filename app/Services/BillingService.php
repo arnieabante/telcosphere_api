@@ -74,11 +74,13 @@ class BillingService
     {
         $billing = Billing::where('uuid', $uuid)->firstOrFail();
 
+        // update Billing Items
         foreach ($data['billingItems'] as $item) {
             $billing->billingItems()->updateOrCreate([
                 'uuid' => $item['uuid']
             ], [
-                'billing_item_name' => $item['particulars'],
+                'billing_item_name' => $item['category'],
+                'billing_item_particulars' => $item['particulars'],
                 'billing_item_quantity' => $item['qty'],
                 'billing_item_price' => $item['price'],
                 'billing_item_amount' => $item['amount'],
@@ -86,29 +88,23 @@ class BillingService
             ]);
         }
 
-        $billing->client()->update([
-            'house_no' => $data['billingDescription']
-        ]);
-
+        // update Billing Total and Billing Details
+        $latestBillingTotal = $billing->billingItems()->sum('billing_item_amount');
         $billing->update([
+            'billing_total' => $latestBillingTotal,
             'billing_type' => $data['billingType'],
             'billing_remarks' => $data['billingRemarks'],
             'client_id' => $data['clientId']
         ]);
 
-        // update Billing Total
-        $latestBillingTotal = $billing->billingItems()->sum('billing_item_amount');
-        $billing->update([
-            'billing_total' => $latestBillingTotal
-        ]);
-
-        // update Client Balance
+        // update Client Balance and Client Details
         $latestClientBalance = $billing->where('client_id', $data['clientId'])
             ->where('billing_status', self::STATUS_PENDING)
             ->sum('billing_total');
 
         $billing->client()->update([
-            'balance_from_prev_billing' => $latestClientBalance
+            'balance_from_prev_billing' => $latestClientBalance,
+            'house_no' => $data['billingDescription']
         ]);
 
         return new BillingResource($billing);
