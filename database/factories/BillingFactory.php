@@ -23,6 +23,7 @@ class BillingFactory extends Factory
             'site_id' => 1,
             'client_id' => 1,
             'invoice_number' => 'INV-' . fake()->randomNumber(6, true),
+            'billing_type' => fake()->numberBetween(1, 3),
             'billing_date' => fake()->dateTimeThisYear(),
             'billing_remarks' => fake()->text(50),
             'billing_total' => fake()->randomFloat(2, 100, 10000),

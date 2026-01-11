@@ -24,6 +24,7 @@ class UpdateBillingItemRequest extends BaseBillingItemRequest
     {
         return [
             'billingItemName' => 'sometimes|required|string|min:5',
+            'billingItemParticulars' => 'sometimes|required|string|min:5',
             'billingItemQuantity' => 'sometimes|required|numeric',
             'billingItemRemark' => 'sometimes|required|string|min:5',
             'billingItemAmount' => 'sometimes|required|numeric|decimal:2',
