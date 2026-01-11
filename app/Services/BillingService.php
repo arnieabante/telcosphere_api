@@ -74,6 +74,15 @@ class BillingService
     {
         $billing = Billing::where('uuid', $uuid)->firstOrFail();
 
+        // activate / deactivate
+        if (isset($data['isActive'])) {
+            $billing->update([
+                'is_active' => 0
+            ]);
+
+            return new BillingResource($billing);
+        }
+
         // update Billing Items
         foreach ($data['billingItems'] as $item) {
             $billing->billingItems()->updateOrCreate([
