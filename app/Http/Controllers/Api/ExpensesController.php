@@ -24,30 +24,33 @@ class ExpensesController extends ApiController
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $search = $request->get('search');
-        $include = $request->get('include');
+        $search  = $request->get('search');
 
         $query = Expenses::query()
-            ->where('is_active', 1);
+            ->where('is_active', '=', 1)
+            ->with(['expenseItems.expenseCategory']);
 
-        if (!empty($include) && $include == 'all') {
-            $expenses = $query->orderBy('expense_date', 'asc')->get();
-            return ExpensesResource::collection(
-                Expenses::with('expenseItems')->paginate()
-            );
-        } else {
-            if (!empty($search)) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('expense_date', 'like', "%{$search}%")
-                    ->orWhere('staff_name', 'like', "%{$search}%")
-                    ->orWhere('total', 'like', "%{$search}%");
+       if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+
+                $q->where('expense_date', 'like', "%{$search}%")
+                ->orWhere('staff_name', 'like', "%{$search}%")
+                ->orWhere('total', 'like', "%{$search}%")
+
+                ->orWhereHas('expenseItems', function ($itemQ) use ($search) {
+                    $itemQ->where('remark', 'like', "%{$search}%")
+                            ->orWhere('amount', 'like', "%{$search}%");
+                })
+
+                ->orWhereHas('expenseItems.expenseCategory', function ($catQ) use ($search) {
+                    $catQ->where('name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
                 });
-            }
+            });
         }
 
-        $expenses = $query->orderBy('created_at', 'desc')->paginate($perPage);
         return ExpensesResource::collection(
-            Expenses::with('expenseItems')->paginate()
+            $query->orderBy('expense_date', 'desc')->paginate($perPage)
         );
     }
 

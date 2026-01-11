@@ -22,11 +22,11 @@ class StoreExpenseItemRequest extends BaseExpenseItemRequest
     public function rules(): array
     {
         return [
-            'items' => ['required', 'array'],
-            'items.*.expenseId' => ['required', 'numeric'],
-            'items.*.expenseCategory' => ['required', 'numeric'],
-            'items.*.expenseRemark' => ['nullable', 'string'],
-            'items.*.expenseAmount' => ['required', 'numeric'],
+            'items' => 'required|array|min:1',
+
+            'items.*.expenseCategory' => 'required|numeric',
+            'items.*.expenseRemark'   => 'nullable|string|min:2',
+            'items.*.expenseAmount' => 'required|numeric|min:0',
         ];
     }
 }

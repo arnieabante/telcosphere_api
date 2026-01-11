@@ -18,8 +18,14 @@ class ExpenseItem extends Model
         'expense_id',
         'expense_category',
         'remark',
-        'amount'
+        'amount',
+        'is_active',
+        'site_id',
+        'created_by',
+        'updated_by',
     ];
+
+    public $timestamps = true;
 
     protected static function booted()
     {
@@ -49,7 +55,7 @@ class ExpenseItem extends Model
         return $this->belongsTo(Expenses::class, 'expense_id');
     }
 
-    public function expenseCategory(): BelongsTo {
-        return $this->belongsTo(ExpenseCategory::class, 'id');
+    public function expensecategory(): BelongsTo {
+        return $this->belongsTo(ExpenseCategory::class, 'expense_category');
     }
 }

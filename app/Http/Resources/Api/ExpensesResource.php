@@ -4,6 +4,7 @@ namespace App\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Api\ExpenseItemResource;
 
 class ExpensesResource extends JsonResource
 {
@@ -33,8 +34,8 @@ class ExpensesResource extends JsonResource
                     ]
                 ),
             ],
-             'relationships' => [
-               'expenseItems' => ExpenseItemResource::collection(
+            'relationships' => [
+                'expenseItems' => ExpenseItemResource::collection(
                     $this->whenLoaded('expenseItems')
                 ),
             ],

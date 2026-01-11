@@ -23,11 +23,6 @@ class ExpenseItemResource extends JsonResource
                 'expenseRemark' => $this->remark,
                 'expenseAmount' => $this->amount,
                 'isActive' => $this->is_active,
-                'expenseCategory' => [
-                    'id' => $this->expenseCategory->id,
-                    'name' => $this->expenseCategory->name,
-                    'description' => $this->expenseCategory->description,
-                ],
                 $this->mergeWhen(
                     request()->routeIs('expenseitem.show'), [
                         'siteId' => $this->site_id,
@@ -36,6 +31,11 @@ class ExpenseItemResource extends JsonResource
                         'createdAt' => $this->created_at,
                         'updatedAt' => $this->updated_at
                     ]
+                ),
+            ],
+            'relationships' => [
+                'expenseCategory' => new ExpenseCategoryResource(
+                    $this->whenLoaded('expenseCategory')
                 ),
             ],
             'links' => [

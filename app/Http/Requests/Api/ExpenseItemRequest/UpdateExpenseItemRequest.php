@@ -5,7 +5,7 @@ namespace App\Http\Requests\Api\ExpenseItemRequest;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateExpenseItemRequest extends BaseExpenseItemRequest
+class UpdateExpenseItemRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,12 +23,21 @@ class UpdateExpenseItemRequest extends BaseExpenseItemRequest
     public function rules(): array
     {
        return [
-            'items' => ['required', 'array'],
-            'items.*.expenseId' => ['required', 'numeric'],
-            'items.*.expenseCategory' => ['required', 'numeric'],
-            'items.*.expenseRemark' => ['nullable', 'string'],
-            'items.*.expenseAmount' => ['required', 'numeric'],
+            'expenseCategory' => 'required|integer|exists:expense_categories,id',
+            'expenseRemark'   => 'nullable|string',
+            'expenseAmount'   => 'required|numeric|min:0',
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
+    }
+
+    public function mappedAttributes(): array
+    {
+        return [
+            'expense_category' => $this->expenseCategory,
+            'remark'           => $this->expenseRemark,
+            'amount'           => $this->expenseAmount,
+            'updated_by'       => 1,
+            'updated_at'       => now(),
+        ];
     }
 }

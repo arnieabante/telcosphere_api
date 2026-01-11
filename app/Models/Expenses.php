@@ -54,8 +54,4 @@ class Expenses extends Model
     public function expenseItems(): HasMany {
         return $this->hasMany(ExpenseItem::class, 'expense_id');
     }
-
-    public function expenseCategory(): BelongsTo {
-        return $this->belongsTo(ExpenseCategory::class);
-    }
 }

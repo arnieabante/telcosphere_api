@@ -12,6 +12,8 @@ use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class ExpenseItemController extends ApiController
 {
@@ -21,12 +23,14 @@ class ExpenseItemController extends ApiController
      * Display a listing of the resource.
      */
 
-    public function index(Request $request)
+    public function index(Request $request, int $expenseId)
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
 
-       $query = ExpenseItem::query()->where('is_active', '=', '1');
+        $query = ExpenseItem::query()->where('is_active', '=', '1')
+            ->where('expense_id', $expenseId)
+            ->get();
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
@@ -43,31 +47,24 @@ class ExpenseItemController extends ApiController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreExpenseItemRequest $request)
+    public function store(StoreExpenseItemRequest $request, int $expense)
     {
         try {
-            $defaults = [
-                'site_id' => 1,
-                'is_active' => 1,
-                'created_by' => 1,
-                'updated_by' => 1,
-            ];
-
-            $expenseItems = collect($request->mappedAttributes())
-            ->map(fn($item) => array_merge($defaults, $item))
-            ->toArray();
-
-            ExpenseItem::insert($expenseItems);
+            DB::transaction(function () use ($request, $expense) {
+                ExpenseItem::insert(
+                    $request->mappedAttributes($expense)
+                );
+            });
 
             return response()->json([
-                'message' => 'Expense items saved successfully'
+                'message' => 'Expense items created successfully'
             ], 201);
 
-        } catch (AuthorizationException $ex) {
-            return $this->error(
-                'You are not authorized to create expense items.',
-                401
-            );
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => 'Failed to create expense items',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -76,17 +73,15 @@ class ExpenseItemController extends ApiController
      */
     public function show(string $uuid)
     {
-        try {
-            $expenseitem = ExpenseItem::where('uuid', $uuid)->firstOrFail();
-            //return new ExpenseItemResource($expenseitem);
-            return ExpenseItemResource::collection(
-                ExpenseItem::where('expense_id', $request->expense_id)->get()
-            );
+         try {
+            $item = ExpenseItem::where('uuid', $uuid)->firstOrFail();
+            return new ExpenseItemResource($item);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Expense Category does not exist.', 404);
+            return $this->error('Billing does not exist.', 404);
+
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to view a Expense Items.', 401);
+            return $this->error('You are not authorized to view a Billing Item.', 401);
         }
     }
 
@@ -96,49 +91,30 @@ class ExpenseItemController extends ApiController
     public function update(UpdateExpenseItemRequest $request, string $uuid)
     {
         try {
-            $defaults = [
-                'site_id' => 1,
-                'is_active' => 1,
-                'created_by' => 1,
-                'updated_by' => 1,
-            ];
+            $item = ExpenseItem::where('uuid', $uuid)->firstOrFail();
 
-            foreach ($request->mappedAttributes() as $item) {
+            $item->update($request->mappedAttributes());
 
-                ExpenseItem::updateOrCreate(
-                    ['uuid' => $item['uuid'] ?? \Str::uuid()],
-                    array_merge($defaults, [
-                        'expense_id' => $item['expense_id'],
-                        'expense_category' => $item['expense_category'],
-                        'remark' => $item['remark'],
-                        'amount' => $item['amount'],
-                    ])
-                );
-            }
+            return new ExpenseItemResource($item->fresh());
 
+        } catch (ModelNotFoundException $ex) {
             return response()->json([
-                'message' => 'Expense items saved successfully'
-            ], 201);
-
-        } catch (AuthorizationException $ex) {
-            return $this->error(
-                'You are not authorized to create expense items.',
-                401
-            );
+                'message' => 'Expense item does not exist.'
+            ], 404);
         }
     }
 
     /**
      * Replace the specified resource in storage.
      */
-    public function replace(ReplaceExpenseItemRequest $request, string $uuid)
+    public function replace(ReplaceExpenseItemRequest $request, string $uuid, int $expense)
     {
         try {
             // replace policy
             // $this->isAble('replace', ExpenseItem::class);
 
             $expenseitem = ExpenseItem::where('uuid', $uuid)->firstOrFail();
-            $affected = $expenseitem->update($request->mappedAttributes());
+            $affected = $expenseitem->update($request->mappedAttributes($expense));
 
             return new ExpenseItemResource($expenseitem);
 
