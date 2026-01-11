@@ -65,7 +65,8 @@ class BillingService
 
             $billing->client()->update([
                 'balance_from_prev_billing' => $latestClientBalance,
-                'prorate_fee_status' => self::STATUS_BILLED
+                'prorate_fee_status' => self::STATUS_BILLED,
+                'last_auto_billing_date' => date('Y-m-d H:i:s'), // current date
             ]);
         }
     }
