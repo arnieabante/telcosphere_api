@@ -28,6 +28,8 @@ class BillingItem extends Model
         'billing_item_quantity',
         'billing_item_price',
         'billing_item_amount',
+        'billing_item_offset',
+        'billing_item_balance',
         'billing_item_remark',
         'billing_status'
     ];
