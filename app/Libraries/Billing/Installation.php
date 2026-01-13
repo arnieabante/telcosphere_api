@@ -33,6 +33,7 @@ class Installation implements BillingInterface
             // $price = $billing->client()->installation_fee;
             $data[] = [
                 'billing_item_name' => $item['billingItemName'], // $this->getName(),
+                'billing_item_particulars' => $item['billingItemParticulars'],
                 'billing_item_quantity' => $item['billingItemQuantity'],
                 'billing_item_price' => $item['billingItemPrice'], // $price,
                 'billing_item_amount' => $item['billingItemAmount'], // floatVal($price) * $item['billingItemQuantity'],

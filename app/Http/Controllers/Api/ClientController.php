@@ -158,4 +158,42 @@ class ClientController extends ApiController
             return $this->error('You are not authorized to delete a Client.', 401);
         }
     }
+    
+    /**
+     * Get billing for client
+     */
+
+    public function billings(Request $request, string $uuid)
+    {
+        $filter = $request->get('filter'); // e.g., 'status'
+        $value  = $request->get('value');  // e.g., 'Pending'
+
+        try {
+            $client = Client::with(['billings.billingItems' => function($query) use ($filter, $value) {
+                if ($filter && $value) {
+                    $query->where($filter, $value);
+                }
+            }])
+            ->where('uuid', $uuid)
+            ->where('is_active', 1)
+            ->firstOrFail();
+
+            return new ClientResource($client);
+
+        } catch (ModelNotFoundException $ex) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Client does not exist.'
+            ], 404);
+
+        } catch (\Exception $ex) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch client billings.',
+                'error'=>$ex->getMessage()
+            ], 500);
+        }
+    }
+
+
 }

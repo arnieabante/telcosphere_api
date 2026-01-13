@@ -22,6 +22,7 @@ class BillingItemFactory extends Factory
             'site_id' => 1,
             'billing_id' => NULL,
             'billing_item_name' => fake()->words(2, true),
+            'billing_item_particulars' => fake()->words(2, true),
             'billing_item_quantity' => fake()->numberBetween(1, 20),
             'billing_item_price' => '0.00',
             'billing_item_amount' => NULL,

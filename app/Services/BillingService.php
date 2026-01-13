@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Interfaces\BillingInterface;
 use App\Models\Billing;
 use Exception;
+use App\Http\Resources\Api\BillingResource;
 
 class BillingService
 {
@@ -14,7 +15,8 @@ class BillingService
 
     protected $invoice;
 
-    public function __construct(InvoiceService $invoice) {
+    public function __construct(InvoiceService $invoice) 
+    {
         $this->invoice = $invoice;
     }
 
@@ -30,6 +32,7 @@ class BillingService
             $billing = Billing::create([
                 'client_id' => $client->id, 
                 'invoice_number' => $this->invoice->generateInvoice()->invoice_number,
+                'billing_type' => $data['billingType'],
                 'billing_date' => date('Y-m-d H:i:s'), // current date
                 'billing_remarks' => $data['billingRemarks'] ?? NULL,
                 'billing_total' => 0.00, // update base on total amt in BillingItems
@@ -62,8 +65,58 @@ class BillingService
 
             $billing->client()->update([
                 'balance_from_prev_billing' => $latestClientBalance,
-                'prorate_fee_status' => self::STATUS_BILLED
+                'prorate_fee_status' => self::STATUS_BILLED,
+                'last_auto_billing_date' => date('Y-m-d H:i:s'), // current date
             ]);
         }
+    }
+
+    public function updateBilling($uuid, $data)
+    {
+        $billing = Billing::where('uuid', $uuid)->firstOrFail();
+
+        // activate / deactivate
+        if (isset($data['isActive'])) {
+            $billing->update([
+                'is_active' => 0
+            ]);
+
+            return new BillingResource($billing);
+        }
+
+        // update Billing Items
+        foreach ($data['billingItems'] as $item) {
+            $billing->billingItems()->updateOrCreate([
+                'uuid' => $item['uuid']
+            ], [
+                'billing_item_name' => $item['category'],
+                'billing_item_particulars' => $item['particulars'],
+                'billing_item_quantity' => $item['qty'],
+                'billing_item_price' => $item['price'],
+                'billing_item_amount' => $item['amount'],
+                'billing_status' => self::STATUS_PENDING
+            ]);
+        }
+
+        // update Billing Total and Billing Details
+        $latestBillingTotal = $billing->billingItems()->sum('billing_item_amount');
+        $billing->update([
+            'billing_total' => $latestBillingTotal,
+            'billing_type' => $data['billingType'],
+            'billing_remarks' => $data['billingRemarks'],
+            'client_id' => $data['clientId']
+        ]);
+
+        // update Client Balance and Client Details
+        $latestClientBalance = $billing->where('client_id', $data['clientId'])
+            ->where('billing_status', self::STATUS_PENDING)
+            ->sum('billing_total');
+
+        $billing->client()->update([
+            'balance_from_prev_billing' => $latestClientBalance,
+            'house_no' => $data['billingDescription']
+        ]);
+
+        return new BillingResource($billing);
     }
 }

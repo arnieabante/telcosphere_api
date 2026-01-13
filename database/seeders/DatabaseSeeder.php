@@ -68,9 +68,11 @@ class DatabaseSeeder extends Seeder
             ->count(3)
             ->create();
 
+        /*
         Billing::factory()
             ->count(3)
             ->create();
+        */
 
         Site::factory()
             ->count(2)
