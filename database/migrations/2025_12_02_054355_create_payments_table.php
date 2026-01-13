@@ -14,24 +14,28 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
-            $table->integer('site_id');
+            $table->integer('site_id')->nullable();
             $table->integer('client_id');
             $table->string('receipt_no');
-            $table->integer('payment_name');
-            $table->integer('payment_amount');
-            $table->string('payment_method');
+            $table->date('collection_date')->nullable();
+            $table->string('collected_by')->nullable();
+            $table->string('payment_method', 50);
             $table->string('reference')->nullable();
-            $table->integer('discount')->nullable();
-            $table->integer('discount_total')->nullable();
-            $table->string('discount_reason');
-            $table->date('payment_date');
-            $table->integer('collected_by');
+            $table->decimal('subtotal', 12, 2);
+            $table->decimal('discount', 12, 2)->nullable();
+            $table->decimal('total', 12, 2);
+            $table->decimal('amount_received', 12, 2);
+            $table->decimal('amount_change', 12, 2);
+            $table->decimal('amount_paid', 12, 2);
+            $table->string('discount_reason')->nullable();
+            $table->decimal('balance', 12, 2);
             $table->boolean('is_active');
-            $table->integer('created_by');
-            $table->integer('updated_by');
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->timestamps();
         });
     }
+
 
     /**
      * Reverse the migrations.

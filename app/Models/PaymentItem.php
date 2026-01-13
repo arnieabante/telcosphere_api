@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Scopes\SiteScope;
 
-class Payment extends Model
+class PaymentItem extends Model
 {
     use HasFactory, HasUuids;
 
@@ -25,20 +25,12 @@ class Payment extends Model
      * Mass assignable attributes
      */
     protected $fillable = [
-        'receipt_no',
-        'client_id',
-        'collection_date',
-        'collected_by',
-        'payment_method',
-        'reference',
-        'subtotal',
-        'discount',
-        'total',
-        'amount_received',
-        'amount_change',
+        'blling_id',
+        'blling_item_id',
+        'particulars',
+        'amount',
         'amount_paid',
-        'discount_reason',
-        'balance',
+        'amount_balance',
         'is_active'
     ];
 
@@ -48,9 +40,9 @@ class Payment extends Model
         // Apply global site filter
         static::addGlobalScope(new SiteScope);
 
-        // Auto-assign site_id when creating a payment
-        static::creating(function ($payment) {
-            $payment->site_id = $payment->site_id ?? (
+        // Auto-assign site_id when creating a ticket
+        static::creating(function ($ticket) {
+            $ticket->site_id = $ticket->site_id ?? (
                 auth()->check()
                     ? auth()->user()->site_id
                     : session('site_id') ?? request()->header('site_id') ?? 1
@@ -73,18 +65,5 @@ class Payment extends Model
     public function uniqueIds(): array
     {
         return ['uuid'];
-    }
-
-    /**
-     * Relationships
-     */
-    public function client()
-    {
-        return $this->belongsTo(\App\Models\Client::class, 'client_id');
-    }
-
-    public function collectedBy()
-    {
-        return $this->belongsTo(\App\Models\User::class, 'collected_by');
     }
 }

@@ -13,10 +13,19 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Services\ReceiptService;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends ApiController
 {
     use ApiResponses;
+    
+    protected $receiptService;
+
+    public function __construct(ReceiptService $receiptService)
+    {
+        $this->receiptService = $receiptService;
+    }
 
     /**
      * Display a listing of the resource.
@@ -67,17 +76,23 @@ class PaymentController extends ApiController
     public function store(StorePaymentRequest $request)
     {
         try {
-            // create policy
-            // $this->isAble('create', Payment::class);
+            return DB::transaction(function () use ($request) {
+                $receipt = $this->receiptService->generateReceipt(false);
 
-            return new PaymentResource(
-                Payment::create($request->mappedAttributes())
-            );
+                $attributes = array_merge($request->mappedAttributes(), [
+                    'receipt_no' => $receipt->receipt_no,
+                ]);
+
+                $payment = Payment::create($attributes);
+
+                return new PaymentResource($payment);
+            });
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to create a Payment.', 401);
         }
     }
+
 
     /**
      * Display the specified resource.
