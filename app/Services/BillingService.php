@@ -65,7 +65,8 @@ class BillingService
 
             $billing->client()->update([
                 'balance_from_prev_billing' => $latestClientBalance,
-                'prorate_fee_status' => self::STATUS_BILLED
+                'prorate_fee_status' => self::STATUS_BILLED,
+                'last_auto_billing_date' => date('Y-m-d H:i:s'), // current date
             ]);
         }
     }
@@ -73,6 +74,15 @@ class BillingService
     public function updateBilling($uuid, $data)
     {
         $billing = Billing::where('uuid', $uuid)->firstOrFail();
+
+        // activate / deactivate
+        if (isset($data['isActive'])) {
+            $billing->update([
+                'is_active' => 0
+            ]);
+
+            return new BillingResource($billing);
+        }
 
         // update Billing Items
         foreach ($data['billingItems'] as $item) {

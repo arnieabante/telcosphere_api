@@ -23,6 +23,7 @@ class Billing extends Model
     ];
 
     protected $fillable = [
+        'is_active',
         'client_id',
         'invoice_number',
         'billing_type',
