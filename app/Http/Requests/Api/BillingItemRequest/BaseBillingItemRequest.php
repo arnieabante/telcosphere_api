@@ -14,6 +14,8 @@ class BaseBillingItemRequest extends FormRequest
             'billingItemRemark' => 'billing_item_remark',
             'billingItemAmount' => 'billing_item_amount',
             'billingItemTotal' => 'billing_item_total',
+            'billingItemOffset' => 'billing_item_offset',
+            'billingItemBalance' => 'billing_item_balance',
             'billingStatus' => 'billing_status',
             'isActive' => 'is_active'
         ];

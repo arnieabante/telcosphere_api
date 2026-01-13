@@ -171,7 +171,11 @@ class ClientController extends ApiController
         try {
             $client = Client::with(['billings.billingItems' => function($query) use ($filter, $value) {
                 if ($filter && $value) {
-                    $query->where($filter, $value);
+                     if ($filter === 'billing_status' && $value === 'Pending') {
+                        $query->whereIn($filter, ['Pending', 'Partial']);
+                    } else {
+                        $query->where($filter, $value);
+                    }
                 }
             }])
             ->where('uuid', $uuid)
