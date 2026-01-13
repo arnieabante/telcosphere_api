@@ -12,8 +12,6 @@ use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Throwable;
 
 class ExpenseItemController extends ApiController
 {
@@ -47,24 +45,15 @@ class ExpenseItemController extends ApiController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreExpenseItemRequest $request, int $expense)
+    public function store(StoreExpenseItemRequest $request)
     {
         try {
-            DB::transaction(function () use ($request, $expense) {
-                ExpenseItem::insert(
-                    $request->mappedAttributes($expense)
-                );
-            });
+            return new ExpenseItemResource(
+                ExpenseItem::create($request->mappedAttributes())
+            );
 
-            return response()->json([
-                'message' => 'Expense items created successfully'
-            ], 201);
-
-        } catch (Throwable $e) {
-            return response()->json([
-                'message' => 'Failed to create expense items',
-                'error' => $e->getMessage(),
-            ], 500);
+        } catch (AuthorizationException $ex) {
+            return $this->error('You are not authorized to create a Expense Item.', 401);
         }
     }
 
@@ -78,10 +67,10 @@ class ExpenseItemController extends ApiController
             return new ExpenseItemResource($item);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Billing does not exist.', 404);
+            return $this->error('Expense does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to view a Billing Item.', 401);
+            return $this->error('You are not authorized to view a Expense Item.', 401);
         }
     }
 

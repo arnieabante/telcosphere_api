@@ -24,7 +24,7 @@ class UpdateExpensesRequest extends BaseExpensesRequest
     {
         return [
             'expenseDate' => 'required|date',
-            'staffName' => 'required|string',
+            'staffName' => 'required|string|min:3',
             'expenseTotal' => 'required|decimal:0,2',
             'isActive' => 'sometimes|required|boolean'
         ];

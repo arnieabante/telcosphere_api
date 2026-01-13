@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Api\ExpenseItemResource;
 
-class ExpensesResource extends JsonResource
+class ExpenseResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

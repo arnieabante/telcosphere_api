@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ExpenseCategory;
 use App\Models\Scopes\SiteScope;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,14 @@ class ExpenseItem extends Model
     /** @use HasFactory<\Database\Factories\Api\BillingItemsFactory> */
     use HasFactory, HasUlids;
 
+    // default values
+    protected $attributes = [
+        'site_id' => 1,
+        'is_active' => 1,
+        'created_by' => 1, // TODO
+        'updated_by' => 1 // TODO
+    ];
+
     protected $fillable = [
         'uuid',
         'expense_id',
@@ -20,9 +29,6 @@ class ExpenseItem extends Model
         'remark',
         'amount',
         'is_active',
-        'site_id',
-        'created_by',
-        'updated_by',
     ];
 
     public $timestamps = true;
@@ -52,10 +58,10 @@ class ExpenseItem extends Model
     }
 
     public function expense(): BelongsTo {
-        return $this->belongsTo(Expenses::class, 'expense_id');
+        return $this->belongsTo(Expense::class, 'expense_id');
     }
 
-    public function expensecategory(): BelongsTo {
+    public function expenseCategory(): BelongsTo {
         return $this->belongsTo(ExpenseCategory::class, 'expense_category');
     }
 }

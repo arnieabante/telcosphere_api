@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Scopes\SiteScope;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Expenses extends Model
+class Expense extends Model
 {
     use HasFactory, HasUuids;
 

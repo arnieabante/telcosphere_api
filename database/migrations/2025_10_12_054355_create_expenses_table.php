@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('site_id');
             $table->date('expense_date');
             $table->string('staff_name');
-            $table->float('total');
+            $table->decimal('total');
             $table->boolean('is_active');
             $table->integer('created_by');
             $table->integer('updated_by');

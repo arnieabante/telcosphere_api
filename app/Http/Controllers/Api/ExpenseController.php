@@ -6,14 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\ExpensesRequest\ReplaceExpensesRequest;
 use App\Http\Requests\Api\ExpensesRequest\StoreExpensesRequest;
 use App\Http\Requests\Api\ExpensesRequest\UpdateExpensesRequest;
-use App\Http\Resources\Api\ExpensesResource;
-use App\Models\Expenses;
+use App\Http\Resources\Api\ExpenseResource;
+use App\Models\Expense;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
-class ExpensesController extends ApiController
+class ExpenseController extends ApiController
 {
     use ApiResponses;
 
@@ -26,7 +26,7 @@ class ExpensesController extends ApiController
         $perPage = $request->get('per_page', 10);
         $search  = $request->get('search');
 
-        $query = Expenses::query()
+        $query = Expense::query()
             ->where('is_active', '=', 1)
             ->with(['expenseItems.expenseCategory']);
 
@@ -49,7 +49,7 @@ class ExpensesController extends ApiController
             });
         }
 
-        return ExpensesResource::collection(
+        return ExpenseResource::collection(
             $query->orderBy('expense_date', 'desc')->paginate($perPage)
         );
     }
@@ -60,15 +60,12 @@ class ExpensesController extends ApiController
     public function store(StoreExpensesRequest $request)
     {
         try {
-            // create policy
-            // $this->isAble('create', Expenses::class);
-
-            return new ExpensesResource(
-                Expenses::create($request->mappedAttributes())
+            return new ExpenseResource(
+                Expense::create($request->mappedAttributes())
             );
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to create a Expense Category.', 401);
+            return $this->error('You are not authorized to create a Expense.', 401);
         }
     }
 
@@ -78,15 +75,15 @@ class ExpensesController extends ApiController
     public function show(string $uuid)
     {
         try {
-             $expenses = Expenses::with([
+             $expenses = Expense::with([
                 'expenseItems.expenseCategory'
             ])->where('uuid', $uuid)->firstOrFail();
-            return new ExpensesResource($expenses);
+            return new ExpenseResource($expenses);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Expense Category does not exist.', 404);
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to view a Expense Category.', 401);
+            return $this->error('You are not authorized to view a Expense.', 401);
         }
     }
 
@@ -99,16 +96,16 @@ class ExpensesController extends ApiController
             // update policy
             // $this->isAble('update', Expenses::class);
 
-            $expensecategory = Expenses::where('uuid', $uuid)->firstOrFail();
+            $expensecategory = Expense::where('uuid', $uuid)->firstOrFail();
             $affected = $expensecategory->update($request->mappedAttributes());
 
-            return new ExpensesResource($expensecategory);
+            return new ExpenseResource($expensecategory);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Expense Category does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to update a Expense Category.', 401);
+            return $this->error('You are not authorized to update a Expense.', 401);
         }
     }
 
@@ -121,16 +118,16 @@ class ExpensesController extends ApiController
             // replace policy
             // $this->isAble('replace', Expenses::class);
 
-            $expensecategory = Expenses::where('uuid', $uuid)->firstOrFail();
+            $expensecategory = Expense::where('uuid', $uuid)->firstOrFail();
             $affected = $expensecategory->update($request->mappedAttributes());
 
-            return new ExpensesResource($expensecategory);
+            return new ExpenseResource($expensecategory);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Expense Category does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to replace a Expense Category.', 401);
+            return $this->error('You are not authorized to replace a Expense.', 401);
         }
     }
 
@@ -140,16 +137,16 @@ class ExpensesController extends ApiController
     public function destroy(string $uuid)
     {
         try {
-            $expensecategory = Expenses::where('uuid', $uuid)->firstOrFail();
+            $expensecategory = Expense::where('uuid', $uuid)->firstOrFail();
             $affected = $expensecategory->delete();
 
             return $this->ok("Deleted $affected record.", []);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Expense Category does not exist.', 404);
+            return $this->error('Expense does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to delete a Expense Category.', 401);
+            return $this->error('You are not authorized to delete a Expense.', 401);
         }
     }
 }

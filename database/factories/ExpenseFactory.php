@@ -2,16 +2,16 @@
 
 namespace Database\Factories;
 
-use App\Models\Expenses;
+use App\Models\Expense;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Internetplans>
  */
-class ExpensesFactory extends Factory
+class ExpenseFactory extends Factory
 {
-    protected $model = Expenses::class;
+    protected $model = Expense::class;
     /**
      * Define the model's default state.
      *
@@ -29,13 +29,5 @@ class ExpensesFactory extends Factory
             'created_by' => 1, // TODO: what is the value for this?
             'updated_by' => 1 // TODO: what is the value for this?
         ];
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('expenses');
     }
 }
