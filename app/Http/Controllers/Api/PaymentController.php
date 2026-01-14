@@ -108,6 +108,7 @@ class PaymentController extends ApiController
                         ]);
 
                         $amountPaid = floatval($item['amount_paid']);
+                        $amountBalance = floatval($item['amount_balance']);
                         // Update billing item
                         $billingItem = BillingItem::find($item['billing_item_id']);
 
@@ -115,7 +116,7 @@ class PaymentController extends ApiController
                             $billingItem->update([
                                 'billing_item_offset' => DB::raw('billing_item_offset + ' . $amountPaid),
                                 'billing_item_balance' => DB::raw('billing_item_balance - ' . $amountPaid),
-                                'billing_item_status' => $item['amount_balance'] > 0 ? 'Partial' : 'Paid',
+                                'billing_status' => $amountBalance > 0 ? 'Partial' : 'Paid',
                             ]);
                         }
 
