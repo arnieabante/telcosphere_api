@@ -4,7 +4,6 @@ namespace App\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Payment; 
 
 class PaymentResource extends JsonResource
 {
@@ -13,8 +12,6 @@ class PaymentResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-
-
     public function toArray(Request $request): array
     {
         return [
@@ -51,6 +48,7 @@ class PaymentResource extends JsonResource
             'relationships' => [
                 'client' => new ClientResource($this->whenLoaded('client')),
                 'collectedBy' => new UserResource($this->whenLoaded('collectedBy')),
+                'paymentItems' => PaymentItemResource::collection($this->paymentItems),
             ],
             'links' => [
                 'payment' => route('payments.show', $this->id),
