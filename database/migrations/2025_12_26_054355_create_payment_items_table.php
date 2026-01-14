@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id')->nullable();
-            $table->integer('billing_id');
+            $table->integer('payment_id')->nullable();
+            $table->integer('billing_item_id');
             $table->string('particulars');
             $table->decimal('amount', 12, 2);
             $table->decimal('amount_paid', 12, 2);
