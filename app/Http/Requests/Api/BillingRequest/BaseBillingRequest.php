@@ -11,6 +11,8 @@ class BaseBillingRequest extends FormRequest
             'billingDate' => 'billing_date',
             'billingRemarks' => 'billing_remarks',
             'billingTotal' => 'billing_total',
+            'billingOffset' => 'billing_offset',
+            'billingBalance' => 'billing_balance',
             'billingStatus' => 'billing_status',
 
             // not from Model

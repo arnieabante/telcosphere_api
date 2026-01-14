@@ -36,6 +36,8 @@ class BillingService
                 'billing_date' => date('Y-m-d H:i:s'), // current date
                 'billing_remarks' => $data['billingRemarks'] ?? NULL,
                 'billing_total' => 0.00, // update base on total amt in BillingItems
+                'billing_offset' => 0.00,
+                'billing_balance' => 0.00, // update base on total amt in BillingItems
                 'billing_status' => self::STATUS_PENDING,
                 'billing_cutoff' => $data['billingCutoff'] ?? NULL,
                 'disconnection_date' => $data['disconnectionDate'] ?? NULL
@@ -55,7 +57,8 @@ class BillingService
             $latestBillingTotal = $latestBilling->billingItems()->sum('billing_item_amount');
 
             $billing->update([
-                'billing_total' => $latestBillingTotal
+                'billing_total' => $latestBillingTotal,
+                'billing_balance' => $latestBillingTotal
             ]);
 
             // update Client Balance
