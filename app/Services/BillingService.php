@@ -51,20 +51,21 @@ class BillingService
             else 
                 $billing->billingItems()->create($billingItems[0]);
 
-            // update Billing Total
+            // update Billing Total/Balance
             $latestBilling = Billing::latest()->first();
             $latestBilling->load('billingItems');
             $latestBillingTotal = $latestBilling->billingItems()->sum('billing_item_amount');
+            $latestBillingBalance = $latestBilling->billingItems()->sum('billing_item_balance');
 
             $billing->update([
                 'billing_total' => $latestBillingTotal,
-                'billing_balance' => $latestBillingTotal
+                'billing_balance' => $latestBillingBalance
             ]);
 
             // update Client Balance
             $latestClientBalance = Billing::where('client_id', $client->id)
                 ->where('billing_status', self::STATUS_PENDING)
-                ->sum('billing_total');
+                ->sum('billing_balance');
 
             $billing->client()->update([
                 'balance_from_prev_billing' => $latestClientBalance,
@@ -97,14 +98,18 @@ class BillingService
                 'billing_item_quantity' => $item['qty'],
                 'billing_item_price' => $item['price'],
                 'billing_item_amount' => $item['amount'],
+                'billing_item_offset' => $item['offset'],
+                'billing_item_balance' => $item['balance'],
                 'billing_status' => self::STATUS_PENDING
             ]);
         }
 
-        // update Billing Total and Billing Details
+        // update Billing Total/Balance and Billing Details
         $latestBillingTotal = $billing->billingItems()->sum('billing_item_amount');
+        $latestBillingBalance = $billing->billingItems()->sum('billing_item_balance');
         $billing->update([
             'billing_total' => $latestBillingTotal,
+            'billing_balance' => $latestBillingBalance,
             'billing_type' => $data['billingType'],
             'billing_remarks' => $data['billingRemarks'],
             'client_id' => $data['clientId']
@@ -113,7 +118,7 @@ class BillingService
         // update Client Balance and Client Details
         $latestClientBalance = $billing->where('client_id', $data['clientId'])
             ->where('billing_status', self::STATUS_PENDING)
-            ->sum('billing_total');
+            ->sum('billing_balance');
 
         $billing->client()->update([
             'balance_from_prev_billing' => $latestClientBalance,

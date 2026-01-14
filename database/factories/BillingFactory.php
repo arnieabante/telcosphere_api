@@ -50,7 +50,8 @@ class BillingFactory extends Factory
                 ->count($itemCount)
                 ->create([
                     'billing_id' => $billing->id,
-                    'billing_item_amount' => $billingItemAmount
+                    'billing_item_amount' => $billingItemAmount,
+                    'billing_item_balance' => $billingItemAmount
                 ]);
         });
     }
