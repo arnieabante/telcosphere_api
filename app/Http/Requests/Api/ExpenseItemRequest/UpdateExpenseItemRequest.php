@@ -22,16 +22,26 @@ class UpdateExpenseItemRequest extends FormRequest
      */
     public function rules(): array
     {
-       return [
-            'expenseCategory' => 'required|integer|exists:expense_categories,id',
+        return [
+            'expenseCategory' => 'sometimes|integer|exists:expense_categories,id',
             'expenseRemark'   => 'nullable|string',
-            'expenseAmount'   => 'required|numeric|min:0',
+            'expenseAmount'   => 'sometimes|numeric|min:0',
+            'isActive' => 'sometimes|required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
     }
 
     public function mappedAttributes(): array
     {
+
+        if ($this->has('isActive')) {
+            return [
+                'is_active'  => $this->boolean('isActive'),
+                'updated_by'=> 1,
+                'updated_at'=> now(),
+            ];
+        }
+
         return [
             'expense_category' => $this->expenseCategory,
             'remark'           => $this->expenseRemark,

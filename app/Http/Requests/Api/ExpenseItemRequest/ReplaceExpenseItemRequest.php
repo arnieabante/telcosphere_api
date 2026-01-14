@@ -19,15 +19,25 @@ class ReplaceExpenseItemRequest extends BaseExpenseItemRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+     public function rules(): array
     {
-        return [
-            'items' => ['required', 'array'],
-            'items.*.expenseId' => ['required', 'numeric'],
-            'items.*.expenseCategory' => ['required', 'numeric'],
-            'items.*.expenseRemark' => ['nullable', 'string'],
-            'items.*.expenseAmount' => ['required', 'numeric'],
+       return [
+            'expenseCategory' => 'sometimes|required|integer|exists:expense_categories,id',
+            'expenseRemark'   => 'nullable|string',
+            'expenseAmount'   => 'sometimes|required|numeric|min:0',
+            'isActive' => 'sometimes|required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
+    }
+
+    public function mappedAttributes(): array
+    {
+        return [
+            'expense_category' => $this->expenseCategory,
+            'remark'           => $this->expenseRemark,
+            'amount'           => $this->expenseAmount,
+            'updated_by'       => 1,
+            'updated_at'       => now(),
+        ];
     }
 }

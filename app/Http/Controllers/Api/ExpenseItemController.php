@@ -81,7 +81,6 @@ class ExpenseItemController extends ApiController
     {
         try {
             $item = ExpenseItem::where('uuid', $uuid)->firstOrFail();
-
             $item->update($request->mappedAttributes());
 
             return new ExpenseItemResource($item->fresh());
@@ -96,14 +95,11 @@ class ExpenseItemController extends ApiController
     /**
      * Replace the specified resource in storage.
      */
-    public function replace(ReplaceExpenseItemRequest $request, string $uuid, int $expense)
+    public function replace(ReplaceExpenseItemRequest $request, string $uuid)
     {
         try {
-            // replace policy
-            // $this->isAble('replace', ExpenseItem::class);
-
             $expenseitem = ExpenseItem::where('uuid', $uuid)->firstOrFail();
-            $affected = $expenseitem->update($request->mappedAttributes($expense));
+            $affected = $expenseitem->update($request->mappedAttributes());
 
             return new ExpenseItemResource($expenseitem);
 
