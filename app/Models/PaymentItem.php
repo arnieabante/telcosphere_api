@@ -25,8 +25,9 @@ class PaymentItem extends Model
      * Mass assignable attributes
      */
     protected $fillable = [
-        'blling_id',
-        'blling_item_id',
+        'payment_id',
+        'billing_id',
+        'billing_item_id',
         'particulars',
         'amount',
         'amount_paid',

@@ -17,9 +17,12 @@ return new class extends Migration
             $table->integer('site_id');
             $table->integer('billing_id');
             $table->string('billing_item_name', 100);
+            $table->string('billing_item_particulars', 100);
             $table->integer('billing_item_quantity');
             $table->decimal('billing_item_price', 8, 2);
             $table->decimal('billing_item_amount', 8, 2);
+            $table->decimal('billing_item_offset', 8, 2)->default(0);
+            $table->decimal('billing_item_balance', 8, 2)->default(0);
             $table->tinyText('billing_item_remark')->nullable();
             $table->string('billing_status');
             $table->boolean('is_active');

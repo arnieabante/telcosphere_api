@@ -8,6 +8,10 @@ use App\Http\Requests\Api\PaymentRequest\StorePaymentRequest;
 use App\Http\Requests\Api\PaymentRequest\UpdatePaymentRequest;
 use App\Http\Resources\Api\PaymentResource;
 use App\Models\Payment;
+use App\Models\PaymentItem;
+use App\Models\Billing;
+use App\Models\BillingItem;
+use App\Models\Client;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -38,8 +42,13 @@ class PaymentController extends ApiController
         $statusFilter = $request->get('status');
         $clientUuid = $request->get('client_id');
 
-        $query = Payment::with(['client', 'collectedBy'])
-            ->where('is_active', 1);
+        $query = Payment::with([
+            'client',
+            'collectedBy',
+            'paymentItems' => function ($q) {
+                $q->where('is_active', 1); 
+            }
+        ])->where('is_active', 1);
 
         if(!empty($clientUuid) || $clientUuid != ''){
             $client = \App\Models\Client::where('uuid', $clientUuid)->first();
@@ -84,7 +93,51 @@ class PaymentController extends ApiController
                 ]);
 
                 $payment = Payment::create($attributes);
+                
+                $affectedBillingIds = [];
+                if ($request->has('collectionItems')) {
+                    foreach ($request->collectionItems as $item) {
+                        // Insert record to payment Item
+                        PaymentItem::create([
+                            'payment_id'       => $payment->id,
+                            'billing_item_id'  => $item['billing_item_id'],
+                            'particulars'      => $item['particulars'] ?? null,
+                            'amount'           => $item['amount'],
+                            'amount_paid'      => $item['amount_paid'],
+                            'amount_balance'   => $item['amount_balance'],
+                        ]);
 
+                        $amountPaid = floatval($item['amount_paid']);
+                        $amountBalance = floatval($item['amount_balance']);
+                        // Update billing item
+                        $billingItem = BillingItem::find($item['billing_item_id']);
+
+                        if ($billingItem) {
+                            $billingItem->update([
+                                'billing_item_offset' => DB::raw('billing_item_offset + ' . $amountPaid),
+                                'billing_item_balance' => DB::raw('billing_item_balance - ' . $amountPaid),
+                                'billing_status' => $amountBalance > 0 ? 'Partial' : 'Paid',
+                            ]);
+                        }
+
+                        // update billing
+                        $billing = Billing::find($item['billing_id']);
+                        if ($billing) {
+                            $billing->billing_offset += $amountPaid;
+                            $billing->billing_balance -= $amountPaid;
+                            $billing->billing_status = $item['amount_balance'] > 0 ? 'Partial' : 'Paid';
+                            $billing->save();
+                        }
+                    }
+                }
+
+                // Finally, let's update the balance_from_previous_billing of via $client->id
+                $client = Client::find($request['clientId']);
+                if ($client) {
+                    $client->update([
+                        'balance_from_prev_billing' => DB::raw('balance_from_prev_billing - ' . floatval($request['amountPaid'])),
+                    ]);
+                }
                 return new PaymentResource($payment);
             });
 

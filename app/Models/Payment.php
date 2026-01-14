@@ -87,4 +87,9 @@ class Payment extends Model
     {
         return $this->belongsTo(\App\Models\User::class, 'collected_by');
     }
+
+    public function paymentItems()
+    {
+        return $this->hasMany(\App\Models\PaymentItem::class, 'payment_id', 'id');
+    }
 }

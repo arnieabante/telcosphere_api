@@ -32,6 +32,7 @@ class OtherServices implements BillingInterface
         foreach ($items as $item) {
             $data[] = [
                 'billing_item_name' => $item['billingItemName'], // $this->getName(),
+                'billing_item_particulars' => $item['billingItemParticulars'],
                 'billing_item_quantity' => $item['billingItemQuantity'],
                 'billing_item_price' => $item['billingItemPrice'],
                 'billing_item_amount' => $item['billingItemAmount'], // floatVal($item['billingItemPrice']) * $item['billingItemQuantity'],
