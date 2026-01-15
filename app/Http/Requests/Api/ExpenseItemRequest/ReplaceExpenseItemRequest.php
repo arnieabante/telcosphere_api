@@ -29,15 +29,4 @@ class ReplaceExpenseItemRequest extends BaseExpenseItemRequest
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
     }
-
-    public function mappedAttributes(): array
-    {
-        return [
-            'expense_category' => $this->expenseCategory,
-            'remark'           => $this->expenseRemark,
-            'amount'           => $this->expenseAmount,
-            'updated_by'       => 1,
-            'updated_at'       => now(),
-        ];
-    }
 }

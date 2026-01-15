@@ -20,7 +20,6 @@ class ExpenseItemResource extends JsonResource
             'attributes' => [
                 'uuid' => $this->uuid,
                 'expenseId' => $this->expense_id,
-                'expenseCategory' => $this->expense_category,
                 'expenseRemark' => $this->remark,
                 'expenseAmount' => $this->amount,
                 'isActive' => $this->is_active,
