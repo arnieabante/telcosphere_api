@@ -103,8 +103,6 @@ class BillingService
                 'billing_item_quantity' => $item['qty'],
                 'billing_item_price' => $item['price'],
                 'billing_item_amount' => $item['amount'],
-                'billing_item_offset' => $item['offset'],
-                'billing_item_balance' => $item['balance'],
                 'billing_status' => self::STATUS_PENDING
             ]);
         }
