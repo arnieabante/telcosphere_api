@@ -10,8 +10,9 @@ use App\Http\Resources\Api\BillingResource;
 class BillingService
 {
     const STATUS_PENDING = 'Pending';
-    const STATUS_PAID = 'Paid';
+    const STATUS_PARTIAL = 'Partial';
     const STATUS_BILLED = 'Billed';
+    const STATUS_PAID = 'Paid';
 
     protected $invoice;
 
@@ -54,8 +55,12 @@ class BillingService
             // update Billing Total/Balance
             $latestBilling = Billing::latest()->first();
             $latestBilling->load('billingItems');
-            $latestBillingTotal = $latestBilling->billingItems()->sum('billing_item_amount');
-            $latestBillingBalance = $latestBilling->billingItems()->sum('billing_item_balance');
+            $latestBillingTotal = $latestBilling->billingItems()
+                ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                ->sum('billing_item_amount');
+            $latestBillingBalance = $latestBilling->billingItems()
+                ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                ->sum('billing_item_balance');
 
             $billing->update([
                 'billing_total' => $latestBillingTotal,
@@ -64,7 +69,7 @@ class BillingService
 
             // update Client Balance
             $latestClientBalance = Billing::where('client_id', $client->id)
-                ->where('billing_status', self::STATUS_PENDING)
+                ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->sum('billing_balance');
 
             $billing->client()->update([
@@ -105,8 +110,13 @@ class BillingService
         }
 
         // update Billing Total/Balance and Billing Details
-        $latestBillingTotal = $billing->billingItems()->sum('billing_item_amount');
-        $latestBillingBalance = $billing->billingItems()->sum('billing_item_balance');
+        $latestBillingTotal = $billing->billingItems()
+            ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+            ->sum('billing_item_amount');
+        $latestBillingBalance = $billing->billingItems()
+            ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+            ->sum('billing_item_balance');
+            
         $billing->update([
             'billing_total' => $latestBillingTotal,
             'billing_balance' => $latestBillingBalance,
@@ -117,7 +127,7 @@ class BillingService
 
         // update Client Balance and Client Details
         $latestClientBalance = $billing->where('client_id', $data['clientId'])
-            ->where('billing_status', self::STATUS_PENDING)
+            ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
             ->sum('billing_balance');
 
         $billing->client()->update([
