@@ -84,7 +84,7 @@ class ClientController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $client = Client::with(['internetPlan', 'billingCategory', 'server'])->where('uuid', $uuid)->firstOrFail();
+            $client = Client::with(['internetPlan', 'billingCategory', 'server', 'billings'])->where('uuid', $uuid)->firstOrFail();
             return new ClientResource($client);
             
 

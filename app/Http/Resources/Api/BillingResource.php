@@ -28,6 +28,8 @@ class BillingResource extends JsonResource
                 'billingOffset' => $this->billing_offset,
                 'billingBalance' => $this->billing_balance,
                 'billingStatus' => $this->billing_status,
+                'billingCutoff' => $this->billing_cutoff,
+                'billingDisconnectionDate' => $this->disconnection_date,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('billing.show'), [
