@@ -37,6 +37,8 @@ class Installation implements BillingInterface
                 'billing_item_quantity' => $item['billingItemQuantity'],
                 'billing_item_price' => $item['billingItemPrice'], // $price,
                 'billing_item_amount' => $item['billingItemAmount'], // floatVal($price) * $item['billingItemQuantity'],
+                'billing_item_offset' => '0.00',
+                'billing_item_balance' => $item['billingItemAmount'],
                 'billing_item_remark' => $item['billingItemRemark'],
                 'billing_status' => self::ITEM_STATUS_DEFAULT
             ];
