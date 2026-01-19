@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\ExpenseCategory;
 use App\Models\Scopes\SiteScope;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Billing extends Model
+class ExpenseItem extends Model
 {
-    /** @use HasFactory<\Database\Factories\BillingFactory> */
-    use HasFactory, HasUuids;
+    /** @use HasFactory<\Database\Factories\Api\BillingItemsFactory> */
+    use HasFactory, HasUlids;
 
     // default values
     protected $attributes = [
@@ -23,19 +23,15 @@ class Billing extends Model
     ];
 
     protected $fillable = [
+        'uuid',
+        'expense_id',
+        'expense_category',
+        'remark',
+        'amount',
         'is_active',
-        'client_id',
-        'invoice_number',
-        'billing_type',
-        'billing_date',
-        'billing_remarks',
-        'billing_total',
-        'billing_offset',
-        'billing_balance',
-        'billing_status',
-        'billing_cutoff',
-        'disconnection_date'
     ];
+
+    public $timestamps = true;
 
     protected static function booted()
     {
@@ -43,8 +39,8 @@ class Billing extends Model
         static::addGlobalScope(new SiteScope);
 
         // Auto-assign site_id when creating a billing
-        static::creating(function ($billing) {
-            $billing->site_id = $billing->site_id ?? (
+        static::creating(function ($expenseItem) {
+            $expenseItem->site_id = $expenseItem->site_id ?? (
                 auth()->check()
                     ? auth()->user()->site_id
                     : session('site_id') ?? request()->header('site_id') ?? 1
@@ -61,11 +57,11 @@ class Billing extends Model
         return ['uuid'];
     }
 
-    public function billingItems(): HasMany {
-        return $this->hasMany(BillingItem::class);
+    public function expense(): BelongsTo {
+        return $this->belongsTo(Expense::class, 'expense_id');
     }
 
-    public function client(): BelongsTo {
-        return $this->belongsTo(Client::class);
+    public function expenseCategory(): BelongsTo {
+        return $this->belongsTo(ExpenseCategory::class, 'expense_category');
     }
 }
