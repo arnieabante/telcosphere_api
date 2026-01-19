@@ -27,8 +27,9 @@ class UpdateBillingItemRequest extends BaseBillingItemRequest
             'billingItemParticulars' => 'sometimes|required|string|min:5',
             'billingItemQuantity' => 'sometimes|required|numeric',
             'billingItemRemark' => 'sometimes|required|string|min:5',
-            'billingItemAmount' => 'sometimes|required|numeric|decimal:2',
-            'billingItemTotal' => 'sometimes|required|numeric|decimal:2',
+            'billingItemAmount' => 'sometimes|required|digits_between:1,8|decimal:0,2',
+            'billingItemOffset' => 'sometimes|required|digits_between:1,8|decimal:0,2',
+            'billingItemBalance' => 'sometimes|required|digits_between:1,8|decimal:0,2',
             'isActive' => 'sometimes|required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username

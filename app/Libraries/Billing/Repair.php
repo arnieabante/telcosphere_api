@@ -36,6 +36,8 @@ class Repair implements BillingInterface
                 'billing_item_quantity' => $item['billingItemQuantity'],
                 'billing_item_price' => $item['billingItemPrice'],
                 'billing_item_amount' => $item['billingItemAmount'], // floatVal($item['billingItemPrice']) * $item['billingItemQuantity'],
+                'billing_item_offset' => '0.00',
+                'billing_item_balance' => $item['billingItemAmount'],
                 'billing_item_remark' => $item['billingItemRemark'],
                 'billing_status' => self::ITEM_STATUS_DEFAULT
             ];
