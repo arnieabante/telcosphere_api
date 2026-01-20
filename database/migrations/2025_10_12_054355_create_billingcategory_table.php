@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('description')->nullable();
             $table->integer('date_cycle');
+            $table->integer('days_to_due_date');
+            $table->integer('days_to_disconnection_date');
             $table->boolean('is_active');
             $table->integer('created_by');
             $table->integer('updated_by');
