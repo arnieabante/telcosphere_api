@@ -24,6 +24,7 @@ class UpdateBillingRequest extends BaseBillingRequest
     {
         return [
             'billingDate' => 'sometimes|required|date',
+            'billingDescription' => 'sometimes|required|string|max:100|nullable',
             'billingRemarks' => 'sometimes|required|string|max:100|nullable',
             'billingTotal' => 'sometimes|required|digits_between:1,8|decimal:0,2',
             'billingOffset' => 'sometimes|required|digits_between:1,8|decimal:0,2',
