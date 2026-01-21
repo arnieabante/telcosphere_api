@@ -25,6 +25,8 @@ class ReplaceBillingCategoryRequest extends BaseBillingCategoryRequest
             'name' => 'required|string|min:3|unique:billing_categories',
             'description' => 'string|max:100',
             'dateCycle' => 'required|integer',
+            'daysToDueDate' => 'required|integer',
+            'daysToDisconnectionDate' => 'required|integer',
             'isActive' => 'sometimes|required|boolean'
         ];
     }

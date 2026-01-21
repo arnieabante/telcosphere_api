@@ -24,6 +24,8 @@ class BillingCategory extends Model
         'name',
         'description',
         'date_cycle',
+        'days_to_due_date',
+        'days_to_disconnection_date',
         'is_active'
     ];
 
