@@ -93,9 +93,6 @@ class ExpenseController extends ApiController
     public function update(UpdateExpensesRequest $request, string $uuid)
     {
         try {
-            // update policy
-            // $this->isAble('update', Expenses::class);
-
             $expensecategory = Expense::where('uuid', $uuid)->firstOrFail();
             $affected = $expensecategory->update($request->mappedAttributes());
 
