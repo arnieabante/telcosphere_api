@@ -9,6 +9,7 @@ class BaseBillingRequest extends FormRequest
     public function mappedAttributes(): array {
         $attributes = [
             'billingDate' => 'billing_date',
+            'billingDescription' => 'billing_description',
             'billingRemarks' => 'billing_remarks',
             'billingTotal' => 'billing_total',
             'billingOffset' => 'billing_offset',
