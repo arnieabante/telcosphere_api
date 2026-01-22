@@ -11,12 +11,19 @@ use DateTime;
 class MonthlySubscription implements BillingInterface
 {
     const ITEM_NAME = 'Monthly Subscription Fee';
+    const ITEM_NAME_PRORATED = 'Monthly Subscription Fee with Pro-rated Amount';
     const ITEM_NAME_PRORATED_PREV = 'Pro-rated Previous Plan Internet Fee';
     const ITEM_NAME_PRORATED_CUR = 'Pro-rated Current Plan Internet Fee';
     const ITEM_STATUS_DEFAULT = 'Pending';
 
+    protected $name;
+
     public function getName(): string {
-        return self::ITEM_NAME;
+        return $this->name;
+    }
+
+    protected function setName($name): void {
+        $this->name = $name;
     }
 
     public function getClients($data): object {
@@ -37,11 +44,13 @@ class MonthlySubscription implements BillingInterface
         $data = [];
         foreach ($items as $item) {
             if ($billing->client->prorate_fee_status === 'Pending') {
+                $this->setName(self::ITEM_NAME_PRORATED);
                 $data = [
                     $this->generateProratedPrevious($billing->client, $item),
                     $this->generateProratedCurrent($billing->client, $item)
                 ];
             } else {
+                $this->setName(self::ITEM_NAME);
                 $price = $this->getSubscriptionRate($billing->client->internet_plan_id);
                 $data[] = [
                     'billing_item_name' => $this->getName(),

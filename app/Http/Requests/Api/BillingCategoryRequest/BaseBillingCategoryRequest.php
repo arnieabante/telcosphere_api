@@ -11,6 +11,8 @@ class BaseBillingCategoryRequest extends FormRequest
             'name' => 'name',
             'description' => 'description',
             'dateCycle' => 'date_cycle',
+            'daysToDueDate' => 'days_to_due_date',
+            'daysToDisconnectionDate' => 'days_to_disconnection_date',
             'isActive' => 'is_active'
         ];
 

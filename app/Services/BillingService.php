@@ -35,6 +35,7 @@ class BillingService
                 'invoice_number' => $this->invoice->generateInvoice()->invoice_number,
                 'billing_type' => $data['billingType'],
                 'billing_date' => date('Y-m-d H:i:s'), // current date
+                'billing_description' => NULL, // auto-populate after generating billing items
                 'billing_remarks' => $data['billingRemarks'] ?? NULL,
                 'billing_total' => 0.00, // update base on total amt in BillingItems
                 'billing_offset' => 0.00,
@@ -64,7 +65,8 @@ class BillingService
 
             $billing->update([
                 'billing_total' => $latestBillingTotal,
-                'billing_balance' => $latestBillingBalance
+                'billing_balance' => $latestBillingBalance,
+                'billing_description' => $billingType->getName()
             ]);
 
             // update Client Balance
