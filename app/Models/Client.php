@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Scopes\SiteScope;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Client extends Model
 {
@@ -106,5 +107,45 @@ class Client extends Model
     public function billings()
     {
         return $this->hasMany(\App\Models\Billing::class, 'client_id', 'id');
+    }
+
+    public function getSOA(array $filters = [])
+    {
+        $from = $filters['from'] ?? null;
+        $to   = $filters['to'] ?? null;
+
+        $billings = DB::table('billings')
+            ->select([
+                DB::raw("DATE_FORMAT(billings.billing_date, '%Y-%m-%d') AS soa_date"),
+                DB::raw("CONCAT('Invoice # ', billings.invoice_number) AS particulars"),
+                'billings.billing_total AS debit',
+                DB::raw('0 AS credit'),
+                'billings.created_at AS created_at',
+            ])
+            ->where('billings.client_id', $this->id);
+
+        if ($from && $to) {
+            $billings->whereBetween('billings.billing_date', [$from, $to]);
+        }
+
+        $payments = DB::table('payments')
+            ->select([
+                DB::raw("DATE_FORMAT(payments.collection_date, '%Y-%m-%d') AS soa_date"),
+                DB::raw("CONCAT('Payment - OR # ', payments.receipt_no) AS particulars"),
+                DB::raw('0 AS debit'),
+                'payments.amount_paid AS credit',
+                'payments.created_at AS created_at',
+            ])
+            ->where('payments.client_id', $this->id);
+
+        if ($from && $to) {
+            $payments->whereBetween('payments.collection_date', [$from, $to]);
+        }
+
+        return $billings
+            ->unionAll($payments)
+            ->orderBy('created_at')
+            ->orderBy('soa_date')
+            ->get();
     }
 }

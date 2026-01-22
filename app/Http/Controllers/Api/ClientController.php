@@ -12,6 +12,7 @@ use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ClientController extends ApiController
 {
@@ -199,5 +200,39 @@ class ClientController extends ApiController
         }
     }
 
+    public function fetchClientSOA(Request $request, string $uuid)
+    {
+        try {
+            $client = Client::where('uuid', $uuid)
+                ->where('is_active', 1)
+                ->firstOrFail();
 
+            $soa = $client->getSOA($request->only(['from', 'to']));
+
+            // Running balance
+            $balance = 0;
+            $soa = $soa->map(function ($row) use (&$balance) {
+                $balance += ($row->debit - $row->credit);
+                $row->balance = $balance;
+                return $row;
+            });
+
+            $totalDebit  = $soa->sum('debit');
+            $totalCredit = $soa->sum('credit');
+            $finalBalance = $totalDebit - $totalCredit;
+
+            return response()->json([
+                'success' => true,
+                'total' => [
+                        'total_debit'  => $totalDebit,
+                        'total_credit' => $totalCredit,
+                        'balance'      => $finalBalance,
+                    ],
+                'data' => $soa
+            ]);
+
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('Client does not exist.', 404);
+        }
+    }
 }
