@@ -25,6 +25,8 @@ class BillingCategoryFactory extends Factory
             'site_id' => 1,
             'name' => fake()->unique()->randomElement(['15th', '30th', '15th Without Bill']),
             'date_cycle' => fake()->randomElement(['15', '30', '15']),
+            'days_to_due_date' => 7,
+            'days_to_disconnection_date' => 7,
             'is_active' => 1,
             'created_by' => 1, 
             'updated_by' => 1 

@@ -7,7 +7,7 @@ use App\Models\Client;
 
 class OtherServices implements BillingInterface
 {
-    const ITEM_NAME = 'Other Services';
+    const ITEM_NAME = 'Other Services Fee';
     const ITEM_STATUS_DEFAULT = 'Pending';
 
     public function getName(): string {
