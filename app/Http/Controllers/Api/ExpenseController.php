@@ -9,9 +9,11 @@ use App\Http\Requests\Api\ExpensesRequest\UpdateExpensesRequest;
 use App\Http\Resources\Api\ExpenseResource;
 use App\Models\Expense;
 use App\Traits\ApiResponses;
+use App\Models\ExpenseItem;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class ExpenseController extends ApiController
 {
@@ -20,7 +22,6 @@ class ExpenseController extends ApiController
     /**
      * Display a listing of the resource.
      */
-
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
@@ -52,6 +53,55 @@ class ExpenseController extends ApiController
         return ExpenseResource::collection(
             $query->orderBy('expense_date', 'desc')->paginate($perPage)
         );
+    }
+
+    /**
+     * Display totals.
+     */
+    public function expenseTotals()
+    {
+        $today = Carbon::today();
+        $yesterday = Carbon::yesterday();
+
+        return response()->json([
+            'today' => ExpenseItem::where('is_active', 1)
+                ->whereHas('expense', function ($q) use ($today) {
+                    $q->whereDate('expense_date', $today);
+                })
+                ->sum('amount'),
+
+            'yesterday' => ExpenseItem::where('is_active', 1)
+                ->whereHas('expense', function ($q) use ($yesterday) {
+                    $q->whereDate('expense_date', $yesterday);
+                })
+                ->sum('amount'),
+
+            'last_7_days' => ExpenseItem::where('is_active', 1)
+                ->whereHas('expense', function ($q) {
+                    $q->whereBetween('expense_date', [
+                        Carbon::now()->subDays(6)->startOfDay(),
+                        Carbon::now()->endOfDay()
+                    ]);
+                })
+                ->sum('amount'),
+
+            'last_30_days' => ExpenseItem::where('is_active', 1)
+                ->whereHas('expense', function ($q) {
+                    $q->whereBetween('expense_date', [
+                        Carbon::now()->subDays(29)->startOfDay(),
+                        Carbon::now()->endOfDay()
+                    ]);
+                })
+                ->sum('amount'),
+
+            'current_year' => ExpenseItem::where('is_active', 1)
+                ->whereHas('expense', function ($q) {
+                    $q->whereYear('expense_date', Carbon::now()->year);
+                })
+                ->sum('amount'),
+
+            'total' => ExpenseItem::where('is_active', 1)->sum('amount'),
+        ]);
     }
 
     /**
@@ -93,9 +143,6 @@ class ExpenseController extends ApiController
     public function update(UpdateExpensesRequest $request, string $uuid)
     {
         try {
-            // update policy
-            // $this->isAble('update', Expenses::class);
-
             $expensecategory = Expense::where('uuid', $uuid)->firstOrFail();
             $affected = $expensecategory->update($request->mappedAttributes());
 

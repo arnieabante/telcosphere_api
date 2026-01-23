@@ -33,21 +33,29 @@ class UpdateExpenseItemRequest extends FormRequest
 
     public function mappedAttributes(): array
     {
+        $data = [
+            'updated_by' => 1,
+            'updated_at' => now(),
+        ];
 
         if ($this->has('isActive')) {
-            return [
-                'is_active'  => $this->boolean('isActive'),
-                'updated_by'=> 1,
-                'updated_at'=> now(),
-            ];
+            $data['is_active'] = $this->boolean('isActive');
+            return $data;
         }
 
-        return [
-            'expense_category' => $this->expenseCategory,
-            'remark'           => $this->expenseRemark,
-            'amount'           => $this->expenseAmount,
-            'updated_by'       => 1,
-            'updated_at'       => now(),
-        ];
+        if ($this->has('expenseCategory')) {
+            $data['expense_category'] = $this->expenseCategory;
+        }
+
+        if ($this->has('expenseRemark')) {
+            $data['remark'] = $this->expenseRemark;
+        }
+
+        if ($this->has('expenseAmount')) {
+            $data['amount'] = $this->expenseAmount;
+        }
+
+        return $data;
     }
+
 }

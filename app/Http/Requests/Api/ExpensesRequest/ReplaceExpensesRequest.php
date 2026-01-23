@@ -25,7 +25,7 @@ class ReplaceExpensesRequest extends BaseExpensesRequest
             'expenseDate' => 'required|date',
             'staffName' => 'required|string|min:3',
             'expenseTotal' => 'required|decimal:0,2',
-            'isActive' => 'sometimes|required|boolean'
+            'isActive' => 'required|boolean'
         ];
     }
 }
