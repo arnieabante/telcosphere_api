@@ -125,7 +125,9 @@ class Client extends Model
             ->where('billings.client_id', $this->id);
 
         if ($from && $to) {
-            $billings->whereBetween('billings.billing_date', [$from, $to]);
+             $billings
+                ->whereDate('billings.billing_date', '>=', $from)
+                ->whereDate('billings.billing_date', '<=', $to);
         }
 
         $payments = DB::table('payments')
@@ -139,7 +141,9 @@ class Client extends Model
             ->where('payments.client_id', $this->id);
 
         if ($from && $to) {
-            $payments->whereBetween('payments.collection_date', [$from, $to]);
+             $payments
+                ->whereDate('payments.collection_date', '>=', $from)
+                ->whereDate('payments.collection_date', '<=', $to);
         }
 
         return $billings

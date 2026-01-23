@@ -213,7 +213,8 @@ class ClientController extends ApiController
             $balance = 0;
             $soa = $soa->map(function ($row) use (&$balance) {
                 $balance += ($row->debit - $row->credit);
-                $row->balance = $balance;
+                // Format running balance with 2 decimals
+                $row->balance = number_format($balance, 2, '.', ',');
                 return $row;
             });
 
@@ -224,10 +225,10 @@ class ClientController extends ApiController
             return response()->json([
                 'success' => true,
                 'total' => [
-                        'total_debit'  => $totalDebit,
-                        'total_credit' => $totalCredit,
-                        'balance'      => $finalBalance,
-                    ],
+                    'total_debit'  => number_format($totalDebit, 2, '.', ','),
+                    'total_credit' => number_format($totalCredit, 2, '.', ','),
+                    'balance'      => number_format($finalBalance, 2, '.', ','),
+                ],
                 'data' => $soa
             ]);
 
@@ -235,4 +236,5 @@ class ClientController extends ApiController
             return $this->error('Client does not exist.', 404);
         }
     }
+
 }
