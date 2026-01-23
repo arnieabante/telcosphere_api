@@ -23,6 +23,7 @@ class ReplaceBillingRequest extends BaseBillingRequest
     {
         return [
             'billingDate' => 'required|date',
+            'billingDescription' => 'required|string|max:100|nullable',
             'billingRemarks' => 'required|string|max:100|nullable',
             'billingTotal' => 'required|digits_between:1,8|decimal:0,2',
             'billingOffset' => 'required|digits_between:1,8|decimal:0,2',
