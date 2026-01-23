@@ -41,6 +41,7 @@ class ClientResource extends JsonResource
                 'prorateEndDate' => $this->prorate_end_date,
                 'prorateFeeRemarks' => $this->prorate_fee_remarks,
                 'prorateFeeStatus' => $this->prorate_fee_status,
+                'facebookProfileURL' => $this->facebook_profile_url,
                 'lastAutoBillingDate' => $this->last_auto_billing_date,
                 'internetPlanId' => $this->internet_plan_id,
                 'serverId' => $this->server_id,
