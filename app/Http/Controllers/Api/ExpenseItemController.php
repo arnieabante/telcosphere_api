@@ -21,25 +21,45 @@ class ExpenseItemController extends ApiController
      * Display a listing of the resource.
      */
 
-    public function index(Request $request, int $expenseId)
+    public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $search = $request->get('search');
+        $search  = $request->get('search');
 
-        $query = ExpenseItem::query()->where('is_active', '=', '1')
-            ->where('expense_id', $expenseId)
-            ->get();
+        $query = ExpenseItem::query()
+            ->where('is_active', 1)
+            ->with([
+                'expense:id,uuid,expense_date,staff_name',
+                'expenseCategory:id,name,description'
+            ]);
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('expense_category', 'like', "%{$search}%")
-                    ->orWhere('remark', 'like', "%{$search}%")
-                    ->orWhere('amount', 'like', "%{$search}%");
+                $q->where('remark', 'like', "%{$search}%")
+                ->orWhere('amount', 'like', "%{$search}%")
+                ->orWhereHas('expenseCategory', function ($catQ) use ($search) {
+                    $catQ->where('name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                })
+                ->orWhereHas('expense', function ($expQ) use ($search) {
+                    $expQ->where('expense_date', 'like', "%{$search}%")
+                        ->orWhere('staff_name', 'like', "%{$search}%");
+                });
             });
         }
 
-        $item = $query->orderBy('created_at', 'desc')->paginate($perPage);
-        return ExpenseItemResource::collection($item);
+        return ExpenseItemResource::collection(
+            $query->orderBy('created_at', 'desc')->paginate($perPage)
+        );
+    }
+
+    public function showByUuid(string $uuid)
+    {
+        $item = ExpenseItem::where('uuid', $uuid)
+            ->with(['expense', 'expenseCategory'])
+            ->firstOrFail();
+
+        return new ExpenseItemResource($item);
     }
 
     /**
