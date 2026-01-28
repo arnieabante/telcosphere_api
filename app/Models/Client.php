@@ -116,6 +116,7 @@ class Client extends Model
 
         $billings = DB::table('billings')
             ->select([
+                DB::raw("billings.invoice_number AS id"),
                 DB::raw("DATE_FORMAT(billings.billing_date, '%Y-%m-%d') AS soa_date"),
                 DB::raw("CONCAT(billings.billing_description, ' - Invoice # ', billings.invoice_number) AS particulars"),
                 'billings.billing_total AS debit',
@@ -132,6 +133,7 @@ class Client extends Model
 
         $payments = DB::table('payments')
             ->select([
+                DB::raw("payments.receipt_no AS id"),
                 DB::raw("DATE_FORMAT(payments.collection_date, '%Y-%m-%d') AS soa_date"),
                 DB::raw("CONCAT('Payment - OR # ', payments.receipt_no) AS particulars"),
                 DB::raw('0 AS debit'),
