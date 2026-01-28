@@ -32,14 +32,14 @@ class Installation implements BillingInterface
         foreach ($items as $item) {
             // $price = $billing->client()->installation_fee;
             $data[] = [
-                'billing_item_name' => $item['billingItemName'], // $this->getName(),
-                'billing_item_particulars' => $item['billingItemParticulars'],
+                'billing_item_name' => $item['billingItemName'] ?? $this->getName(),
+                'billing_item_particulars' => $item['billingItemParticulars'] ?? $this->getName(),
                 'billing_item_quantity' => $item['billingItemQuantity'],
                 'billing_item_price' => $item['billingItemPrice'], // $price,
                 'billing_item_amount' => $item['billingItemAmount'], // floatVal($price) * $item['billingItemQuantity'],
                 'billing_item_offset' => '0.00',
                 'billing_item_balance' => $item['billingItemAmount'],
-                'billing_item_remark' => $item['billingItemRemark'],
+                'billing_item_remark' => $item['billingItemRemark'] ?? NULL,
                 'billing_status' => self::ITEM_STATUS_DEFAULT
             ];
         }
