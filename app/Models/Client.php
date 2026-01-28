@@ -117,7 +117,7 @@ class Client extends Model
         $billings = DB::table('billings')
             ->select([
                 DB::raw("DATE_FORMAT(billings.billing_date, '%Y-%m-%d') AS soa_date"),
-                DB::raw("CONCAT('Invoice # ', billings.invoice_number) AS particulars"),
+                DB::raw("CONCAT(billings.billing_description, ' - Invoice # ', billings.invoice_number) AS particulars"),
                 'billings.billing_total AS debit',
                 DB::raw('0 AS credit'),
                 'billings.created_at AS created_at',
