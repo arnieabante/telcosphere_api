@@ -6,6 +6,10 @@ use App\Interfaces\BillingInterface;
 use App\Models\Billing;
 use Exception;
 use App\Http\Resources\Api\BillingResource;
+use App\Libraries\Billing\MonthlySubscription;
+use App\Models\BillingCategory;
+use App\Models\Client;
+use Illuminate\Support\Facades\Log;
 
 class BillingService
 {
@@ -136,5 +140,33 @@ class BillingService
         ]);
 
         return new BillingResource($billing);
+    }
+
+    public function runAutomatedBilling()
+    {
+        $billingType = new MonthlySubscription();
+        $categories = BillingCategory::select(['id', 'name'])
+            ->where('date_cycle', date('d'))
+            ->get();
+
+        if (count($categories) < 1)
+            throw new Exception('No Category found.');
+
+        foreach ($categories as $category) {
+            $remark = "Automated Subscription Billing ({$category['name']})";
+            $billingData = [
+                'billingCategory' => $category['id'],
+                'billingType' => 1,
+                'billingRemarks' => $remark,
+                'billingItems' => [
+                    [
+                        'billingItemQuantity' => 1, 
+                        'billingItemRemark' => $remark
+                    ]
+                ]
+            ];
+
+            $this->generateBilling($billingType, $billingData);
+        }
     }
 }
