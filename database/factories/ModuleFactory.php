@@ -152,6 +152,13 @@ class ModuleFactory extends Factory
                 'description' => 'Generation of Statemement of Account',
                 'url' => 'soa'
             ],
+            [
+                'name' => 'Account History',
+                'icon' => 'fa fa-key',
+                'parent_id' => 16,
+                'description' => 'Generation of Account History',
+                'url' => 'accounthistory'
+            ],
         ];
 
         return array_shift($modules);
