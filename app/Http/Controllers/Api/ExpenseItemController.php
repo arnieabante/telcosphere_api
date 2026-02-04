@@ -53,15 +53,6 @@ class ExpenseItemController extends ApiController
         );
     }
 
-    public function showByUuid(string $uuid)
-    {
-        $item = ExpenseItem::where('uuid', $uuid)
-            ->with(['expense', 'expenseCategory'])
-            ->firstOrFail();
-
-        return new ExpenseItemResource($item);
-    }
-
     /**
      * Store a newly created resource in storage.
      */

@@ -9,11 +9,11 @@ use App\Http\Requests\Api\ExpensesRequest\UpdateExpensesRequest;
 use App\Http\Resources\Api\ExpenseResource;
 use App\Models\Expense;
 use App\Traits\ApiResponses;
-use App\Models\ExpenseItem;
+use App\Services\ExpenseService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use Exception;
 
 class ExpenseController extends ApiController
 {
@@ -58,50 +58,15 @@ class ExpenseController extends ApiController
     /**
      * Display totals.
      */
-    public function expenseTotals()
+    public function expenseTotals(ExpenseService $service)
     {
-        $today = Carbon::today();
-        $yesterday = Carbon::yesterday();
+        try {
+            $totals = $service->getTotals();
+            return $this->ok($totals);
 
-        return response()->json([
-            'today' => ExpenseItem::where('is_active', 1)
-                ->whereHas('expense', function ($q) use ($today) {
-                    $q->whereDate('expense_date', $today);
-                })
-                ->sum('amount'),
-
-            'yesterday' => ExpenseItem::where('is_active', 1)
-                ->whereHas('expense', function ($q) use ($yesterday) {
-                    $q->whereDate('expense_date', $yesterday);
-                })
-                ->sum('amount'),
-
-            'last_7_days' => ExpenseItem::where('is_active', 1)
-                ->whereHas('expense', function ($q) {
-                    $q->whereBetween('expense_date', [
-                        Carbon::now()->subDays(6)->startOfDay(),
-                        Carbon::now()->endOfDay()
-                    ]);
-                })
-                ->sum('amount'),
-
-            'last_30_days' => ExpenseItem::where('is_active', 1)
-                ->whereHas('expense', function ($q) {
-                    $q->whereBetween('expense_date', [
-                        Carbon::now()->subDays(29)->startOfDay(),
-                        Carbon::now()->endOfDay()
-                    ]);
-                })
-                ->sum('amount'),
-
-            'current_year' => ExpenseItem::where('is_active', 1)
-                ->whereHas('expense', function ($q) {
-                    $q->whereYear('expense_date', Carbon::now()->year);
-                })
-                ->sum('amount'),
-
-            'total' => ExpenseItem::where('is_active', 1)->sum('amount'),
-        ]);
+        } catch (Exception $ex) {
+            return $this->error($ex->getMessage(), 400);
+        }
     }
 
     /**
