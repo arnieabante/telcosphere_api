@@ -154,4 +154,50 @@ class Client extends Model
             ->orderBy('soa_date')
             ->get();
     }
+    
+    public function getAccountHistory(array $filters = [])
+    {
+        $from = $filters['from'] ?? null;
+        $to   = $filters['to'] ?? null;
+
+        $billings = DB::table('billings')
+            ->select([
+                DB::raw("billings.invoice_number AS id"),
+                DB::raw("DATE_FORMAT(billings.billing_date, '%Y-%m-%d') AS soa_date"),
+                DB::raw("CONCAT(billings.billing_description, ' - Invoice # ', billings.invoice_number) AS particulars"),
+                'billings.billing_total AS debit',
+                DB::raw('0 AS credit'),
+                'billings.created_at AS created_at',
+            ])
+            ->where('billings.client_id', $this->id);
+
+        if ($from && $to) {
+             $billings
+                ->whereDate('billings.billing_date', '>=', $from)
+                ->whereDate('billings.billing_date', '<=', $to);
+        }
+
+        $payments = DB::table('payments')
+            ->select([
+                DB::raw("payments.receipt_no AS id"),
+                DB::raw("DATE_FORMAT(payments.collection_date, '%Y-%m-%d') AS soa_date"),
+                DB::raw("CONCAT('Payment - OR # ', payments.receipt_no) AS particulars"),
+                DB::raw('0 AS debit'),
+                'payments.amount_paid AS credit',
+                'payments.created_at AS created_at',
+            ])
+            ->where('payments.client_id', $this->id);
+
+        if ($from && $to) {
+             $payments
+                ->whereDate('payments.collection_date', '>=', $from)
+                ->whereDate('payments.collection_date', '<=', $to);
+        }
+
+        return $billings
+            ->unionAll($payments)
+            ->orderBy('created_at')
+            ->orderBy('soa_date')
+            ->get();
+    }
 }
