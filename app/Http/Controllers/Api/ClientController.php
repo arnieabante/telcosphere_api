@@ -207,6 +207,7 @@ class ClientController extends ApiController
                 ->where('is_active', 1)
                 ->firstOrFail();
 
+            // Fetch client Transaction History
             $soa = $client->getSOA($request->only(['from', 'to']));
 
             // Running balance
@@ -229,7 +230,8 @@ class ClientController extends ApiController
                     'total_credit' => number_format($totalCredit, 2, '.', ','),
                     'balance'      => number_format($finalBalance, 2, '.', ','),
                 ],
-                'data' => $soa
+                'data' => $soa,
+                'client' => $client
             ]);
 
         } catch (ModelNotFoundException $ex) {
