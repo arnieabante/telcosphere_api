@@ -142,9 +142,8 @@ class BillingService
         return new BillingResource($billing);
     }
 
-    public function runAutomatedBilling()
+    public function runAutomatedBilling(BillingInterface $billingType)
     {
-        $billingType = new MonthlySubscription();
         $categories = BillingCategory::select(['id', 'name'])
             ->where('date_cycle', date('d'))
             ->get();
