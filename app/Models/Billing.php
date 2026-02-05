@@ -28,8 +28,11 @@ class Billing extends Model
         'invoice_number',
         'billing_type',
         'billing_date',
+        'billing_description',
         'billing_remarks',
         'billing_total',
+        'billing_offset',
+        'billing_balance',
         'billing_status',
         'billing_cutoff',
         'disconnection_date'

@@ -26,6 +26,8 @@ class UpdateBillingCategoryRequest extends BaseBillingCategoryRequest
             'name' => ['sometimes', 'required', 'string', 'min:3', Rule::unique('billing_categories')->ignore($this->uuid, 'uuid')],
             'description' => 'sometimes|required|string|max:100',
             'dateCycle' => 'required|integer',
+            'daysToDueDate' => 'required|integer',
+            'daysToDisconnectionDate' => 'required|integer',
             'isActive' => 'sometimes|required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username

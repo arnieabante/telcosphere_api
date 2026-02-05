@@ -18,6 +18,8 @@ class BillingFactory extends Factory
      */
     public function definition(): array
     {
+        $fakeTotal = fake()->randomFloat(2, 100, 10000);
+
         return [
             'uuid' => fake()->uuid(),
             'site_id' => 1,
@@ -25,8 +27,11 @@ class BillingFactory extends Factory
             'invoice_number' => 'INV-' . fake()->randomNumber(6, true),
             'billing_type' => fake()->numberBetween(1, 3),
             'billing_date' => fake()->dateTimeThisYear(),
+            'billing_description' => fake()->text(50),
             'billing_remarks' => fake()->text(50),
-            'billing_total' => fake()->randomFloat(2, 100, 10000),
+            'billing_total' => $fakeTotal,
+            'billing_offset' => '0.00',
+            'billing_balance' => $fakeTotal,
             'billing_status' => 'Paid', // fake()->randomElement(['Pending', 'Billed', 'Paid']),
             'billing_cutoff' => fake()->dateTimeThisYear(),
             'disconnection_date' => fake()->dateTimeThisYear(),
@@ -46,7 +51,8 @@ class BillingFactory extends Factory
                 ->count($itemCount)
                 ->create([
                     'billing_id' => $billing->id,
-                    'billing_item_amount' => $billingItemAmount
+                    'billing_item_amount' => $billingItemAmount,
+                    'billing_item_balance' => $billingItemAmount
                 ]);
         });
     }

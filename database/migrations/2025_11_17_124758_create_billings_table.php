@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('invoice_number');
             $table->integer('billing_type');
             $table->timestamp('billing_date');
+            $table->tinyText('billing_description')->nullable();
             $table->tinyText('billing_remarks')->nullable();
             $table->decimal('billing_total', 8, 2);
             $table->decimal('billing_offset', 8, 2)->default(0);

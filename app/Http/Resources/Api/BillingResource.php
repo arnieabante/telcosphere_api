@@ -23,9 +23,14 @@ class BillingResource extends JsonResource
                 'invoiceNumber' => $this->invoice_number,
                 'billingType' => $this->billing_type,
                 'billingDate' => $this->billing_date,
+                'billingDescription' => $this->billing_description,
                 'billingRemarks' => $this->billing_remarks,
                 'billingTotal' => $this->billing_total,
+                'billingOffset' => $this->billing_offset,
+                'billingBalance' => $this->billing_balance,
                 'billingStatus' => $this->billing_status,
+                'billingCutoff' => $this->billing_cutoff,
+                'billingDisconnectionDate' => $this->disconnection_date,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('billing.show'), [

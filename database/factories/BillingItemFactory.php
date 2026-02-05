@@ -26,6 +26,8 @@ class BillingItemFactory extends Factory
             'billing_item_quantity' => fake()->numberBetween(1, 20),
             'billing_item_price' => '0.00',
             'billing_item_amount' => NULL,
+            'billing_item_offset' => '0.00',
+            'billing_item_balance' => NULL,
             'billing_item_remark' => fake()->text(50),
             'billing_status' => 'Paid', // fake()->randomElement(['Pending', 'Billed', 'Paid']),
             'is_active' => 1,
