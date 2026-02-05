@@ -6,10 +6,7 @@ use App\Interfaces\BillingInterface;
 use App\Models\Billing;
 use Exception;
 use App\Http\Resources\Api\BillingResource;
-use App\Libraries\Billing\MonthlySubscription;
 use App\Models\BillingCategory;
-use App\Models\Client;
-use Illuminate\Support\Facades\Log;
 
 class BillingService
 {
