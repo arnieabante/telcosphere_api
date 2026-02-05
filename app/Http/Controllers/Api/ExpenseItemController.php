@@ -9,6 +9,7 @@ use App\Http\Requests\Api\ExpenseItemRequest\UpdateExpenseItemRequest;
 use App\Http\Resources\Api\ExpenseItemResource;
 use App\Models\ExpenseItem;
 use App\Traits\ApiResponses;
+use App\Services\ExpenseService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class ExpenseItemController extends ApiController
      * Display a listing of the resource.
      */
 
-    public function index(Request $request)
+    public function index(Request $request, ExpenseService $service)
     {
         $perPage = $request->get('per_page', 10);
         $search  = $request->get('search');
@@ -29,7 +30,7 @@ class ExpenseItemController extends ApiController
         $query = ExpenseItem::query()
             ->where('is_active', 1)
             ->with([
-                'expense:id,uuid,expense_date,staff_name',
+                'expense:id,uuid,expense_date,staff_name,total',
                 'expenseCategory:id,name,description'
             ]);
 
@@ -37,10 +38,12 @@ class ExpenseItemController extends ApiController
             $query->where(function ($q) use ($search) {
                 $q->where('remark', 'like', "%{$search}%")
                 ->orWhere('amount', 'like', "%{$search}%")
+
                 ->orWhereHas('expenseCategory', function ($catQ) use ($search) {
                     $catQ->where('name', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%");
                 })
+
                 ->orWhereHas('expense', function ($expQ) use ($search) {
                     $expQ->where('expense_date', 'like', "%{$search}%")
                         ->orWhere('staff_name', 'like', "%{$search}%");
@@ -48,9 +51,19 @@ class ExpenseItemController extends ApiController
             });
         }
 
-        return ExpenseItemResource::collection(
-            $query->orderBy('created_at', 'desc')->paginate($perPage)
-        );
+        // Paginated items
+        $expenses = $query
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
+        $totals = $service->getTotals();
+
+        return ExpenseItemResource::collection($expenses)
+            ->additional([
+                'meta' => [
+                    'totals' => $totals
+                ]
+            ]);
     }
 
     /**

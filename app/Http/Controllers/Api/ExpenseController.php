@@ -9,11 +9,9 @@ use App\Http\Requests\Api\ExpensesRequest\UpdateExpensesRequest;
 use App\Http\Resources\Api\ExpenseResource;
 use App\Models\Expense;
 use App\Traits\ApiResponses;
-use App\Services\ExpenseService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Exception;
 
 class ExpenseController extends ApiController
 {
@@ -53,20 +51,6 @@ class ExpenseController extends ApiController
         return ExpenseResource::collection(
             $query->orderBy('expense_date', 'desc')->paginate($perPage)
         );
-    }
-
-    /**
-     * Display totals.
-     */
-    public function expenseTotals(ExpenseService $service)
-    {
-        try {
-            $totals = $service->getTotals();
-            return $this->ok($totals);
-
-        } catch (Exception $ex) {
-            return $this->error($ex->getMessage(), 400);
-        }
     }
 
     /**
