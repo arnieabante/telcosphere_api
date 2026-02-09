@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\DB;
 class PaymentController extends ApiController
 {
     use ApiResponses;
-    
+
     protected $receiptService;
 
     public function __construct(ReceiptService $receiptService)
@@ -46,7 +46,7 @@ class PaymentController extends ApiController
             'client',
             'collectedBy',
             'paymentItems' => function ($q) {
-                $q->where('is_active', 1); 
+                $q->where('is_active', 1);
             }
         ])->where('is_active', 1);
 
@@ -58,9 +58,9 @@ class PaymentController extends ApiController
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('receipt_no', 'like', "%{$search}%")
-                ->orWhere('payment_date', 'like', "%{$search}%") 
-                ->orWhere('payment_amount', 'like', "%{$search}%") 
-                ->orWhere('reference', 'like', "%{$search}%") 
+                ->orWhere('payment_date', 'like', "%{$search}%")
+                ->orWhere('payment_amount', 'like', "%{$search}%")
+                ->orWhere('reference', 'like', "%{$search}%")
                 ->orWhereHas('client', function ($clientQuery) use ($search) {
                     $clientQuery->where('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%");
@@ -78,7 +78,6 @@ class PaymentController extends ApiController
         return PaymentResource::collection($payments);
     }
 
-
     /**
      * Store a newly created resource in storage.
      */
@@ -93,7 +92,7 @@ class PaymentController extends ApiController
                 ]);
 
                 $payment = Payment::create($attributes);
-                
+
                 $affectedBillingIds = [];
                 if ($request->has('collectionItems')) {
                     foreach ($request->collectionItems as $item) {
@@ -155,7 +154,7 @@ class PaymentController extends ApiController
         try {
             $payment = Payment::with(['client' , 'collectedBy'])->where('uuid', $uuid)->firstOrFail();
             return new PaymentResource($payment);
-            
+
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Payment does not exist.', 404);
