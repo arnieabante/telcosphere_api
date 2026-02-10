@@ -36,6 +36,7 @@ class ClientResource extends JsonResource
                 'installationDate' => $this->installation_date,
                 'installationFee' => $this->installation_fee,
                 'balanceFromPrevBilling' => $this->balance_from_prev_billing,
+                'currentBalance' => $this->current_balance,
                 'prorateFee' => $this->prorate_fee,
                 'prorateStartDate' => $this->prorate_start_date,
                 'prorateEndDate' => $this->prorate_end_date,

@@ -39,6 +39,7 @@ class Client extends Model
         'installation_date',
         'installation_fee',
         'balance_from_prev_billing',
+        'current_balance',
         'prorate_fee',
         'prorate_start_date',
         'prorate_end_date',
