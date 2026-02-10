@@ -13,6 +13,8 @@ interface DashboardInterface
     public function getTotalBillingAmount(): float;
     public function getMonthlyBillingAmountGrowth(): float;
     public function getTotalActiveServers(): int;
-    public function getMonthlyExpenseAmount(): float;
-    public function getExpenseGrowth(): float;
+    public function getMonthlytWifiCollection(): float;
+    public function getMonthlyWifiCollectionGrowth(): float;
+    public function getMonthlyProfit(): float;
+    public function getMonthlyProfitGrowth(): float;
 }

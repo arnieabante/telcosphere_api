@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Ticket;
 use App\Models\Billing;
 use App\Models\Server;
+use App\Models\Payment;
 use App\Models\ExpenseItem;
 use Carbon\Carbon;
 
@@ -73,6 +74,7 @@ class DashboardService implements DashboardInterface
     {
         return Billing::where('is_active', 1)
         ->whereIn('billing_status', ['pending'])
+        ->whereIn('billing_status', ['partial'])
         ->count();
     }
 
@@ -97,10 +99,12 @@ class DashboardService implements DashboardInterface
         return round((($thisMonth - $lastMonth) / $lastMonth) * 100, 2);
     }
 
+    // AMOUNT FOR COLLECTION
     public function getTotalBillingAmount(): float
     {
         return Billing::where('is_active', 1)
             ->where('billing_status', 'pending')
+            ->where('billing_status', 'partial')
             ->sum('billing_total');
     }
 
@@ -135,39 +139,80 @@ class DashboardService implements DashboardInterface
         );
     }
 
-    //SERVERS
-    public function getTotalActiveServers(): int
-    {
-        return Server::where('is_active', 1)->count();
-    }
-
-    // EXPENSES - TO DO
-    public function getMonthlyExpenseAmount(): float
+    // MONTHLY WIFI COLLECTION
+    public function getMonthlytWifiCollection(): float
     {
         return Billing::where('is_active', 1)
-            ->where('billing_status', 'pending')
+            ->where('billing_status', 'paid')
+            ->where('billing_description', 'Monthly Subscription Fee')
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
             ->sum('billing_total');
     }
 
-    public function getExpenseGrowth(): float
+    public function getMonthlyWifiCollectionGrowth(): float
     {
         $now = Carbon::now();
 
         // This month total billing amount
         $thisMonthTotal = Billing::where('is_active', 1)
-            ->where('billing_status', 'pending')
-            ->whereMonth('created_at', $now->month)
-            ->whereYear('created_at', $now->year)
+            ->where('billing_status', 'paid')
+            ->where('billing_description', 'Monthly Subscription Fee')
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
             ->sum('billing_total');
 
         // Last month total billing amount
         $lastMonth = $now->copy()->subMonth();
 
         $lastMonthTotal = Billing::where('is_active', 1)
-            ->where('billing_status', 'pending')
+            ->where('billing_status', 'paid')
+            ->where('billing_description', 'Monthly Subscription Fee')
+            ->whereYear('created_at', $lastMonth->month)
+            ->whereMonth('created_at', $lastMonth->year)
+            ->sum('billing_total');
+
+        // Avoid division by zero
+        if ($lastMonthTotal == 0.0) {
+            return $thisMonthTotal > 0 ? 100.0 : 0.0;
+        }
+
+        return round(
+            (($thisMonthTotal - $lastMonthTotal) / $lastMonthTotal) * 100,
+            2
+        );
+    }
+
+    //SERVERS
+    public function getTotalActiveServers(): int
+    {
+        return Server::where('is_active', 1)->count();
+    }
+
+    // MONTHLY NET PROFIT (PAYMENTS)
+    public function getMonthlyProfit(): float
+    {
+        return Payment::where('is_active', 1)
+            ->sum('amount_paid');
+    }
+
+    public function getMonthlyProfitGrowth(): float
+    {
+        $now = Carbon::now();
+
+        // This month total billing amount
+        $thisMonthTotal = Payment::where('is_active', 1)
+            ->whereMonth('created_at', $now->month)
+            ->whereYear('created_at', $now->year)
+            ->sum('amount_paid');
+
+        // Last month total billing amount
+        $lastMonth = $now->copy()->subMonth();
+
+        $lastMonthTotal = Payment::where('is_active', 1)
             ->whereMonth('created_at', $lastMonth->month)
             ->whereYear('created_at', $lastMonth->year)
-            ->sum('billing_total');
+            ->sum('amount_paid');
 
         // Avoid division by zero
         if ($lastMonthTotal == 0.0) {

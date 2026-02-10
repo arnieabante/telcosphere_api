@@ -12,6 +12,7 @@ use App\Models\PaymentItem;
 use App\Models\Billing;
 use App\Models\BillingItem;
 use App\Models\Client;
+use App\Services\DashboardService;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -35,7 +36,7 @@ class PaymentController extends ApiController
      * Display a listing of the resource.
      */
 
-    public function index(Request $request)
+    public function index(Request $request, DashboardService $service)
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
@@ -75,7 +76,16 @@ class PaymentController extends ApiController
                  ->paginate($perPage)
                  ->appends($request->only(['status', 'search', 'per_page']));
 
-        return PaymentResource::collection($payments);
+        $monthlyProfit = $service->getMonthlyProfit();
+        $profitGrowth = $service->getMonthlyProfitGrowth();
+
+        return PaymentResource::collection($payments)
+        ->additional([
+                'meta' => [
+                    'monthly_profit' => $monthlyProfit,
+                    'profit_growth' => $profitGrowth
+                ]
+            ]);
     }
 
     /**
