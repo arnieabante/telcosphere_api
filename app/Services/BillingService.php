@@ -6,10 +6,7 @@ use App\Interfaces\BillingInterface;
 use App\Models\Billing;
 use Exception;
 use App\Http\Resources\Api\BillingResource;
-use App\Libraries\Billing\MonthlySubscription;
 use App\Models\BillingCategory;
-use App\Models\Client;
-use Illuminate\Support\Facades\Log;
 
 class BillingService
 {
@@ -74,12 +71,18 @@ class BillingService
             ]);
 
             // update Client Balance
-            $latestClientBalance = Billing::where('client_id', $client->id)
+            $previousClientBalance = Billing::where('client_id', $client->id)
+                ->where('id', '<>', $billing->id)
+                ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                ->sum('billing_balance');
+
+            $currentClientBalance = Billing::where('client_id', $client->id)
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->sum('billing_balance');
 
             $billing->client()->update([
-                'balance_from_prev_billing' => $latestClientBalance,
+                'balance_from_prev_billing' => $previousClientBalance,
+                'current_balance' => $currentClientBalance,
                 'prorate_fee_status' => self::STATUS_BILLED,
                 'last_auto_billing_date' => date('Y-m-d H:i:s'), // current date
             ]);
@@ -130,21 +133,26 @@ class BillingService
         ]);
 
         // update Client Balance and Client Details
-        $latestClientBalance = $billing->where('client_id', $data['clientId'])
+        $previousClientBalance = $billing->where('client_id', $data['clientId'])
+            ->where('id', '<>', $billing->id)
+            ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+            ->sum('billing_balance');
+
+        $currentClientBalance = $billing->where('client_id', $data['clientId'])
             ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
             ->sum('billing_balance');
 
         $billing->client()->update([
-            'balance_from_prev_billing' => $latestClientBalance,
+            'balance_from_prev_billing' => $previousClientBalance,
+            'current_balance' => $currentClientBalance,
             'house_no' => $data['billingDescription']
         ]);
 
         return new BillingResource($billing);
     }
 
-    public function runAutomatedBilling()
+    public function runAutomatedBilling(BillingInterface $billingType)
     {
-        $billingType = new MonthlySubscription();
         $categories = BillingCategory::select(['id', 'name'])
             ->where('date_cycle', date('d'))
             ->get();
