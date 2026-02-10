@@ -207,13 +207,15 @@ class ClientController extends ApiController
                 ->where('is_active', 1)
                 ->firstOrFail();
 
+            // Fetch client Transaction History
             $soa = $client->getSOA($request->only(['from', 'to']));
 
             // Running balance
             $balance = 0;
             $soa = $soa->map(function ($row) use (&$balance) {
                 $balance += ($row->debit - $row->credit);
-                $row->balance = $balance;
+                // Format running balance with 2 decimals
+                $row->balance = number_format($balance, 2, '.', ',');
                 return $row;
             });
 
@@ -224,10 +226,48 @@ class ClientController extends ApiController
             return response()->json([
                 'success' => true,
                 'total' => [
-                        'total_debit'  => $totalDebit,
-                        'total_credit' => $totalCredit,
-                        'balance'      => $finalBalance,
-                    ],
+                    'total_debit'  => number_format($totalDebit, 2, '.', ','),
+                    'total_credit' => number_format($totalCredit, 2, '.', ','),
+                    'balance'      => number_format($finalBalance, 2, '.', ','),
+                ],
+                'data' => $soa,
+                'client' => $client
+            ]);
+
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('Client does not exist.', 404);
+        }
+    }
+
+    public function fetchAccountHistory(Request $request, string $uuid)
+    {
+        try {
+            $client = Client::where('uuid', $uuid)
+                ->where('is_active', 1)
+                ->firstOrFail();
+
+            $soa = $client->getAccountHistory($request->only(['from', 'to']));
+
+            // Running balance
+            $balance = 0;
+            $soa = $soa->map(function ($row) use (&$balance) {
+                $balance += ($row->debit - $row->credit);
+                // Format running balance with 2 decimals
+                $row->balance = number_format($balance, 2, '.', ',');
+                return $row;
+            });
+
+            $totalDebit  = $soa->sum('debit');
+            $totalCredit = $soa->sum('credit');
+            $finalBalance = $totalDebit - $totalCredit;
+
+            return response()->json([
+                'success' => true,
+                'total' => [
+                    'total_debit'  => number_format($totalDebit, 2, '.', ','),
+                    'total_credit' => number_format($totalCredit, 2, '.', ','),
+                    'balance'      => number_format($finalBalance, 2, '.', ','),
+                ],
                 'data' => $soa
             ]);
 

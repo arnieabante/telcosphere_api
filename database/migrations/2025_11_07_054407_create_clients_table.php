@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('installation_date');
             $table->decimal('installation_fee', 8, 2)->default(0.00);
             $table->decimal('balance_from_prev_billing', 8, 2)->default(0.00);
+            $table->decimal('current_balance', 8, 2)->default(0.00);
             $table->decimal('prorate_fee', 8, 2)->default(0.00);
             $table->date('prorate_start_date')->nullable();
             $table->date('prorate_end_date')->nullable();
