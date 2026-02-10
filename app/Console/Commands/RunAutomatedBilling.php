@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Libraries\Billing\MonthlySubscription;
 use App\Services\BillingService;
 use Illuminate\Console\Command;
 
@@ -27,7 +28,7 @@ class RunAutomatedBilling extends Command
     public function handle()
     {
         try {
-            app(BillingService::class)->runAutomatedBilling();
+            app(BillingService::class)->runAutomatedBilling(new MonthlySubscription);
             $this->info('Automated billing generated successfully on ' . date('Y-m-d H:i:s'));
         } catch (\Exception $ex) {
             $this->info('No billing generated on ' . date('Y-m-d H:i:s') . ': ' . $ex);

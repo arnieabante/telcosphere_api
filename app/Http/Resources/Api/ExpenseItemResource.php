@@ -15,32 +15,25 @@ class ExpenseItemResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'type' => 'expenseitem',
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
-                'expenseId' => $this->expense_id,
                 'expenseRemark' => $this->remark,
                 'expenseAmount' => $this->amount,
                 'isActive' => $this->is_active,
-                $this->mergeWhen(
-                    request()->routeIs('expenseitem.show'), [
-                        'siteId' => $this->site_id,
-                        'createdBy' => $this->created_by,
-                        'updatedBy' => $this->updated_by,
-                        'createdAt' => $this->created_at,
-                        'updatedAt' => $this->updated_at
-                    ]
-                ),
             ],
             'relationships' => [
-                'expenseCategory' => new ExpenseCategoryResource(
-                    $this->whenLoaded('expenseCategory')
-                ),
+                'expense' => [
+                    'uuid' => $this->expense->uuid,
+                    'expenseDate' => $this->expense->expense_date,
+                    'staffName' => $this->expense->staff_name,
+                ],
+                'expenseCategory' => [
+                    'name' => $this->expenseCategory->name,
+                    'description' => $this->expenseCategory->description,
+                ],
             ],
-            'links' => [
-                'expenseitem' => route('expenseitems.show', $this->id)
-            ]
         ];
     }
+
 }

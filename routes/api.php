@@ -58,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('clients/{uuid}', [ClientController::class, 'replace']);
     Route::get('clients/{uuid}/billings', [ClientController::class, 'billings']);
     Route::get('clients/{uuid}/soa', [ClientController::class, 'fetchClientSOA']);
+    Route::get('clients/{uuid}/accounthistory', [ClientController::class, 'fetchAccountHistory']);
 
     Route::apiResource('ticketcategories', TicketCategoryController::class)->except(['update']);
     Route::patch('ticketcategories/{uuid}', [TicketCategoryController::class, 'update']);
