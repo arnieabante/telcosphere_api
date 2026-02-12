@@ -17,4 +17,5 @@ interface DashboardInterface
     public function getMonthlyWifiCollectionGrowth(): float;
     public function getMonthlyProfit(): float;
     public function getMonthlyProfitGrowth(): float;
+    public function getOverdueBillings();
 }

@@ -224,4 +224,30 @@ class DashboardService implements DashboardInterface
             2
         );
     }
+
+    // GET THE OVERDUE BILLINGS
+    public function getOverdueBillings()
+{
+    $today = Carbon::today();
+
+    return Billing::with('client')
+        ->where('is_active', 1)
+        ->where('billing_status', 'overdue')
+        ->get()
+        ->map(function ($billing) use ($today) {
+
+            $daysOverdue = $today->diffInDays(Carbon::parse($billing->billing_cutoff), false);
+
+            return [
+                'invoice_number' => $billing->invoice_number,
+                'client_name' => $billing->client->first_name . ' ' . $billing->client->last_name,
+                'contact_no' => $billing->client->mobile_no,
+                'balance' => $billing->billing_balance,
+                'days_overdue' => $daysOverdue > 0 ? $daysOverdue : 0,
+                'status' => $today->gt(Carbon::parse($billing->disconnection_date))
+                                ? 'For Disconnection'
+                                : 'Active',
+            ];
+        });
+}
 }

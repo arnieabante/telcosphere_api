@@ -50,6 +50,7 @@ class BillingController extends ApiController
         $totalAmountGrowth = $service->getMonthlyBillingAmountGrowth();
         $monthlyWifiCollection = $service->getMonthlytWifiCollection();
         $monthlyWifiCollectionGrowth = $service->getMonthlyWifiCollectionGrowth();
+        $overdue = $service->getOverdueBillings();
 
         $billing = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
@@ -61,7 +62,8 @@ class BillingController extends ApiController
                     'billings_amount' => $totalBillingAmount,
                     'billings_amount_growth' => $totalAmountGrowth,
                     'monthly_wifi_collection' => $monthlyWifiCollection,
-                    'monthly_wifi_growth' => $monthlyWifiCollectionGrowth
+                    'monthly_wifi_growth' => $monthlyWifiCollectionGrowth,
+                    'overdue_accounts' => $overdueAccounts
                 ]
             ]);
     }
