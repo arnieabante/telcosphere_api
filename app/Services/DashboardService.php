@@ -73,8 +73,7 @@ class DashboardService implements DashboardInterface
     public function getTotalPendingBilling(): int
     {
         return Billing::where('is_active', 1)
-        ->whereIn('billing_status', ['pending'])
-        ->whereIn('billing_status', ['partial'])
+        ->whereNot('billing_status', 'paid')
         ->count();
     }
 
@@ -103,8 +102,7 @@ class DashboardService implements DashboardInterface
     public function getTotalBillingAmount(): float
     {
         return Billing::where('is_active', 1)
-            ->where('billing_status', 'pending')
-            ->where('billing_status', 'partial')
+            ->whereNot('billing_status', 'paid')
             ->sum('billing_total');
     }
 
@@ -227,27 +225,39 @@ class DashboardService implements DashboardInterface
 
     // GET THE OVERDUE BILLINGS
     public function getOverdueBillings()
-{
-    $today = Carbon::today();
+    {
+        $today = Carbon::today();
 
-    return Billing::with('client')
-        ->where('is_active', 1)
-        ->where('billing_status', 'overdue')
-        ->get()
-        ->map(function ($billing) use ($today) {
+        return Billing::with('client')
+            ->where('is_active', 1)
+            ->whereIn('billing_status', ['overdue', 'due'])
+            ->whereNotNull('disconnection_date')
+            ->orderBy('disconnection_date', 'asc')
+            ->take(5)
+            ->get()
+            ->map(function ($billing) use ($today) {
 
-            $daysOverdue = $today->diffInDays(Carbon::parse($billing->billing_cutoff), false);
+                $daysOverdue = 0;
 
-            return [
-                'invoice_number' => $billing->invoice_number,
-                'client_name' => $billing->client->first_name . ' ' . $billing->client->last_name,
-                'contact_no' => $billing->client->mobile_no,
-                'balance' => $billing->billing_balance,
-                'days_overdue' => $daysOverdue > 0 ? $daysOverdue : 0,
-                'status' => $today->gt(Carbon::parse($billing->disconnection_date))
-                                ? 'For Disconnection'
-                                : 'Active',
-            ];
-        });
-}
+                if ($billing->disconnection_date) {
+                    $disconnectionDate = Carbon::parse($billing->disconnection_date);
+
+                    if ($today->gt($disconnectionDate)) {
+                        $daysOverdue = $disconnectionDate->diffInDays($today);
+                    }
+                }
+
+                return [
+                    'invoice_number' => $billing->invoice_number,
+                    'client_name' => $billing->client->first_name . ' ' . $billing->client->last_name,
+                    'contact_no' => $billing->client->mobile_no,
+                    'balance' => $billing->billing_balance,
+                    'days_overdue' => $daysOverdue,
+                    'status' => $daysOverdue > 0
+                                    ? 'For Disconnection'
+                                    : 'Due',
+                ];
+            });
+    }
+
 }

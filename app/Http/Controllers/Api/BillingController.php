@@ -63,7 +63,7 @@ class BillingController extends ApiController
                     'billings_amount_growth' => $totalAmountGrowth,
                     'monthly_wifi_collection' => $monthlyWifiCollection,
                     'monthly_wifi_growth' => $monthlyWifiCollectionGrowth,
-                    'overdue_accounts' => $overdueAccounts
+                    'overdue_accounts' => $overdue
                 ]
             ]);
     }
