@@ -8,6 +8,7 @@ use App\Http\Requests\Api\ClientRequest\StoreClientRequest;
 use App\Http\Requests\Api\ClientRequest\UpdateClientRequest;
 use App\Http\Resources\Api\ClientResource;
 use App\Models\Client;
+use App\Services\DashboardService;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -22,7 +23,7 @@ class ClientController extends ApiController
      * Display a listing of the resource.
      */
 
-    public function index(Request $request)
+    public function index(Request $request, DashboardService $service)
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
@@ -37,29 +38,36 @@ class ClientController extends ApiController
         } else {
             if (!empty($search)) {
                 $query->where(function ($q) use ($search) {
-                    $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]) 
+                    $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
                     ->orWhere('first_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhere('installation_date', 'like', "%{$search}%")
                     ->orWhere('house_no', 'like', "%{$search}%")
                     ->orWhereHas('internetPlan', function ($planQuery) use ($search) {
-                        $planQuery->where('name', 'like', "%{$search}%"); 
+                        $planQuery->where('name', 'like', "%{$search}%");
                     })
                     ->orWhereHas('server', function ($planQuery) use ($search) {
-                        $planQuery->where('name', 'like', "%{$search}%"); 
+                        $planQuery->where('name', 'like', "%{$search}%");
                     })
                     ->orWhereHas('billingCategory', function ($billingQuery) use ($search) {
-                        $billingQuery->where('name', 'like', "%{$search}%"); 
+                        $billingQuery->where('name', 'like', "%{$search}%");
                     });
                 });
             }
         }
+        $totalClient = $service->getTotalClient();
+        $totalGrowth = $service->getClientGrowth();
 
         $clients = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        return ClientResource::collection($clients);
+        return ClientResource::collection($clients)
+            ->additional([
+                'meta' => [
+                    'clients_total' => $totalClient,
+                    'clients_growth' => $totalGrowth
+                ]
+            ]);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -87,7 +95,7 @@ class ClientController extends ApiController
         try {
             $client = Client::with(['internetPlan', 'billingCategory', 'server', 'billings'])->where('uuid', $uuid)->firstOrFail();
             return new ClientResource($client);
-            
+
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Client does not exist.', 404);
@@ -159,7 +167,7 @@ class ClientController extends ApiController
             return $this->error('You are not authorized to delete a Client.', 401);
         }
     }
-    
+
     /**
      * Get billing for client
      */
@@ -207,13 +215,15 @@ class ClientController extends ApiController
                 ->where('is_active', 1)
                 ->firstOrFail();
 
+            // Fetch client Transaction History
             $soa = $client->getSOA($request->only(['from', 'to']));
 
             // Running balance
             $balance = 0;
             $soa = $soa->map(function ($row) use (&$balance) {
                 $balance += ($row->debit - $row->credit);
-                $row->balance = $balance;
+                // Format running balance with 2 decimals
+                $row->balance = number_format($balance, 2, '.', ',');
                 return $row;
             });
 
@@ -224,10 +234,48 @@ class ClientController extends ApiController
             return response()->json([
                 'success' => true,
                 'total' => [
-                        'total_debit'  => $totalDebit,
-                        'total_credit' => $totalCredit,
-                        'balance'      => $finalBalance,
-                    ],
+                    'total_debit'  => number_format($totalDebit, 2, '.', ','),
+                    'total_credit' => number_format($totalCredit, 2, '.', ','),
+                    'balance'      => number_format($finalBalance, 2, '.', ','),
+                ],
+                'data' => $soa,
+                'client' => $client
+            ]);
+
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('Client does not exist.', 404);
+        }
+    }
+
+    public function fetchAccountHistory(Request $request, string $uuid)
+    {
+        try {
+            $client = Client::where('uuid', $uuid)
+                ->where('is_active', 1)
+                ->firstOrFail();
+
+            $soa = $client->getAccountHistory($request->only(['from', 'to']));
+
+            // Running balance
+            $balance = 0;
+            $soa = $soa->map(function ($row) use (&$balance) {
+                $balance += ($row->debit - $row->credit);
+                // Format running balance with 2 decimals
+                $row->balance = number_format($balance, 2, '.', ',');
+                return $row;
+            });
+
+            $totalDebit  = $soa->sum('debit');
+            $totalCredit = $soa->sum('credit');
+            $finalBalance = $totalDebit - $totalCredit;
+
+            return response()->json([
+                'success' => true,
+                'total' => [
+                    'total_debit'  => number_format($totalDebit, 2, '.', ','),
+                    'total_credit' => number_format($totalCredit, 2, '.', ','),
+                    'balance'      => number_format($finalBalance, 2, '.', ','),
+                ],
                 'data' => $soa
             ]);
 

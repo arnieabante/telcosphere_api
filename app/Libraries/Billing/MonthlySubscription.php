@@ -53,14 +53,14 @@ class MonthlySubscription implements BillingInterface
                 $this->setName(self::ITEM_NAME);
                 $price = $this->getSubscriptionRate($billing->client->internet_plan_id);
                 $data[] = [
-                    'billing_item_name' => $this->getName(),
-                    'billing_item_particulars' => $this->getName(),
+                    'billing_item_name' => $item['billingItemName'] ?? $this->getName(),
+                    'billing_item_particulars' => $item['billingItemParticulars'] ?? $this->getName(),
                     'billing_item_quantity' => $item['billingItemQuantity'],
                     'billing_item_price' => $price,
                     'billing_item_amount' => floatVal($price) * $item['billingItemQuantity'],
                     'billing_item_offset' => '0.00',
                     'billing_item_balance' => floatVal($price) * $item['billingItemQuantity'],
-                    'billing_item_remark' => $item['billingItemRemark'],
+                    'billing_item_remark' => $item['billingItemRemark'] ?? NULL,
                     'billing_status' => self::ITEM_STATUS_DEFAULT
                 ];
             }
@@ -94,7 +94,7 @@ class MonthlySubscription implements BillingInterface
             'billing_item_amount' => floatVal($client->prorate_fee) * $item['billingItemQuantity'],
             'billing_item_offset' => '0.00',
             'billing_item_balance' => floatVal($client->prorate_fee) * $item['billingItemQuantity'],
-            'billing_item_remark' => $item['billingItemRemark'],
+            'billing_item_remark' => $item['billingItemRemark'] ?? NULL,
             'billing_status' => self::ITEM_STATUS_DEFAULT
         ];
     }
@@ -109,7 +109,7 @@ class MonthlySubscription implements BillingInterface
             'billing_item_amount' => floatVal($proratedCurrent) * $item['billingItemQuantity'],
             'billing_item_offset' => '0.00',
             'billing_item_balance' => floatVal($proratedCurrent) * $item['billingItemQuantity'],
-            'billing_item_remark' => $item['billingItemRemark'],
+            'billing_item_remark' => $item['billingItemRemark'] ?? NULL,
             'billing_status' => self::ITEM_STATUS_DEFAULT
         ];
 

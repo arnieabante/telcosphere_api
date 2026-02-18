@@ -20,7 +20,6 @@ class ExpenseController extends ApiController
     /**
      * Display a listing of the resource.
      */
-
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
@@ -93,9 +92,6 @@ class ExpenseController extends ApiController
     public function update(UpdateExpensesRequest $request, string $uuid)
     {
         try {
-            // update policy
-            // $this->isAble('update', Expenses::class);
-
             $expensecategory = Expense::where('uuid', $uuid)->firstOrFail();
             $affected = $expensecategory->update($request->mappedAttributes());
 

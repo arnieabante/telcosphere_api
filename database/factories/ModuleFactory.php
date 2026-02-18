@@ -150,7 +150,14 @@ class ModuleFactory extends Factory
                 'icon' => 'fa fa-key',
                 'parent_id' => 16,
                 'description' => 'Generation of Statemement of Account',
-                'url' => 'dashboard'
+                'url' => 'soa'
+            ],
+            [
+                'name' => 'Account History',
+                'icon' => 'fa fa-key',
+                'parent_id' => 16,
+                'description' => 'Generation of Account History',
+                'url' => 'accounthistory'
             ],
         ];
 
