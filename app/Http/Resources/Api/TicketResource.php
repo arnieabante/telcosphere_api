@@ -33,6 +33,7 @@ class TicketResource extends JsonResource
                 'remarks' => $this->remarks,
                 'status' => $this->status,
                 'isActive' => $this->is_active,
+                'createdBy' => $this->created_by,
                 $this->mergeWhen(
                     request()->routeIs('tickets.show'),
                     [
@@ -48,6 +49,7 @@ class TicketResource extends JsonResource
                 'client' => new ClientResource($this->whenLoaded('client')),
                 'ticketCategory' => new TicketCategoryResource($this->whenLoaded('ticketCategory')),
                 'assignedTo' => new UserResource($this->whenLoaded('assignedTo')),
+                'createdBy' => new UserResource($this->whenLoaded('createdBy')),
             ],
             'links' => [
                 'ticket' => route('tickets.show', $this->id),

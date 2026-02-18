@@ -87,4 +87,9 @@ class Ticket extends Model
     {
         return $this->belongsTo(\App\Models\User::class, 'assigned_to');
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
 }
