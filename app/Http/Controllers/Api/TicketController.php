@@ -30,7 +30,7 @@ class TicketController extends ApiController
         $statusFilter = $request->get('status');
         $clientUuid = $request->get('client_id');
 
-        $query = Ticket::with(['client', 'ticketCategory', 'assignedTo'])
+        $query = Ticket::with(['client', 'ticketCategory', 'assignedTo', 'createdBy'])
             ->where('is_active', 1);
 
         if(!empty($clientUuid) || $clientUuid != ''){
