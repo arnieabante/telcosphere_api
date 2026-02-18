@@ -24,7 +24,7 @@ class StoreExpenseItemRequest extends BaseExpenseItemRequest
         return [
             'expenseId' => 'required|numeric',
             'expenseCategory' => 'required|numeric',
-            'expenseRemark'   => 'nullable|string|min:2',
+            'expenseRemark'   => 'required|string|min:2',
             'expenseAmount' => 'required|numeric|decimal:2',
         ];
     }
