@@ -8,6 +8,7 @@ use App\Http\Requests\Api\ServerRequest\StoreServerRequest;
 use App\Http\Requests\Api\ServerRequest\UpdateServerRequest;
 use App\Http\Resources\Api\ServerResource;
 use App\Models\Server;
+use App\Services\DashboardService;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -20,7 +21,7 @@ class ServerController extends ApiController
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, DashboardService $service)
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
@@ -38,9 +39,15 @@ class ServerController extends ApiController
                 });
             }
         }
+        $totalServer = $service->getTotalActiveServers();
 
         $servers = $query->orderBy('created_at', 'desc')->paginate($perPage);
-        return ServerResource::collection($servers);
+        return ServerResource::collection($servers)
+        ->additional([
+                'meta' => [
+                    'servers_total' => $totalServer
+                ]
+            ]);
     }
 
     /**

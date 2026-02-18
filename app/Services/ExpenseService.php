@@ -10,11 +10,40 @@ class ExpenseService implements ExpenseInterface
 {
     public function getTotals(array $filters = []): array
     {
+        $now = Carbon::now();
         $today = Carbon::today();
         $yesterday = Carbon::yesterday();
 
         $expense = ExpenseItem::where('is_active', 1)
             ->whereHas('expense');
+
+        // Current month total
+        $currentMonthTotal = (clone $expense)
+            ->whereHas('expense', fn ($q) =>
+                $q->whereBetween('expense_date', [
+                    $now->copy()->startOfMonth(),
+                    $now->copy()->endOfMonth(),
+                ])
+            )
+            ->sum('amount');
+
+        // Previous month total
+        $previousMonthTotal = (clone $expense)
+            ->whereHas('expense', fn ($q) =>
+                $q->whereBetween('expense_date', [
+                    $now->copy()->subMonth()->startOfMonth(),
+                    $now->copy()->subMonth()->endOfMonth(),
+                ])
+            )
+            ->sum('amount');
+
+        // Growth percentage
+        $expenseGrowth = $previousMonthTotal == 0
+            ? ($currentMonthTotal > 0 ? 100.0 : 0.0)
+            : round(
+                (($currentMonthTotal - $previousMonthTotal) / $previousMonthTotal) * 100,
+                2
+            );
 
         return [
             'today' => (clone $expense)
@@ -32,8 +61,8 @@ class ExpenseService implements ExpenseInterface
             'last_7_days' => (clone $expense)
                 ->whereHas('expense', fn ($q) =>
                     $q->whereBetween('expense_date', [
-                        Carbon::now()->subDays(6)->startOfDay(),
-                        Carbon::now()->endOfDay()
+                        $now->copy()->subDays(6)->startOfDay(),
+                        $now->copy()->endOfDay()
                     ])
                 )
                 ->sum('amount'),
@@ -41,19 +70,25 @@ class ExpenseService implements ExpenseInterface
             'last_30_days' => (clone $expense)
                 ->whereHas('expense', fn ($q) =>
                     $q->whereBetween('expense_date', [
-                        Carbon::now()->subDays(29)->startOfDay(),
-                        Carbon::now()->endOfDay()
+                        $now->copy()->subDays(29)->startOfDay(),
+                        $now->copy()->endOfDay()
                     ])
                 )
                 ->sum('amount'),
 
+            'current_month' => $currentMonthTotal,
+            'previous_month' => $previousMonthTotal,
+
+            'expenses_growth' => $expenseGrowth,
+
             'current_year' => (clone $expense)
                 ->whereHas('expense', fn ($q) =>
-                    $q->whereYear('expense_date', Carbon::now()->year)
+                    $q->whereYear('expense_date', $now->year)
                 )
                 ->sum('amount'),
 
             'total' => (clone $expense)->sum('amount'),
         ];
     }
+
 }
