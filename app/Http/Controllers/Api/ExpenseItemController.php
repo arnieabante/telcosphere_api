@@ -52,9 +52,7 @@ class ExpenseItemController extends ApiController
         }
 
         // Paginated items
-        $expenses = $query
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+        $expenses = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         $totals = $service->getTotals();
 
