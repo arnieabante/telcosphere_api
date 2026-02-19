@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class ExpenseService implements ExpenseInterface
 {
-    public function getTotals(array $filters = []): array
+    public function getTotals(?string $dateFilter = null): array
     {
         $now = Carbon::now();
         $today = Carbon::today();
@@ -91,4 +91,42 @@ class ExpenseService implements ExpenseInterface
         ];
     }
 
+    public function applyStatusFilter($query, ?string $dateFilter)
+    {
+        $now = Carbon::now();
+
+        if (!$dateFilter) {
+            return $query;
+        }
+
+        return $query->whereHas('expense', function ($q) use ($dateFilter, $now) {
+
+            switch ($dateFilter) {
+
+                case 'today':
+                    $q->whereDate('expense_date', Carbon::today());
+                    break;
+
+                case 'yesterday':
+                    $q->whereDate('expense_date', Carbon::yesterday());
+                    break;
+
+                case 'weeks':
+                    $q->whereBetween('expense_date', [
+                        $now->copy()->subDays(6)->startOfDay(),
+                        $now->copy()->endOfDay()
+                    ]);
+                    break;
+
+                case 'month':
+                    $q->whereMonth('expense_date', $now->month)
+                    ->whereYear('expense_date', $now->year);
+                    break;
+
+                case 'year':
+                    $q->whereYear('expense_date', $now->year);
+                    break;
+            }
+        });
+    }
 }

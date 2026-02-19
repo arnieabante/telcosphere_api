@@ -26,6 +26,7 @@ class ExpenseItemController extends ApiController
     {
         $perPage = $request->get('per_page', 10);
         $search  = $request->get('search');
+        $dateFilter  = $request->get('date_filter');
 
         $query = ExpenseItem::query()
             ->where('is_active', 1)
@@ -51,9 +52,9 @@ class ExpenseItemController extends ApiController
             });
         }
 
+        $query = $service->applyStatusFilter($query, $dateFilter);
         // Paginated items
         $expenses = $query->orderBy('created_at', 'desc')->paginate($perPage);
-
         $totals = $service->getTotals();
 
         return ExpenseItemResource::collection($expenses)
