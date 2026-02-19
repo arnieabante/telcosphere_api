@@ -4,5 +4,5 @@ namespace App\Interfaces;
 
 interface ExpenseInterface
 {
-    public function getTotals(?string $status = null): array;
+    public function getTotals(?string $dateFilter = null): array;
 }

@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class ExpenseService implements ExpenseInterface
 {
-    public function getTotals(?string $status = null): array
+    public function getTotals(?string $dateFilter = null): array
     {
         $now = Carbon::now();
         $today = Carbon::today();
@@ -91,17 +91,17 @@ class ExpenseService implements ExpenseInterface
         ];
     }
 
-    public function applyStatusFilter($query, ?string $status)
+    public function applyStatusFilter($query, ?string $dateFilter)
     {
         $now = Carbon::now();
 
-        if (!$status) {
+        if (!$dateFilter) {
             return $query;
         }
 
-        return $query->whereHas('expense', function ($q) use ($status, $now) {
+        return $query->whereHas('expense', function ($q) use ($dateFilter, $now) {
 
-            switch ($status) {
+            switch ($dateFilter) {
 
                 case 'today':
                     $q->whereDate('expense_date', Carbon::today());
