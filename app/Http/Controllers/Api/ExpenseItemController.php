@@ -26,7 +26,7 @@ class ExpenseItemController extends ApiController
     {
         $perPage = $request->get('per_page', 10);
         $search  = $request->get('search');
-        $dateFilter  = $request->get('status');
+        $dateFilter  = $request->get('date_filter');
 
         $query = ExpenseItem::query()
             ->where('is_active', 1)
