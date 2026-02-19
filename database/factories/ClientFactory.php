@@ -42,6 +42,7 @@ class ClientFactory extends Factory
             'billing_category_id' => 1,
             'server_id' => 1,
             'internet_plan_id' => 1,
+            'prev_internet_plan_id' => null,
             'is_active' => 1,
             'created_by' => 1,
             'updated_by' => 1,

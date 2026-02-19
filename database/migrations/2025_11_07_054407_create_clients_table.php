@@ -39,6 +39,7 @@ return new class extends Migration
             $table->integer('billing_category_id');
             $table->integer('server_id');
             $table->integer('internet_plan_id');
+            $table->integer('prev_internet_plan_id');
             $table->string('last_auto_billing_date')->nullable();
             $table->integer('is_active');
             $table->integer('created_by');

@@ -46,6 +46,7 @@ class UpdateClientRequest extends BaseClientRequest
             'billingCategoryId' => 'required|int',
             'serverId' => 'required|int',
             'internetPlanId' => 'required|int',
+            'prevInternetPlanId' => 'nullable|int',
             'lastAutoBillingDate' => 'nullable|string',
             'isActive' => 'required|string'
         ];

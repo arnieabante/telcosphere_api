@@ -32,6 +32,7 @@ class BaseClientRequest extends FormRequest
             'billingCategoryId' => 'billing_category_id',
             'serverId' => 'server_id',
             'internetPlanId' => 'internet_plan_id',
+            'prevInternetPlanId' => 'prev_internet_plan_id',
             'lastAutoBillingDate' => 'last_auto_billing_date',
             'isActive' => 'is_active'
         ];
