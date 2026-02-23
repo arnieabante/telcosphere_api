@@ -42,6 +42,8 @@ class PaymentController extends ApiController
         $search = $request->get('search');
         $statusFilter = $request->get('status');
         $clientUuid = $request->get('client_id');
+        $from = $request->get('from');
+        $to = $request->get('to');
 
         $query = Payment::with([
             'client',
@@ -50,7 +52,12 @@ class PaymentController extends ApiController
                 $q->where('is_active', 1);
             }
         ])->where('is_active', 1);
-
+        
+        // Filter by date range
+        if (!empty($from) && !empty($to)) {
+            $query->whereBetween('collection_date', [$from, $to]);
+        }
+        
         if(!empty($clientUuid) || $clientUuid != ''){
             $client = \App\Models\Client::where('uuid', $clientUuid)->first();
             $query->where('client_id', $client->id);
