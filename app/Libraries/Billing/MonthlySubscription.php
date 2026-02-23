@@ -55,7 +55,7 @@ class MonthlySubscription implements BillingInterface
                 $this->setName(self::ITEM_NAME . " ($planName)");
                 $price = $this->getSubscriptionRate($billing->client->internet_plan_id);
                 $data[] = [
-                    'billing_item_name' => $item['billingItemName'] ?? $this->getName(),
+                    'billing_item_name' => $item['billingItemName'] ?? self::ITEM_NAME,
                     'billing_item_particulars' => $item['billingItemParticulars'] ?? $this->getName(),
                     'billing_item_quantity' => $item['billingItemQuantity'],
                     'billing_item_price' => $price,
