@@ -26,6 +26,8 @@ class TicketCategoryController extends ApiController
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
         $include = $request->get('include');
+        $from = $request->get('from');
+        $to = $request->get('to');
 
         $query = TicketCategory::query()
             ->where('is_active', 1);
@@ -38,6 +40,11 @@ class TicketCategoryController extends ApiController
                     $q->where('name', 'like', "%{$search}%");
                 });
             }
+        }
+        
+        // Filter by date range
+        if (!empty($from) && !empty($to)) {
+            $query->whereBetween('created_at', [$from, $to]);
         }
 
         $ticketcategories = $query->orderBy('created_at', 'desc')->paginate($perPage);

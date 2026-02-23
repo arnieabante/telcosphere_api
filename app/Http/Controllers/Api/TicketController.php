@@ -29,6 +29,8 @@ class TicketController extends ApiController
         $search = $request->get('search');
         $statusFilter = $request->get('status');
         $clientUuid = $request->get('client_id');
+        $from = $request->get('from');
+        $to = $request->get('to');
 
         $query = Ticket::with(['client', 'ticketCategory', 'assignedTo', 'createdBy'])
             ->where('is_active', 1);
@@ -53,6 +55,11 @@ class TicketController extends ApiController
                     $userQuery->where('fullname', 'like', "%{$search}%");
                 });
             });
+        }
+
+        // Filter by date range
+        if (!empty($from) && !empty($to)) {
+            $query->whereBetween('requested_date', [$from, $to]);
         }
 
         if (!empty($statusFilter) && $statusFilter != 'due') {
