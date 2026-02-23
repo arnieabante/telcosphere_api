@@ -46,6 +46,7 @@ class ReplaceClientRequest extends BaseClientRequest
             'billingCategoryId' => 'sometimes|required|int',
             'serverId' => 'sometimes|required|int',
             'internetPlanId' => 'sometimes|required|int',
+            'prevInternetPlanId' => 'sometimes|nullable|int',
             'last_auto_billing_date' => 'sometimes|string',
             'isActive' => 'required|string'
         ];

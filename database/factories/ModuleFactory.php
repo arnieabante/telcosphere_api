@@ -146,6 +146,20 @@ class ModuleFactory extends Factory
                 'url' => ''
             ],
             [
+                'name' => 'Monthly Collection Report',
+                'icon' => 'fa fa-key',
+                'parent_id' => 16,
+                'description' => 'Generation of Monthly Collection Report',
+                'url' => 'montlycollectionreport'
+            ],
+            [
+                'name' => 'Monthly Expenses Report',
+                'icon' => 'fa fa-key',
+                'parent_id' => 16,
+                'description' => 'Generation of Monthly Expenses Report',
+                'url' => 'montlyexpensesreport'
+            ],
+            [
                 'name' => 'Statement of Account',
                 'icon' => 'fa fa-key',
                 'parent_id' => 16,

@@ -28,10 +28,17 @@ class ClientController extends ApiController
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
         $include = $request->get('include');
+        $from = $request->get('from');
+        $to = $request->get('to');
 
         $query = Client::with(['internetPlan', 'billingCategory', 'server', 'billings'])
             ->where('is_active', 1);
 
+        // Filter by date range
+        if (!empty($from) && !empty($to)) {
+            $query->whereBetween('created_at', [$from, $to]);
+        }
+        
         if (!empty($include) && $include == 'all') {
            $clients = $query->orderBy('first_name', 'asc')->get();
            return ClientResource::collection($clients);
