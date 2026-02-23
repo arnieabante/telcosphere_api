@@ -45,6 +45,7 @@ class ClientResource extends JsonResource
                 'facebookProfileURL' => $this->facebook_profile_url,
                 'lastAutoBillingDate' => $this->last_auto_billing_date,
                 'internetPlanId' => $this->internet_plan_id,
+                'prevInternetPlanId' => $this->prev_internet_plan_id,
                 'serverId' => $this->server_id,
                 'billingCategoryId' => $this->billing_category_id,
                 'isActive' => $this->is_active,

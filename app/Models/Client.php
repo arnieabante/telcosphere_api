@@ -52,6 +52,7 @@ class Client extends Model
         'billing_category_id',
         'server_id',
         'internet_plan_id',
+        'prev_internet_plan_id',
         'last_auto_billing_date',
         'is_active',
     ];

@@ -42,18 +42,20 @@ class MonthlySubscription implements BillingInterface
 
     public function generateBillingItems($billing, $items): array {
         $data = [];
+        $planName = $this->getSubscriptionName($billing->client->internet_plan_id);
+
         foreach ($items as $item) {
             if ($billing->client->prorate_fee_status === 'Pending') {
-                $this->setName(self::ITEM_NAME_PRORATED);
+                $this->setName(self::ITEM_NAME_PRORATED . " ($planName)");
                 $data = [
                     $this->generateProratedPrevious($billing->client, $item),
                     $this->generateProratedCurrent($billing->client, $item)
                 ];
             } else {
-                $this->setName(self::ITEM_NAME);
+                $this->setName(self::ITEM_NAME . " ($planName)");
                 $price = $this->getSubscriptionRate($billing->client->internet_plan_id);
                 $data[] = [
-                    'billing_item_name' => $item['billingItemName'] ?? $this->getName(),
+                    'billing_item_name' => $item['billingItemName'] ?? self::ITEM_NAME,
                     'billing_item_particulars' => $item['billingItemParticulars'] ?? $this->getName(),
                     'billing_item_quantity' => $item['billingItemQuantity'],
                     'billing_item_price' => $price,
@@ -77,6 +79,14 @@ class MonthlySubscription implements BillingInterface
         return round($plan->monthly_subscription, 2);
     }
 
+    protected function getSubscriptionName(string $planId): string {
+        $plan = Internetplan::select(['name'])
+            ->where('id', $planId)
+            ->first();
+
+        return $plan->name;
+    }
+
     protected function getBillingCycle($categoryId): string {
         $cycle = BillingCategory::select(['date_cycle'])
             ->where('id', $categoryId)
@@ -86,9 +96,10 @@ class MonthlySubscription implements BillingInterface
     }
 
     protected function generateProratedPrevious($client, $item): array {
+        $prevPlanName = $this->getSubscriptionName($client->prev_internet_plan_id);
         return [
             'billing_item_name' => self::ITEM_NAME_PRORATED_PREV,
-            'billing_item_particulars' => self::ITEM_NAME_PRORATED_PREV,
+            'billing_item_particulars' => self::ITEM_NAME_PRORATED_PREV . " ($prevPlanName)",
             'billing_item_quantity' => $item['billingItemQuantity'],
             'billing_item_price' => $client->prorate_fee,
             'billing_item_amount' => floatVal($client->prorate_fee) * $item['billingItemQuantity'],
@@ -101,9 +112,10 @@ class MonthlySubscription implements BillingInterface
 
     protected function generateProratedCurrent($client, $item): array {
         $proratedCurrent = $this->calculateProratedCurrent($client);
+        $currentPlanName = $this->getSubscriptionName($client->internet_plan_id);
         return [
             'billing_item_name' => self::ITEM_NAME_PRORATED_CUR,
-            'billing_item_particulars' => self::ITEM_NAME_PRORATED_CUR,
+            'billing_item_particulars' => self::ITEM_NAME_PRORATED_CUR . " ($currentPlanName)",
             'billing_item_quantity' => $item['billingItemQuantity'],
             'billing_item_price' => $proratedCurrent,
             'billing_item_amount' => floatVal($proratedCurrent) * $item['billingItemQuantity'],
