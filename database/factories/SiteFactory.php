@@ -38,7 +38,7 @@ class SiteFactory extends Factory
             [
                 'company_logo' => null,
                 'company_banner' => null,
-                'site_url' => "localhost:5173",
+                'site_url' => "app.telcosphere.co",
                 'company_name' => 'TelcoSpere ERP Solutions',
                 'company_address' => 'Cebu, City',
                 'company_email' => 'app@telcosphere.co',

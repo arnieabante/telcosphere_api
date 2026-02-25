@@ -129,4 +129,14 @@ class ExpenseService implements ExpenseInterface
             }
         });
     }
+
+    public function getMonthlyReport($query, $from, $to){
+        if (!$from || !$to) {
+            return $query;
+        }
+
+        return $query->whereHas('expense', function ($q) use ($from, $to) {
+            $q->whereBetween('expense_date', [$from, $to]);
+        });
+    }
 }
