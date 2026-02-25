@@ -98,5 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('expenseitems/{uuid}', [ExpenseItemController::class, 'replace']);
     
     Route::apiResource('sites', SiteController::class)->except(['update']);
+    Route::patch('sites/{uuid}', [SiteController::class, 'update']);
+    Route::put('sites/{uuid}', [SiteController::class, 'replace']);
 
 });
