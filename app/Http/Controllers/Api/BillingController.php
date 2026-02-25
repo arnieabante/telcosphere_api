@@ -13,6 +13,7 @@ use App\Models\Billing;
 use App\Services\BillingService;
 use App\Services\DashboardService;
 use App\Traits\ApiResponses;
+use BadFunctionCallException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -186,6 +187,27 @@ class BillingController extends ApiController
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Billing does not exist.', 404);
+
+        } catch (AuthorizationException $ex) {
+            return $this->error('You are not authorized to delete a Billing.', 401);
+        }
+    }
+
+    public function find(Request $request)
+    {
+        try {
+            $q = Billing::with('client')
+                ->where('billing_status', $request->input('status'))
+                ->whereHas('client', function ($query) use ($request) {
+                    $query->where('billing_category_id', $request->input('category'))
+                        ->where('server_id', $request->input('server'));
+                });
+
+            $rslt = $q->orderBy('billing_status', 'asc')->get();
+            return BillingResource::collection($rslt);
+
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('Billing record not found.', 404);
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to delete a Billing.', 401);
