@@ -9,6 +9,7 @@ class BaseSiteRequest extends FormRequest
     public function mappedAttributes(): array {
         $attributes = [
             'companyName' => 'company_name',
+            'companyAddress' => 'company_address',
             'companyLogo' => 'company_logo',
             'companyBanner' => 'company_banner',
             'siteUrl' => 'site_url',
@@ -19,7 +20,7 @@ class BaseSiteRequest extends FormRequest
             'invoiceIdYYLastCount' => 'invoice_id_yy_last_count',
             'receiptIdPattern' => 'receipt_id_pattern',
             'receiptIdYYLastCount' => 'receipt_id_yy_last_count',
-            'paymentDetails' => 'nullable|string',
+            'paymentDetails' => 'payment_details',
             'isActive' => 'is_active'
         ];
 

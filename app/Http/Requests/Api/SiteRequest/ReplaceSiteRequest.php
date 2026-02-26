@@ -14,20 +14,23 @@ class ReplaceSiteRequest extends BaseSiteRequest
     public function rules(): array
     {
         return [
-            'company_name'             => ['sometimes','required','string','min:3', Rule::unique('sites')->ignore($this->route('uuid'), 'uuid')],
-            'company_logo'             => 'sometimes|nullable|image|max:2048',
-            'company_banner'           => 'sometimes|nullable|image|max:4096',
-            'site_url'                 => 'sometimes|required|string',
-            'company_address'          => 'sometimes|required|string',
-            'company_email'            => 'sometimes|required|email|string',
-            'company_phone'            => 'nullable|string',
-            'company_telephone'        => 'nullable|string',
-            'invoice_id_pattern'       => 'nullable|string|max:8',
-            'invoice_id_yy_last_count' => 'sometimes|required|integer',
-            'receipt_id_pattern'       => 'nullable|string|max:8',
-            'receipt_id_yy_last_count' => 'sometimes|required|integer',
-            'payment_details'          => 'nullable|string',
-            'is_active'                => 'sometimes|required|boolean',
+            'companyName'             => [
+                'sometimes','required','string','min:3', 
+                Rule::unique('sites', 'company_name')->ignore($this->route('uuid'), 'uuid')
+            ],
+            'companyLogo'             => 'sometimes|nullable|image|max:2048',
+            'companyBanner'           => 'sometimes|nullable|image|max:4096',
+            'siteUrl'                 => 'sometimes|required|string',
+            'companyAddress'          => 'sometimes|required|string',
+            'companyEmail'            => 'sometimes|required|email|string',
+            'companyPhone'            => 'nullable|string',
+            'companyTelephone'        => 'nullable|string',
+            'invoiceIdPattern'       => 'nullable|string|max:8',
+            'invoiceIdYYLastCount' => 'sometimes|required|integer',
+            'receiptIdPattern'       => 'nullable|string|max:8',
+            'receiptIdYYLastCount' => 'sometimes|required|integer',
+            'paymentDetails'          => 'nullable|string',
+            'isActive'                => 'sometimes|required|boolean',
         ];
     }
 }
