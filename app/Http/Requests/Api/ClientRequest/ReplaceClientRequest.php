@@ -48,6 +48,8 @@ class ReplaceClientRequest extends BaseClientRequest
             'internetPlanId' => 'sometimes|required|int',
             'prevInternetPlanId' => 'sometimes|nullable|int',
             'last_auto_billing_date' => 'sometimes|string',
+            'pppoe_username' => 'nullable|string',
+            'pppoe_password' => 'nullable|string',
             'isActive' => 'required|string'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username

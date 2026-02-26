@@ -48,6 +48,8 @@ class StoreClientRequest extends BaseClientRequest
             'internetPlanId' => 'required|int',
             'prevInternetPlanId' => 'nullable|int',
             'lastAutoBillingDate' => 'nullable|string',
+            'pppoe_username' => 'nullable|string',
+            'pppoe_password' => 'nullable|string',
             'isActive' => 'required|string'
         ];
     }

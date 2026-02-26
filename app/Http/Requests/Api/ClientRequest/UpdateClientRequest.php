@@ -48,6 +48,8 @@ class UpdateClientRequest extends BaseClientRequest
             'internetPlanId' => 'sometimes|required|int',
             'prevInternetPlanId' => 'sometimes|nullable|int',
             'lastAutoBillingDate' => 'sometimes|nullable|string',
+            'pppoe_username' => 'nullable|string',
+            'pppoe_password' => 'nullable|string',
             'isActive' => 'sometimes|required|boolean'
         ];
     }
