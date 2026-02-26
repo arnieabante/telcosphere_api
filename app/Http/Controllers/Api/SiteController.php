@@ -63,15 +63,16 @@ class SiteController extends ApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSiteRequest $request, string $uuid)
+   public function update(UpdateSiteRequest $request, string $uuid)
     {
         try { 
-            // update policy
-            // $this->isAble('update', Site::class);
-
+            // fetch the site
             $site = Site::where('uuid', $uuid)->firstOrFail();
-            $affected = $site->update($request->mappedAttributes());
-            
+
+            // update using the validated/mapped attributes
+            $site->update($request->mappedAttributes());
+
+            // return the updated site resource
             return new SiteResource($site);
 
         } catch (ModelNotFoundException $ex) {
@@ -81,7 +82,6 @@ class SiteController extends ApiController
             return $this->error('You are not authorized to update a Site.', 401);
         }
     }
-
     /**
      * Replace the specified resource in storage.
      */

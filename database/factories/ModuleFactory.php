@@ -173,6 +173,13 @@ class ModuleFactory extends Factory
                 'description' => 'Generation of Account History',
                 'url' => 'accounthistory'
             ],
+            [
+                'name' => 'Site Settings',
+                'icon' => 'fa fa-sliders',
+                'parent_id' => 0,
+                'description' => 'Site Settings',
+                'url' => 'sitesettings'
+            ],
         ];
 
         return array_shift($modules);
