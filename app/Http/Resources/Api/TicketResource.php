@@ -22,8 +22,9 @@ class TicketResource extends JsonResource
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
-                'clientName' => optional($this->client)->first_name . " " . optional($this->client)->last_name,
-                'address' => optional($this->client)->house_no,
+                'ticketType' => $this->ticket_type,
+                'requestorName' => $this->requestor_name,
+                'address' => $this->client?->house_no ?? $this->remarks,
                 'name' => $this->name,
                 'description' => $this->description,
                 'category' => optional($this->ticketCategory)->name,
