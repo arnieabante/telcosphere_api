@@ -34,6 +34,8 @@ class BaseClientRequest extends FormRequest
             'internetPlanId' => 'internet_plan_id',
             'prevInternetPlanId' => 'prev_internet_plan_id',
             'lastAutoBillingDate' => 'last_auto_billing_date',
+            'PPPOEUsername' => 'pppoe_username',
+            'PPPOEPassword' => 'pppoe_password',
             'isActive' => 'is_active'
         ];
 

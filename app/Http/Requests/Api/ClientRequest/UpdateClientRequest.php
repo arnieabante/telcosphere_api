@@ -30,7 +30,7 @@ class UpdateClientRequest extends BaseClientRequest
             'houseNo' => 'sometimes|string|min:5',
             'latitude' => 'sometimes|nullable|string',
             'longitude' => 'sometimes|nullable|string',
-            'accountNo' => 'sometimes|nullable|string', 
+            'accountNo' => 'required|string', 
             'installationDate' => 'sometimes|required|string',
             'installationFee' => 'sometimes|nullable|string',
             'balanceFromPrevBilling' => 'sometimes|nullable|numeric',
@@ -48,6 +48,8 @@ class UpdateClientRequest extends BaseClientRequest
             'internetPlanId' => 'sometimes|required|int',
             'prevInternetPlanId' => 'sometimes|nullable|int',
             'lastAutoBillingDate' => 'sometimes|nullable|string',
+            'pppoe_username' => 'nullable|string',
+            'pppoe_password' => 'nullable|string',
             'isActive' => 'sometimes|required|boolean'
         ];
     }
