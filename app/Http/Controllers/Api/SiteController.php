@@ -72,17 +72,19 @@ class SiteController extends ApiController
             // update using the validated/mapped attributes
             $attr = $request->mappedAttributes();
             
-            // access/store the image file separeately
-            $imgUpload = $_FILES['companyLogo'];
-            $tmpPath = $imgUpload['tmp_name'];
-            $newImgName = uniqid() . '.' . pathinfo($imgUpload['name'], PATHINFO_EXTENSION);
-            
-            move_uploaded_file(
-                $tmpPath,
-                storage_path('app/public/' . $newImgName)
-            );
+            if ($request->hasFile('companyLogo')) {
+                // access/store the image file separeately
+                $imgUpload = $_FILES['companyLogo'];
+                $tmpPath = $imgUpload['tmp_name'];
+                $newImgName = uniqid() . '.' . pathinfo($imgUpload['name'], PATHINFO_EXTENSION);
+                
+                move_uploaded_file(
+                    $tmpPath,
+                    storage_path('app/public/' . $newImgName)
+                );
 
-            $attr['company_logo'] = $newImgName;
+                $attr['company_logo'] = $newImgName;
+            }
             
             // update site
             $site->update($attr);
