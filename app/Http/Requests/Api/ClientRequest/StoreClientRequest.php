@@ -30,7 +30,7 @@ class StoreClientRequest extends BaseClientRequest
             'houseNo' => 'string|min:5',
             'latitude' => 'nullable|string',
             'longitude' => 'nullable|string',
-            'accountNo' => 'nullable|string', 
+            'accountNo' => 'required|string', 
             'installationDate' => 'required|string',
             'installationFee' => 'nullable|string',
             'balanceFromPrevBilling' => 'nullable|numeric',

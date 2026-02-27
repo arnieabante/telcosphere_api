@@ -30,7 +30,7 @@ class UpdateClientRequest extends BaseClientRequest
             'houseNo' => 'sometimes|string|min:5',
             'latitude' => 'sometimes|nullable|string',
             'longitude' => 'sometimes|nullable|string',
-            'accountNo' => 'sometimes|nullable|string', 
+            'accountNo' => 'required|string', 
             'installationDate' => 'sometimes|required|string',
             'installationFee' => 'sometimes|nullable|string',
             'balanceFromPrevBilling' => 'sometimes|nullable|numeric',
