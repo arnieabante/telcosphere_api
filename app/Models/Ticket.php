@@ -25,7 +25,9 @@ class Ticket extends Model
      * Mass assignable attributes
      */
     protected $fillable = [
+        'ticket_type',
         'client_id',
+        'requestor_name',
         'name',
         'description',
         'category_id',

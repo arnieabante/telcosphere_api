@@ -10,7 +10,7 @@ class BaseSiteRequest extends FormRequest
         $attributes = [
             'companyName' => 'company_name',
             'companyAddress' => 'company_address',
-            'companyLogo' => 'company_logo',
+            // 'companyLogo' => 'company_logo',
             'companyBanner' => 'company_banner',
             'siteUrl' => 'site_url',
             'companyEmail' => 'company_email',

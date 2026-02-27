@@ -54,6 +54,8 @@ class Client extends Model
         'internet_plan_id',
         'prev_internet_plan_id',
         'last_auto_billing_date',
+        'pppoe_username',
+        'pppoe_password',
         'is_active',
     ];
 

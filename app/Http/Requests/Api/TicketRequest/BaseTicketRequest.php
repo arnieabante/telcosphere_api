@@ -8,7 +8,9 @@ class BaseTicketRequest extends FormRequest
 {
     public function mappedAttributes(): array {
         $attributes = [
+            'ticketType' => 'ticket_type',
             'clientId' => 'client_id',
+            'requestorName' => 'requestor_name',
             'name' => 'name',
             'description' => 'description',
             'categoryId' => 'category_id',
