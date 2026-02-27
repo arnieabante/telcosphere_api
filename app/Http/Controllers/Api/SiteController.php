@@ -70,7 +70,22 @@ class SiteController extends ApiController
             $site = Site::where('uuid', $uuid)->firstOrFail();
 
             // update using the validated/mapped attributes
-            $site->update($request->mappedAttributes());
+            $attr = $request->mappedAttributes();
+            
+            // access/store the image file separeately
+            $imgUpload = $_FILES['companyLogo'];
+            $tmpPath = $imgUpload['tmp_name'];
+            $newImgName = uniqid() . '.' . pathinfo($imgUpload['name'], PATHINFO_EXTENSION);
+            
+            move_uploaded_file(
+                $tmpPath,
+                storage_path('app/public/' . $newImgName)
+            );
+
+            $attr['company_logo'] = $newImgName;
+            
+            // update site
+            $site->update($attr);
 
             // return the updated site resource
             return new SiteResource($site);
