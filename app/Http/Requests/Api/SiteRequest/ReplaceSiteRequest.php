@@ -18,7 +18,7 @@ class ReplaceSiteRequest extends BaseSiteRequest
                 'sometimes','required','string','min:3', 
                 Rule::unique('sites', 'company_name')->ignore($this->route('uuid'), 'uuid')
             ],
-            'companyLogo'             => 'sometimes|nullable|image|max:2048',
+            // 'companyLogo'             => 'sometimes|nullable|image|max:2048',
             'companyBanner'           => 'sometimes|nullable|image|max:4096',
             'siteUrl'                 => 'sometimes|required|string',
             'companyAddress'          => 'sometimes|required|string',

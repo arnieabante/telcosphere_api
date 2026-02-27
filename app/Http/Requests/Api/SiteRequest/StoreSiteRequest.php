@@ -14,7 +14,7 @@ class StoreSiteRequest extends BaseSiteRequest
             'invoiceIdYYLastCount' => 'required|integer',
             'receiptIdYYLastCount' => 'required|integer',
             'isActive'                => 'required|boolean',
-            'companyLogo'             => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            // 'companyLogo'             => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'companyBanner'           => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
             'companyPhone'            => 'nullable|string|max:50',
             'companyTelephone'        => 'nullable|string|max:50',

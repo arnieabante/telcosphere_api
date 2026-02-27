@@ -19,9 +19,9 @@ class UpdateSiteRequest extends BaseSiteRequest
                 Rule::unique('sites', 'company_name')->ignore($this->route('uuid'), 'uuid')
             ],
             'companyAddress'          => 'sometimes|required|string',
-            'companyLogo'             => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            // 'companyLogo'             => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'companyBanner'           => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
-            'siteUrl'                 => 'nullable|url|max:255',
+            'siteUrl'                 => 'nullable|string|max:255',
             'companyEmail'            => 'sometimes|required|email|string',
             'companyPhone'            => 'nullable|string',
             'companyTelephone'        => 'nullable|string',
