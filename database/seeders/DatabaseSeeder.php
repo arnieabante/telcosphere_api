@@ -40,10 +40,6 @@ class DatabaseSeeder extends Seeder
             ->hasUsers(5)
             ->create();
 
-        Role::factory()
-            ->adminForSite(1)
-            ->create();
-
         Internetplan::factory()
             ->count(3)
             ->create();
