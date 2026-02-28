@@ -15,7 +15,7 @@ class ModuleFactory extends Factory
 
         return [
             'uuid' => fake()->uuid(),
-            'site_id' => 1,
+            //'site_id' => 1,
             'parent_id' => $item['parent_id'],   // static
             'icon' => $item['icon'],             // static
             'name' => $item['name'],             // static

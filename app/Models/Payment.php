@@ -50,11 +50,7 @@ class Payment extends Model
 
         // Auto-assign site_id when creating a payment
         static::creating(function ($payment) {
-            $payment->site_id = $payment->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            $payment->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
         });
     }
 

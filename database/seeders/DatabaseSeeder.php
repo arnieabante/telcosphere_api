@@ -37,11 +37,11 @@ class DatabaseSeeder extends Seeder
         // triggers Users, assigns permissions
         Role::factory()
             ->count(1)
-            ->hasUsers(7)
+            ->hasUsers(5)
             ->create();
 
         Role::factory()
-            ->adminForSite(2)
+            ->adminForSite(1)
             ->create();
 
         Internetplan::factory()
@@ -56,10 +56,6 @@ class DatabaseSeeder extends Seeder
             ->count(3)
             ->create();
 
-        Client::factory()
-            ->count(1)
-            ->create();
-
         TicketCategory::factory()
             ->count(2)
             ->create();
@@ -68,23 +64,8 @@ class DatabaseSeeder extends Seeder
             ->count(3)
             ->create();
 
-        /*
-        Billing::factory()
-            ->count(3)
-            ->create();
-        */
-
         Site::factory()
-            ->count(2)
+            ->count(1)
             ->create();
-
-        /*User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );*/
     }
 }
