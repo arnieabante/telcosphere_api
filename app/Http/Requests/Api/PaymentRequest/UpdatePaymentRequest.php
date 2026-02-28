@@ -22,21 +22,21 @@ class UpdatePaymentRequest extends BasePaymentRequest
     public function rules(): array
     {
         return [
-            'receiptNo' => 'required|string',
-            'clientId' => 'required|decimal:2',
+             'receiptNo' => 'required|sometimes|string',
+            'clientId' => 'required|sometimes|int',
             'collectionDate' => 'nullable|string',
-            'collectedBy' => 'nullable|string', 
-            'paymentMethod' => 'required|string|max:50',
+            'collectedBy' => 'nullable|string',
+            'paymentMethod' => 'required|sometimes|string|max:50',
             'reference' => 'string|nullable',
-            'subtotal' => 'required|decimal:2',
+            'subtotal' => 'required|sometimes|decimal:2',
             'discount' => 'decimal:2|nullable',
-            'total' => 'required|decimal:2',
-            'amountReceived' => 'required|decimal:2',
+            'total' => 'required|sometimes|decimal:2',
+            'amountReceived' => 'required|sometimes|decimal:2',
             'amountChange' => 'decimal:2|nullable',
             'amountPaid' => 'decimal:2|nullable',
             'discount_reason' => 'nullable|string',
             'balance' => 'decimal:2|nullable',
-            'isActive' => 'required|string'
+            'isActive' => 'required|int'
         ];
     }
 }

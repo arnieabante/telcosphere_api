@@ -69,11 +69,7 @@ class Employee extends Model
 
         // Auto-assign site_id when creating a employee
         static::creating(function ($employee) {
-            $employee->site_id = $employee->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            $employee->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
         });
     }
 
