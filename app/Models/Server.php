@@ -31,11 +31,7 @@ class Server extends Model
 
         // Auto-assign site_id when creating a server
         static::creating(function ($server) {
-            $server->site_id = $server->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+             $server->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
         });
     }
 

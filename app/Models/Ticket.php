@@ -47,11 +47,7 @@ class Ticket extends Model
 
         // Auto-assign site_id when creating a ticket
         static::creating(function ($ticket) {
-            $ticket->site_id = $ticket->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            $ticket->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
         });
     }
 

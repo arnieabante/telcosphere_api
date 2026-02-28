@@ -35,11 +35,7 @@ class Notification extends Model
 
         // Auto-assign site_id when creating a notification
         static::creating(function ($notification) {
-            $notification->site_id = $notification->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            $notification->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
         });
     }
 
