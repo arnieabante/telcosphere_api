@@ -22,6 +22,7 @@ class ClientResource extends JsonResource
                 'firstName' => $this->first_name,
                 'middleName' => $this->middle_name,
                 'lastName' => $this->last_name,
+                'email' => $this->email,
                 'clientName' => trim($this->first_name . ' ' . $this->last_name),
                 'internetPlan' => optional($this->internetPlan)->name, 
                 'server' => optional($this->server)->name, 
