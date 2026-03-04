@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\InternetplanRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreInternetplanRequest extends BaseInternetplanRequest
 {
