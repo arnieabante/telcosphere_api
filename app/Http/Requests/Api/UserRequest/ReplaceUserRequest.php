@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\UserRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ReplaceUserRequest extends BaseUserRequest
 {
@@ -21,10 +22,11 @@ class ReplaceUserRequest extends BaseUserRequest
      */
     public function rules(): array
     {
+        $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
             'fullname' => 'required|string|min:2',
             'username' => 'required|string|min:2',
-            'email' => 'required|string|email|unique:users',
+            'email' => ['required','string','min:5', Rule::unique('users')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
             'password' => 'required|string|min:8',
             'isActive' => 'required|boolean'
         ];

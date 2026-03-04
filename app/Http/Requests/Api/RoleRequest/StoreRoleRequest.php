@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\RoleRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRoleRequest extends BaseRoleRequest
 {
@@ -21,8 +22,9 @@ class StoreRoleRequest extends BaseRoleRequest
      */
     public function rules(): array
     {
+        $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => 'required|string|min:3|unique:roles',
+            'name' => ['required','string','min:5', Rule::unique('roles')->where(fn ($query) => $query->where('site_id', $siteId))],
             'description' => 'nullable|max:100'
         ];
     }

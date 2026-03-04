@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\BillingCategoryRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ReplaceBillingCategoryRequest extends BaseBillingCategoryRequest
 {
@@ -21,8 +22,9 @@ class ReplaceBillingCategoryRequest extends BaseBillingCategoryRequest
      */
     public function rules(): array
     {
+        $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => 'required|string|min:3|unique:billing_categories',
+            'name' => ['required','string','min:5', Rule::unique('billing_categories')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
             'description' => 'string|max:100',
             'dateCycle' => 'required|integer',
             'daysToDueDate' => 'required|integer',
