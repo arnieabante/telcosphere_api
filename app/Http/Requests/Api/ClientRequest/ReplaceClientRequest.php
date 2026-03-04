@@ -26,7 +26,7 @@ class ReplaceClientRequest extends BaseClientRequest
             'middleName' => 'sometimes|nullable|string|min:2',
             'lastName' => 'sometimes|required|string|min:2',
             'mobileNo' => 'sometimes|string|min:11',
-            'email' => 'sometimes|nullable|string|email|unique:clients',
+            'email' => 'sometimes|nullable|string|email',
             'houseNo' => 'sometimes|string|min:5',
             'latitude' => 'sometimes|nullable|string',
             'longitude' => 'sometimes|nullable|string',
