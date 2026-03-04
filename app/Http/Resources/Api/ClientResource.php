@@ -46,6 +46,7 @@ class ClientResource extends JsonResource
                 'lastAutoBillingDate' => $this->last_auto_billing_date,
                 'PPPOEUsername' => $this->pppoe_username,
                 'PPPOEPassword' => $this->pppoe_password,
+                'notes' => $this->note,
                 'internetPlanId' => $this->internet_plan_id,
                 'prevInternetPlanId' => $this->prev_internet_plan_id,
                 'serverId' => $this->server_id,
