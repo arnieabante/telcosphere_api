@@ -24,8 +24,8 @@ class ReplaceExpenseCategoryRequest extends BaseExpenseCategoryRequest
     {
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => ['required','string','min:5', Rule::unique('expense_categories')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
-            'description' => 'sometimes|string|min:5',
+            'name' => ['required','string','min:3', Rule::unique('expense_categories')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
+            'description' => 'nullable|string|min:5',
             'isActive' => 'sometimes|required|boolean'
         ];
     }
