@@ -24,7 +24,7 @@ class StoreRoleRequest extends BaseRoleRequest
     {
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => ['required','string','min:5', Rule::unique('roles')->where(fn ($query) => $query->where('site_id', $siteId))],
+            'name' => ['required','string','min:3', Rule::unique('roles')->where(fn ($query) => $query->where('site_id', $siteId))],
             'description' => 'nullable|max:100'
         ];
     }
