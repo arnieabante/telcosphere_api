@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id');
-            $table->string('name');
-            $table->unique(['site_id', 'name']);
+            $table->string('name')->unique();
             $table->text('monthly_subscription');
             $table->boolean('is_active');
             $table->longText('icon')->nullable();
