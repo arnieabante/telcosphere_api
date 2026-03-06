@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\ExpenseCategoryRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ReplaceExpenseCategoryRequest extends BaseExpenseCategoryRequest
 {
@@ -21,9 +22,10 @@ class ReplaceExpenseCategoryRequest extends BaseExpenseCategoryRequest
      */
     public function rules(): array
     {
+        $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => 'required|string|min:3|unique:billing_categories',
-            'description' => 'nullable|string',
+            'name' => ['required','string','min:3', Rule::unique('expense_categories')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
+            'description' => 'nullable|string|min:5',
             'isActive' => 'sometimes|required|boolean'
         ];
     }
