@@ -25,7 +25,7 @@ class ReplaceUserRequest extends BaseUserRequest
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
             'fullname' => 'required|string|min:2',
-            'username' => 'required|string|min:2',
+            'username' => ['required','string','min:3', Rule::unique('users')->where(fn ($query) => $query->where('site_id', $siteId))],
             'email' => ['required','string','min:3', Rule::unique('users')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
             'password' => 'required|string|min:8',
             'isActive' => 'required|boolean'
