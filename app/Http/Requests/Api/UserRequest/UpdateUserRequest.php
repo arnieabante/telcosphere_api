@@ -30,6 +30,5 @@ class UpdateUserRequest extends BaseUserRequest
             'password' => 'sometimes|required|string|min:8',
             'isActive' => 'sometimes|required|boolean'
         ];
-        // TODO: improve to accommodate i.e. data.attributes.username
     }
 }

@@ -42,7 +42,7 @@ class UpdateClientRequest extends BaseClientRequest
             'prorateFeeStatus' => 'sometimes|nullable|string',
             'inactiveDate' => 'sometimes|string|min:5',
             'notes' => 'sometimes|nullable|string|min:2',
-            'facebookProfileUrl' => 'sometimes|nullable|string|min:5',
+            'facebookProfileURL' => 'sometimes|nullable|string|min:5',
             'billingCategoryId' => 'sometimes|required|int',
             'serverId' => 'sometimes|required|int',
             'internetPlanId' => 'sometimes|required|int',
