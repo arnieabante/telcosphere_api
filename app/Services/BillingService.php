@@ -60,29 +60,27 @@ class BillingService
             $latestBillingTotal = $latestBilling->billingItems()
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->sum('billing_item_amount');
-            /*$latestBillingBalance = $latestBilling->billingItems()
+            $latestBillingBalance = $latestBilling->billingItems()
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->sum('billing_item_balance');
-            */
 
             $billing->update([
                 'billing_total' => $latestBillingTotal,
-                // 'billing_balance' => $latestBillingBalance,
+                'billing_balance' => $latestBillingBalance,
                 'billing_description' => $billingType->getName()
             ]);
 
             // update Client Balance
-            /*$previousClientBalance = Billing::where('client_id', $client->id)
+            $previousClientBalance = Billing::where('client_id', $client->id)
                 ->where('id', '<>', $billing->id)
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->sum('billing_balance');
-            */
             $currentClientBalance = Billing::where('client_id', $client->id)
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->sum('billing_balance');
 
             $billing->client()->update([
-                // 'balance_from_prev_billing' => $previousClientBalance,
+                'balance_from_prev_billing' => $previousClientBalance,
                 'current_balance' => $currentClientBalance,
                 'prorate_fee_status' => self::STATUS_BILLED,
                 'last_auto_billing_date' => date('Y-m-d H:i:s'), // current date
@@ -121,31 +119,30 @@ class BillingService
         $latestBillingTotal = $billing->billingItems()
             ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
             ->sum('billing_item_amount');
-        /*$latestBillingBalance = $billing->billingItems()
+        $latestBillingBalance = $billing->billingItems()
             ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
             ->sum('billing_item_balance');
-        */
             
         $billing->update([
             'billing_total' => $latestBillingTotal,
-            // 'billing_balance' => $latestBillingBalance,
+            'billing_balance' => $latestBillingBalance,
             'billing_type' => $data['billingType'],
             'billing_remarks' => $data['billingRemarks'],
             'client_id' => $data['clientId']
         ]);
 
         // update Client Balance and Client Details
-        /*$previousClientBalance = $billing->where('client_id', $data['clientId'])
+        $previousClientBalance = $billing->where('client_id', $data['clientId'])
             ->where('id', '<>', $billing->id)
             ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
             ->sum('billing_balance');
-        */
+
         $currentClientBalance = $billing->where('client_id', $data['clientId'])
             ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
             ->sum('billing_balance');
 
         $billing->client()->update([
-            // 'balance_from_prev_billing' => $previousClientBalance,
+            'balance_from_prev_billing' => $previousClientBalance,
             'current_balance' => $currentClientBalance,
             'house_no' => $data['billingDescription']
         ]);
