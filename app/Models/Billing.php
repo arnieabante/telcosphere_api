@@ -34,6 +34,7 @@ class Billing extends Model
         'billing_offset',
         'billing_balance',
         'billing_status',
+        'balance_from_prev_billing',
         'billing_cutoff',
         'disconnection_date'
     ];
