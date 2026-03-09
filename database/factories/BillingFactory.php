@@ -33,6 +33,7 @@ class BillingFactory extends Factory
             'billing_offset' => '0.00',
             'billing_balance' => $fakeTotal,
             'billing_status' => 'Paid', // fake()->randomElement(['Pending', 'Billed', 'Paid']),
+            'balance_from_prev_billing' => '0.00',
             'billing_cutoff' => fake()->dateTimeThisYear(),
             'disconnection_date' => fake()->dateTimeThisYear(),
             'is_active' => 1,
