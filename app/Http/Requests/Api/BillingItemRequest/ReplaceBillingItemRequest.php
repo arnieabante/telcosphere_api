@@ -23,10 +23,12 @@ class ReplaceBillingItemRequest extends BaseBillingItemRequest
     {
         return [
             'billingItemName' => 'required|string|min:5',
+            'billingItemParticulars' => 'required|string|min:5',
             'billingItemQuantity' => 'required|numeric',
             'billingItemRemark' => 'required|string|min:5',
-            'billingItemAmount' => 'required|numeric|decimal:2',
-            'billingItemTotal' => 'required|numeric|decimal:2',
+            'billingItemAmount' => 'required|digits_between:1,8|decimal:0,2',
+            'billingItemOffset' => 'required|digits_between:1,8|decimal:0,2',
+            'billingItemBalance' => 'required|digits_between:1,8|decimal:0,2',
             'isActive' => 'required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username

@@ -16,16 +16,16 @@ class Ticket extends Model
      */
     protected $attributes = [
         'site_id' => 1,
-        'is_active' => 1,
-        'created_by' => 1,
-        'updated_by' => 1,
+        'is_active' => 1
     ];
 
     /**
      * Mass assignable attributes
      */
     protected $fillable = [
+        'ticket_type',
         'client_id',
+        'requestor_name',
         'name',
         'description',
         'category_id',
@@ -45,11 +45,17 @@ class Ticket extends Model
 
         // Auto-assign site_id when creating a ticket
         static::creating(function ($ticket) {
-            $ticket->site_id = $ticket->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            $ticket->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            if (auth()->check()) {
+                $ticket->created_by = auth()->id();
+                $ticket->updated_by = auth()->id();
+            }
+        });
+         
+        static::updating(function ($ticket) {
+            if (auth()->check()) {
+                $ticket->updated_by = auth()->id();
+            }
         });
     }
 
@@ -86,5 +92,10 @@ class Ticket extends Model
     public function assignedTo()
     {
         return $this->belongsTo(\App\Models\User::class, 'assigned_to');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
     }
 }

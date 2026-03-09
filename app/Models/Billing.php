@@ -23,11 +23,16 @@ class Billing extends Model
     ];
 
     protected $fillable = [
+        'is_active',
         'client_id',
         'invoice_number',
+        'billing_type',
         'billing_date',
+        'billing_description',
         'billing_remarks',
         'billing_total',
+        'billing_offset',
+        'billing_balance',
         'billing_status',
         'billing_cutoff',
         'disconnection_date'
@@ -40,11 +45,7 @@ class Billing extends Model
 
         // Auto-assign site_id when creating a billing
         static::creating(function ($billing) {
-            $billing->site_id = $billing->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            $billing->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
         });
     }
 

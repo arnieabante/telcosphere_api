@@ -47,11 +47,7 @@ class Permission extends Pivot
 
         // Auto-assign site_id when creating a role
         static::creating(function ($role) {
-            $role->site_id = $role->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            $role->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
         });
     }
 

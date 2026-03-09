@@ -26,6 +26,11 @@ class SiteResource extends JsonResource
                 'company_email'  => $this->company_email,
                 'company_phone'  => $this->company_phone,
                 'company_telephone'  => $this->company_telephone,
+                'site_url' => $this->site_url,
+                'invoice_id_pattern'  => $this->invoice_id_pattern,
+                'invoice_id_yy_last_count'  => $this->invoice_id_yy_last_count,
+                'receipt_id_pattern'  => $this->receipt_id_pattern,
+                'receipt_id_yy_last_count'  => $this->receipt_id_yy_last_count,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('sites.show'), [

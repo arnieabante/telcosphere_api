@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\BillingCategory;
 use App\Models\BillingItem;
 use App\Models\Client;
+use App\Models\ExpenseCategory;
 use App\Models\Internetplan;
 use App\Models\TicketCategory;
 use App\Models\Site;
@@ -29,32 +30,28 @@ class DatabaseSeeder extends Seeder
     {
         // seed Modules first
         Module::factory()
-            ->count(15)
+            ->count(21)
             ->create();
 
-        // then Roles 
+        // then Roles
         // triggers Users, assigns permissions
         Role::factory()
             ->count(1)
-            ->hasUsers(7)
-            ->create();
-            
-        Role::factory()
-            ->adminForSite(2)
+            ->hasUsers(5)
             ->create();
 
         Internetplan::factory()
             ->count(3)
             ->create();
 
+        ExpenseCategory::factory()
+            ->count(8)
+            ->create();
+
         BillingCategory::factory()
             ->count(3)
             ->create();
-        
-        Client::factory()
-            ->count(1)
-            ->create();
-            
+
         TicketCategory::factory()
             ->count(2)
             ->create();
@@ -62,22 +59,9 @@ class DatabaseSeeder extends Seeder
         Server::factory()
             ->count(3)
             ->create();
-            
-        Billing::factory()
-            ->count(3)
-            ->create();
 
         Site::factory()
-            ->count(2)
+            ->count(1)
             ->create();
-
-        /*User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );*/
     }
 }

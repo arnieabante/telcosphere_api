@@ -19,6 +19,11 @@ return new class extends Migration
             $table->string('site_url')->unique();
             $table->string('company_name')->unique();
             $table->string('company_address');
+            $table->string('invoice_id_pattern')->nullable();
+            $table->integer('invoice_id_yy_last_count')->default(0);
+            $table->string('receipt_id_pattern')->nullable();
+            $table->integer('receipt_id_yy_last_count')->default(0);
+            $table->string('payment_details')->nullable();
             $table->string('company_email')->nullable();
             $table->string('company_phone')->nullable();
             $table->string('company_telephone')->nullable();

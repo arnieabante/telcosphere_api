@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Scopes\SiteScope;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Client extends Model
 {
@@ -38,6 +39,7 @@ class Client extends Model
         'installation_date',
         'installation_fee',
         'balance_from_prev_billing',
+        'current_balance',
         'prorate_fee',
         'prorate_start_date',
         'prorate_end_date',
@@ -50,7 +52,10 @@ class Client extends Model
         'billing_category_id',
         'server_id',
         'internet_plan_id',
+        'prev_internet_plan_id',
         'last_auto_billing_date',
+        'pppoe_username',
+        'pppoe_password',
         'is_active',
     ];
 
@@ -61,11 +66,7 @@ class Client extends Model
 
         // Auto-assign site_id when creating a client
         static::creating(function ($client) {
-            $client->site_id = $client->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            $client->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
         });
     }
 
@@ -105,6 +106,98 @@ class Client extends Model
 
     public function billings()
     {
-        return $this->hasMany(Billing::class);
+        return $this->hasMany(\App\Models\Billing::class, 'client_id', 'id');
+    }
+
+    public function getSOA(array $filters = [])
+    {
+        $from = $filters['from'] ?? null;
+        $to   = $filters['to'] ?? null;
+
+        $billings = DB::table('billings')
+            ->select([
+                DB::raw("billings.invoice_number AS id"),
+                DB::raw("DATE_FORMAT(billings.billing_date, '%Y-%m-%d') AS soa_date"),
+                DB::raw("CONCAT(billings.billing_description, ' - Invoice # ', billings.invoice_number) AS particulars"),
+                'billings.billing_total AS debit',
+                DB::raw('0 AS credit'),
+                'billings.created_at AS created_at',
+            ])
+            ->where('billings.client_id', $this->id);
+
+        if ($from && $to) {
+             $billings
+                ->whereDate('billings.billing_date', '>=', $from)
+                ->whereDate('billings.billing_date', '<=', $to);
+        }
+
+        $payments = DB::table('payments')
+            ->select([
+                DB::raw("payments.receipt_no AS id"),
+                DB::raw("DATE_FORMAT(payments.collection_date, '%Y-%m-%d') AS soa_date"),
+                DB::raw("CONCAT('Payment - OR # ', payments.receipt_no) AS particulars"),
+                DB::raw('0 AS debit'),
+                'payments.amount_paid AS credit',
+                'payments.created_at AS created_at',
+            ])
+            ->where('payments.client_id', $this->id);
+
+        if ($from && $to) {
+             $payments
+                ->whereDate('payments.collection_date', '>=', $from)
+                ->whereDate('payments.collection_date', '<=', $to);
+        }
+
+        return $billings
+            ->unionAll($payments)
+            ->orderBy('created_at')
+            ->orderBy('soa_date')
+            ->get();
+    }
+    
+    public function getAccountHistory(array $filters = [])
+    {
+        $from = $filters['from'] ?? null;
+        $to   = $filters['to'] ?? null;
+
+        $billings = DB::table('billings')
+            ->select([
+                DB::raw("billings.invoice_number AS id"),
+                DB::raw("DATE_FORMAT(billings.billing_date, '%Y-%m-%d') AS soa_date"),
+                DB::raw("CONCAT(billings.billing_description, ' - Invoice # ', billings.invoice_number) AS particulars"),
+                'billings.billing_total AS debit',
+                DB::raw('0 AS credit'),
+                'billings.created_at AS created_at',
+            ])
+            ->where('billings.client_id', $this->id);
+
+        if ($from && $to) {
+             $billings
+                ->whereDate('billings.billing_date', '>=', $from)
+                ->whereDate('billings.billing_date', '<=', $to);
+        }
+
+        $payments = DB::table('payments')
+            ->select([
+                DB::raw("payments.receipt_no AS id"),
+                DB::raw("DATE_FORMAT(payments.collection_date, '%Y-%m-%d') AS soa_date"),
+                DB::raw("CONCAT('Payment - OR # ', payments.receipt_no) AS particulars"),
+                DB::raw('0 AS debit'),
+                'payments.amount_paid AS credit',
+                'payments.created_at AS created_at',
+            ])
+            ->where('payments.client_id', $this->id);
+
+        if ($from && $to) {
+             $payments
+                ->whereDate('payments.collection_date', '>=', $from)
+                ->whereDate('payments.collection_date', '<=', $to);
+        }
+
+        return $billings
+            ->unionAll($payments)
+            ->orderBy('created_at')
+            ->orderBy('soa_date')
+            ->get();
     }
 }

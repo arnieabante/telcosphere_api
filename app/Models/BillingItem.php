@@ -24,9 +24,12 @@ class BillingItem extends Model
     protected $fillable = [
         'billing_id',
         'billing_item_name',
+        'billing_item_particulars',
         'billing_item_quantity',
         'billing_item_price',
         'billing_item_amount',
+        'billing_item_offset',
+        'billing_item_balance',
         'billing_item_remark',
         'billing_status'
     ];
@@ -38,11 +41,7 @@ class BillingItem extends Model
 
         // Auto-assign site_id when creating a billing
         static::creating(function ($billingItem) {
-            $billingItem->site_id = $billingItem->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            $billingItem->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
         });
     }
 

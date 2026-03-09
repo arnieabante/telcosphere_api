@@ -8,44 +8,71 @@ use App\Http\Requests\Api\PaymentRequest\StorePaymentRequest;
 use App\Http\Requests\Api\PaymentRequest\UpdatePaymentRequest;
 use App\Http\Resources\Api\PaymentResource;
 use App\Models\Payment;
+use App\Models\PaymentItem;
+use App\Models\Billing;
+use App\Models\BillingItem;
+use App\Models\Client;
+use App\Services\DashboardService;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Services\ReceiptService;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends ApiController
 {
     use ApiResponses;
 
+    protected $receiptService;
+
+    public function __construct(ReceiptService $receiptService)
+    {
+        $this->receiptService = $receiptService;
+    }
+
     /**
      * Display a listing of the resource.
      */
 
-    public function index(Request $request)
+    public function index(Request $request, DashboardService $service)
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
         $statusFilter = $request->get('status');
         $clientUuid = $request->get('client_id');
+        $from = $request->get('from');
+        $to = $request->get('to');
 
-        $query = Payment::with(['client', 'collectedBy'])
-            ->where('is_active', 1);
+        $query = Payment::with([
+            'client',
+            'collectedBy',
+            'paymentItems' => function ($q) {
+                $q->where('is_active', 1);
+            }
+        ])->where('is_active', 1);
 
-        if(!empty($clientUuid) || $clientUuid != ''){
+        // Filter by date range
+        if (!empty($from) && !empty($to)) {
+            $query->whereBetween('collection_date', [$from, $to]);
+        }
+
+        if (!empty($clientUuid)) {
             $client = \App\Models\Client::where('uuid', $clientUuid)->first();
-            $query->where('client_id', $client->id);
+            if ($client) {
+                $query->where('client_id', $client->id);
+            }
         }
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('receipt_no', 'like', "%{$search}%")
-                ->orWhere('payment_date', 'like', "%{$search}%") 
-                ->orWhere('payment_amount', 'like', "%{$search}%") 
-                ->orWhere('reference', 'like', "%{$search}%") 
+                ->orWhere('collection_date', 'like', "%{$search}%")
+                ->orWhere('amount_paid', 'like', "%{$search}%")
+                ->orWhere('reference', 'like', "%{$search}%")
                 ->orWhereHas('client', function ($clientQuery) use ($search) {
-                    $clientQuery->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%");
+                    $clientQuery->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
                 })
                 ->orWhereHas('collectedBy', function ($userQuery) use ($search) {
                     $userQuery->where('fullname', 'like', "%{$search}%");
@@ -57,9 +84,17 @@ class PaymentController extends ApiController
                  ->paginate($perPage)
                  ->appends($request->only(['status', 'search', 'per_page']));
 
-        return PaymentResource::collection($payments);
-    }
+        $monthlyProfit = $service->getMonthlyProfit();
+        $profitGrowth = $service->getMonthlyProfitGrowth();
 
+        return PaymentResource::collection($payments)
+        ->additional([
+                'meta' => [
+                    'monthly_profit' => $monthlyProfit,
+                    'profit_growth' => $profitGrowth
+                ]
+            ]);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -67,17 +102,67 @@ class PaymentController extends ApiController
     public function store(StorePaymentRequest $request)
     {
         try {
-            // create policy
-            // $this->isAble('create', Payment::class);
+            return DB::transaction(function () use ($request) {
+                $receipt = $this->receiptService->generateReceipt(false);
 
-            return new PaymentResource(
-                Payment::create($request->mappedAttributes())
-            );
+                $attributes = array_merge($request->mappedAttributes(), [
+                    'receipt_no' => $receipt->receipt_no,
+                ]);
+
+                $payment = Payment::create($attributes);
+
+                $affectedBillingIds = [];
+                if ($request->has('collectionItems')) {
+                    foreach ($request->collectionItems as $item) {
+                        // Insert record to payment Item
+                        PaymentItem::create([
+                            'payment_id'       => $payment->id,
+                            'billing_item_id'  => $item['billing_item_id'],
+                            'particulars'      => $item['particulars'] ?? null,
+                            'amount'           => $item['amount'],
+                            'amount_paid'      => $item['amount_paid'],
+                            'amount_balance'   => $item['amount_balance'],
+                        ]);
+
+                        $amountPaid = floatval($item['amount_paid']);
+                        $amountBalance = floatval($item['amount_balance']);
+                        // Update billing item
+                        $billingItem = BillingItem::find($item['billing_item_id']);
+
+                        if ($billingItem) {
+                            $billingItem->update([
+                                'billing_item_offset' => DB::raw('billing_item_offset + ' . $amountPaid),
+                                'billing_item_balance' => DB::raw('billing_item_balance - ' . $amountPaid),
+                                'billing_status' => $amountBalance > 0 ? 'Partial' : 'Paid',
+                            ]);
+                        }
+
+                        // update billing
+                        $billing = Billing::find($item['billing_id']);
+                        if ($billing) {
+                            $billing->billing_offset += $amountPaid;
+                            $billing->billing_balance -= $amountPaid;
+                            $billing->billing_status = $item['amount_balance'] > 0 ? 'Partial' : 'Paid';
+                            $billing->save();
+                        }
+                    }
+                }
+
+                // Finally, let's update the balance_from_previous_billing of via $client->id
+                $client = Client::find($request['clientId']);
+                if ($client) {
+                    $client->update([
+                        'balance_from_prev_billing' => DB::raw('balance_from_prev_billing - ' . floatval($request['amountPaid'])),
+                    ]);
+                }
+                return new PaymentResource($payment);
+            });
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to create a Payment.', 401);
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -87,7 +172,7 @@ class PaymentController extends ApiController
         try {
             $payment = Payment::with(['client' , 'collectedBy'])->where('uuid', $uuid)->firstOrFail();
             return new PaymentResource($payment);
-            
+
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Payment does not exist.', 404);
@@ -103,16 +188,71 @@ class PaymentController extends ApiController
     public function update(UpdatePaymentRequest $request, string $uuid)
     {
         try {
-            // update policy
-            // $this->isAble('update', Payment::class);
+            return DB::transaction(function () use ($request, $uuid) {
 
-            $payment = Payment::where('uuid', $uuid)->firstOrFail();
-            $affected = $payment->update($request->mappedAttributes());
+                $payment = Payment::with('paymentItems')->where('uuid', $uuid)->firstOrFail();
+                $payment->update($request->mappedAttributes());
 
-            return new PaymentResource($payment);
+                if ($request->has('collectionItems')) {
 
-        } catch (ModelNotFoundException $ex) {
-            return $this->error('Payment does not exist.', 404);
+                    foreach ($request->collectionItems as $item) {
+
+                        $paymentItem = PaymentItem::where('payment_id', $payment->id)
+                            ->where('billing_item_id', $item['billing_item_id'])
+                            ->first();
+
+                        if (!$paymentItem) continue;
+
+                        $oldAmountPaid = floatval($paymentItem->amount_paid);
+                        $newAmountPaid = floatval($item['amount_paid']);
+
+                        $difference = $newAmountPaid - $oldAmountPaid;
+
+                        // Update payment item
+                        $paymentItem->update([
+                            'amount'         => $item['amount'],
+                            'amount_paid'    => $newAmountPaid,
+                            'amount_balance' => $item['amount_balance'],
+                        ]);
+
+                        if ($difference != 0) {
+                            // Update billing item
+                            $billingItem = BillingItem::find($item['billing_item_id']);
+                            if ($billingItem) {
+                                $billingItem->billing_item_offset += $difference;
+                                $billingItem->billing_item_balance -= $difference;
+                                $billingItem->billing_status =
+                                    $billingItem->billing_item_balance > 0 ? 'Partial' : 'Paid';
+                                $billingItem->save();
+                            }
+
+                            // Update billing
+                            $billing = Billing::find($item['billing_id']);
+                            if ($billing) {
+                                $billing->billing_offset += $difference;
+                                $billing->billing_balance -= $difference;
+                                $billing->billing_status =
+                                    $billing->billing_balance > 0 ? 'Partial' : 'Paid';
+                                $billing->save();
+                            }
+                        }
+                    }
+                }
+
+                $oldAmountPaid = floatval($payment->getOriginal('amount_paid'));
+                $newAmountPaid = floatval($request['amountPaid']);
+                $clientDiff = $newAmountPaid - $oldAmountPaid;
+
+                if ($clientDiff != 0) {
+                    $client = Client::find($request['clientId']);
+                    if ($client) {
+                        $client->balance_from_prev_billing -= $clientDiff;
+                        $client->save();
+                    }
+                }
+
+                return new PaymentResource($payment->fresh());
+            });
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to update a Payment.', 401);

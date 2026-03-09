@@ -25,16 +25,20 @@ class Payment extends Model
      * Mass assignable attributes
      */
     protected $fillable = [
-        'client_id',
         'receipt_no',
-        'payment_amount',
+        'client_id',
+        'collection_date',
+        'collected_by',
         'payment_method',
         'reference',
+        'subtotal',
         'discount',
-        'discount_total',
+        'total',
+        'amount_received',
+        'amount_change',
+        'amount_paid',
         'discount_reason',
-        'payment_date',
-        'collected_by',
+        'balance',
         'is_active'
     ];
 
@@ -44,13 +48,9 @@ class Payment extends Model
         // Apply global site filter
         static::addGlobalScope(new SiteScope);
 
-        // Auto-assign site_id when creating a ticket
-        static::creating(function ($ticket) {
-            $ticket->site_id = $ticket->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+        // Auto-assign site_id when creating a payment
+        static::creating(function ($payment) {
+            $payment->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
         });
     }
 
@@ -82,5 +82,10 @@ class Payment extends Model
     public function collectedBy()
     {
         return $this->belongsTo(\App\Models\User::class, 'collected_by');
+    }
+
+    public function paymentItems()
+    {
+        return $this->hasMany(\App\Models\PaymentItem::class, 'payment_id', 'id');
     }
 }

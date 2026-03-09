@@ -8,6 +8,7 @@ use App\Http\Requests\Api\TicketRequest\StoreTicketRequest;
 use App\Http\Requests\Api\TicketRequest\UpdateTicketRequest;
 use App\Http\Resources\Api\TicketResource;
 use App\Models\Ticket;
+use App\Services\DashboardService;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -22,14 +23,16 @@ class TicketController extends ApiController
      * Display a listing of the resource.
      */
 
-    public function index(Request $request)
+    public function index(Request $request, DashboardService $service)
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
         $statusFilter = $request->get('status');
         $clientUuid = $request->get('client_id');
+        $from = $request->get('from');
+        $to = $request->get('to');
 
-        $query = Ticket::with(['client', 'ticketCategory', 'assignedTo'])
+        $query = Ticket::with(['client', 'ticketCategory', 'assignedTo', 'createdBy'])
             ->where('is_active', 1);
 
         if(!empty($clientUuid) || $clientUuid != ''){
@@ -40,7 +43,7 @@ class TicketController extends ApiController
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                ->orWhere('status', 'like', "%{$search}%") 
+                ->orWhere('status', 'like', "%{$search}%")
                 ->orWhereHas('client', function ($clientQuery) use ($search) {
                     $clientQuery->where('first_name', 'like', "%{$search}%")
                         ->orWhere('last_name', 'like', "%{$search}%");
@@ -52,6 +55,11 @@ class TicketController extends ApiController
                     $userQuery->where('fullname', 'like', "%{$search}%");
                 });
             });
+        }
+
+        // Filter by date range
+        if (!empty($from) && !empty($to)) {
+            $query->whereBetween('requested_date', [$from, $to]);
         }
 
         if (!empty($statusFilter) && $statusFilter != 'due') {
@@ -75,9 +83,14 @@ class TicketController extends ApiController
                  ->paginate($perPage)
                  ->appends($request->only(['status', 'search', 'per_page']));
 
+        $totalTicket = $service->getTotalActiveTicket();
+        $totalGrowth = $service->getTicketGrowth();
+
         return TicketResource::collection($tickets)
         ->additional([
             'meta' => [
+                'tickets_total' => $totalTicket,
+                'tickets_growth' => $totalGrowth,
                 'status' => [
                     'total'   => Ticket::where('is_active', 1)->count(),
                     'new' => Ticket::where('status', 'new')->where('is_active', 1)->count(),
@@ -119,7 +132,7 @@ class TicketController extends ApiController
         try {
             $ticket = Ticket::with(['client', 'ticketCategory', 'assignedTo'])->where('uuid', $uuid)->firstOrFail();
             return new TicketResource($ticket);
-            
+
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Ticket does not exist.', 404);

@@ -19,14 +19,19 @@ class Site extends Model
     ];
 
     protected $fillable = [
+        'company_name',
         'company_logo',
         'company_banner',
         'site_url',
-        'company_name',
         'company_address',
         'company_email',
         'company_phone',
         'company_telephone',
+        'invoice_id_pattern',
+        'invoice_id_yy_last_count',
+        'receipt_id_pattern',
+        'receipt_id_yy_last_count',
+        'payment_details',
         'is_active'
     ];
 

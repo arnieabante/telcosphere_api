@@ -4,7 +4,6 @@ namespace App\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Payment; 
 
 class PaymentResource extends JsonResource
 {
@@ -13,8 +12,6 @@ class PaymentResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-
-
     public function toArray(Request $request): array
     {
         return [
@@ -24,12 +21,18 @@ class PaymentResource extends JsonResource
                 'uuid' => $this->uuid,
                 'receiptNo' => $this->receipt_no,
                 'clientName' => optional($this->client)->first_name . " " . optional($this->client)->last_name,
-                'paymentDate' => $this->payment_date,
-                'paymentName' => $this->payment_name,
-                'paymentAmount' => $this->payment_amount,
+                'collectionDate' => $this->collection_date,
                 'paymentMethod' => $this->payment_method,
                 'reference' => $this->reference,
-                'collectedBy' => optional($this->collectedBy)->fullname, 
+                'subTotal' => $this->subtotal,
+                'discount' => $this->discount,
+                'total' => $this->total,
+                'amountReceived' => $this->amount_received,
+                'amountChange' => $this->amount_change,
+                'amountPaid' => $this->amount_paid,
+                'discountReason' => $this->discount_reason,
+                'collectionDate' => $this->collection_date,
+                'collectedBy' => $this->collected_by,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('payments.show'),
@@ -45,6 +48,7 @@ class PaymentResource extends JsonResource
             'relationships' => [
                 'client' => new ClientResource($this->whenLoaded('client')),
                 'collectedBy' => new UserResource($this->whenLoaded('collectedBy')),
+                'paymentItems' => PaymentItemResource::collection($this->paymentItems),
             ],
             'links' => [
                 'payment' => route('payments.show', $this->id),

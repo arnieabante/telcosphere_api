@@ -22,6 +22,8 @@ class BillingCategoryResource extends JsonResource
                 'name' => $this->name,
                 'description' => $this->description,
                 'dateCycle' => $this->date_cycle,
+                'daysToDueDate' => $this->days_to_due_date,
+                'daysToDisconnectionDate' => $this->days_to_disconnection_date,
                 'isActive' => $this->is_active, 
                 $this->mergeWhen(
                     request()->routeIs('billingcategories.show'), [

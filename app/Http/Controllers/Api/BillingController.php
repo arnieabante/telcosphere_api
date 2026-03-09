@@ -11,7 +11,9 @@ use App\Libraries\Billing\OtherServices;
 use App\Libraries\Billing\Repair;
 use App\Models\Billing;
 use App\Services\BillingService;
+use App\Services\DashboardService;
 use App\Traits\ApiResponses;
+use BadFunctionCallException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -25,14 +27,22 @@ class BillingController extends ApiController
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, DashboardService $service)
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
+        $from = $request->get('from');
+        $to = $request->get('to');
 
         $query = Billing::query()
             ->with('client')
             ->where('is_active', '=', '1');
+            
+        // Filter by date range
+        if (!empty($from) && !empty($to)) {
+            $query->whereBetween('created_at', [$from, $to]);
+        }
+        
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
@@ -43,8 +53,28 @@ class BillingController extends ApiController
             });
         }
 
+        $totalBilling = $service->getTotalPendingBilling();
+        $totalGrowth = $service->getBillingGrowth();
+        $totalBillingAmount = $service->getTotalBillingAmount();
+        $totalAmountGrowth = $service->getMonthlyBillingAmountGrowth();
+        $monthlyWifiCollection = $service->getMonthlytWifiCollection();
+        $monthlyWifiCollectionGrowth = $service->getMonthlyWifiCollectionGrowth();
+        $overdue = $service->getOverdueBillings();
+
         $billing = $query->orderBy('created_at', 'desc')->paginate($perPage);
-        return BillingResource::collection($billing);
+
+        return BillingResource::collection($billing)
+        ->additional([
+                'meta' => [
+                    'billings_total' => $totalBilling,
+                    'billings_growth' => $totalGrowth,
+                    'billings_amount' => $totalBillingAmount,
+                    'billings_amount_growth' => $totalAmountGrowth,
+                    'monthly_wifi_collection' => $monthlyWifiCollection,
+                    'monthly_wifi_growth' => $monthlyWifiCollectionGrowth,
+                    'overdue_accounts' => $overdue
+                ]
+            ]);
     }
 
     /**
@@ -70,7 +100,7 @@ class BillingController extends ApiController
 
         try {
             $service->generateBilling($billingType, $attributes);
-            
+
         } catch (ValidationException $ex) {
             return $this->error($ex->getMessage(), 400);
 
@@ -81,7 +111,7 @@ class BillingController extends ApiController
             return $this->error($ex->getMessage(), 400);
 
         }
-        
+
         return $this->ok('Billing is successfully created for client/s.');
     }
 
@@ -91,7 +121,12 @@ class BillingController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $billing = Billing::with('billingItems')->where('uuid', $uuid)->firstOrFail();
+            $billing = Billing::with([
+                'billingItems',
+                'client'
+            ])
+            ->where('uuid', $uuid)->firstOrFail();
+
             return new BillingResource($billing);
 
         } catch (ModelNotFoundException $ex) {
@@ -105,13 +140,12 @@ class BillingController extends ApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBillingRequest $request, string $uuid)
+    public function update(Request $request, BillingService $service, string $uuid)
     {
         try {
-            $billing = Billing::where('uuid', $uuid)->firstOrFail();
-            $affected = $billing->update($request->mappedAttributes());
-            
-            return new BillingResource($billing);
+            $attributes = $request->input('billing');
+            $billing = $service->updateBilling($uuid, $attributes);
+            return $billing;
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Billing does not exist.', 404);
@@ -129,7 +163,7 @@ class BillingController extends ApiController
         try {
             $billing = Billing::where('uuid', $uuid)->firstOrFail();
             $affected = $billing->update($request->mappedAttributes());
-            
+
             return new BillingResource($billing);
 
         } catch (ModelNotFoundException $ex) {
@@ -153,6 +187,27 @@ class BillingController extends ApiController
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Billing does not exist.', 404);
+
+        } catch (AuthorizationException $ex) {
+            return $this->error('You are not authorized to delete a Billing.', 401);
+        }
+    }
+
+    public function find(Request $request)
+    {
+        try {
+            $q = Billing::with('client')
+                ->where('billing_status', $request->input('status'))
+                ->whereHas('client', function ($query) use ($request) {
+                    $query->where('billing_category_id', $request->input('category'))
+                        ->where('server_id', $request->input('server'));
+                });
+
+            $rslt = $q->orderBy('billing_status', 'asc')->get();
+            return BillingResource::collection($rslt);
+
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('Billing record not found.', 404);
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to delete a Billing.', 401);

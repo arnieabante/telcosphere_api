@@ -30,7 +30,13 @@ class Role extends Model
     
     protected static function booted()
     {
+        // Apply global site filter
         static::addGlobalScope(new SiteScope);
+
+        // Auto-assign site_id when creating a role
+        static::creating(function ($role) {
+             $role->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+        });
     }
 
     public function getRouteKeyName(): string {

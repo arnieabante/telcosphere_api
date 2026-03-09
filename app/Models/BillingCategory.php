@@ -24,6 +24,8 @@ class BillingCategory extends Model
         'name',
         'description',
         'date_cycle',
+        'days_to_due_date',
+        'days_to_disconnection_date',
         'is_active'
     ];
 
@@ -34,11 +36,7 @@ class BillingCategory extends Model
 
         // Auto-assign site_id when creating a billingcategory
         static::creating(function ($billingcategory) {
-            $billingcategory->site_id = $billingcategory->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            $billingcategory->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
         });
     }
 

@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('installation_date');
             $table->decimal('installation_fee', 8, 2)->default(0.00);
             $table->decimal('balance_from_prev_billing', 8, 2)->default(0.00);
+            $table->decimal('current_balance', 8, 2)->default(0.00);
             $table->decimal('prorate_fee', 8, 2)->default(0.00);
             $table->date('prorate_start_date')->nullable();
             $table->date('prorate_end_date')->nullable();
@@ -38,7 +39,10 @@ return new class extends Migration
             $table->integer('billing_category_id');
             $table->integer('server_id');
             $table->integer('internet_plan_id');
+            $table->integer('prev_internet_plan_id')->nullable();
             $table->string('last_auto_billing_date')->nullable();
+            $table->string('pppoe_username')->nullable();
+            $table->string('pppoe_password')->nullable();
             $table->integer('is_active');
             $table->integer('created_by');
             $table->integer('updated_by');
