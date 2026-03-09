@@ -17,9 +17,7 @@ class Billing extends Model
     // default values
     protected $attributes = [
         'site_id' => 1,
-        'is_active' => 1,
-        'created_by' => 1, // TODO
-        'updated_by' => 1 // TODO
+        'is_active' => 1
     ];
 
     protected $fillable = [
@@ -46,6 +44,16 @@ class Billing extends Model
         // Auto-assign site_id when creating a billing
         static::creating(function ($billing) {
             $billing->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            if (auth()->check()) {
+                $billing->created_by = auth()->id();
+                $billing->updated_by = auth()->id();
+            }
+        });
+
+         static::updating(function ($billing) {
+            if (auth()->check()) {
+                $billing->updated_by = auth()->id();
+            }
         });
     }
 

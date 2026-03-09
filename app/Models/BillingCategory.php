@@ -15,9 +15,7 @@ class BillingCategory extends Model
     // default values
     protected $attributes = [
        'site_id' => 1,
-       'is_active' => 1,
-       'created_by' => 1,
-       'updated_by' => 1
+       'is_active' => 1
     ];
 
     protected $fillable = [
@@ -37,6 +35,16 @@ class BillingCategory extends Model
         // Auto-assign site_id when creating a billingcategory
         static::creating(function ($billingcategory) {
             $billingcategory->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            if (auth()->check()) {
+                $billingcategory->created_by = auth()->id();
+                $billingcategory->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($billingcategory) {
+            if (auth()->check()) {
+                $billingcategory->updated_by = auth()->id();
+            }
         });
     }
 

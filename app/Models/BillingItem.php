@@ -16,9 +16,7 @@ class BillingItem extends Model
     // default values
     protected $attributes = [
         'site_id' => 1,
-        'is_active' => 1,
-        'created_by' => 1, // TODO
-        'updated_by' => 1 // TODO
+        'is_active' => 1
     ];
 
     protected $fillable = [
@@ -39,9 +37,19 @@ class BillingItem extends Model
         // Apply global site filter
         static::addGlobalScope(new SiteScope);
 
-        // Auto-assign site_id when creating a billing
+        // Auto-assign site_id when creating a billing item
         static::creating(function ($billingItem) {
             $billingItem->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+             if (auth()->check()) {
+                $billingItem->created_by = auth()->id();
+                $billingItem->updated_by = auth()->id();
+            }
+        });
+
+         static::updating(function ($billingItem) {
+            if (auth()->check()) {
+                $billingItem->updated_by = auth()->id();
+            }
         });
     }
 

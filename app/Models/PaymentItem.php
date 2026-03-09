@@ -16,9 +16,7 @@ class PaymentItem extends Model
      */
     protected $attributes = [
         'site_id' => 1,
-        'is_active' => 1,
-        'created_by' => 1,
-        'updated_by' => 1,
+        'is_active' => 1
     ];
 
     /**
@@ -35,15 +33,25 @@ class PaymentItem extends Model
         'is_active'
     ];
 
-    
+
     protected static function booted()
     {
         // Apply global site filter
         static::addGlobalScope(new SiteScope);
 
-        // Auto-assign site_id when creating a ticket
-        static::creating(function ($ticket) {
-            $ticket->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+        // Auto-assign site_id when creating a payment item
+        static::creating(function ($paymentItem) {
+            $paymentItem->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            if (auth()->check()) {
+                $paymentItem->created_by = auth()->id();
+                $paymentItem->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($paymentItem) {
+            if (auth()->check()) {
+                $paymentItem->updated_by = auth()->id();
+            }
         });
     }
 

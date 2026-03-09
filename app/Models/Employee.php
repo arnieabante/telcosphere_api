@@ -17,9 +17,7 @@ class Employee extends Model
      */
     protected $attributes = [
         'site_id' => 1,
-        'is_active' => 1,
-        'created_by' => 1,
-        'updated_by' => 1,
+        'is_active' => 1
     ];
 
     /**
@@ -70,6 +68,16 @@ class Employee extends Model
         // Auto-assign site_id when creating a employee
         static::creating(function ($employee) {
             $employee->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+             if (auth()->check()) {
+                $employee->created_by = auth()->id();
+                $employee->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($employee) {
+            if (auth()->check()) {
+                $employee->updated_by = auth()->id();
+            }
         });
     }
 
