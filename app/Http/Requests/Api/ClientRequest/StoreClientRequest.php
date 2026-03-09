@@ -42,7 +42,7 @@ class StoreClientRequest extends BaseClientRequest
             'prorateFeeStatus' => 'nullable|string',
             'inactiveDate' => 'string|min:5',
             'notes' => 'nullable|string|min:2',
-            'facebookProfileUrl' => 'nullable|string|min:5',
+            'facebookProfileURL' => 'nullable|string|min:5',
             'billingCategoryId' => 'required|int',
             'serverId' => 'required|int',
             'internetPlanId' => 'required|int',

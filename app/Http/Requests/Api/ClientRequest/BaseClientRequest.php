@@ -28,7 +28,7 @@ class BaseClientRequest extends FormRequest
             'prorateFeeStatus' => 'prorate_fee_status',
             'inactiveDate' => 'inactive_date',
             'notes' => 'notes',
-            'facebookProfileUrl' => 'facebook_profile_url',
+            'facebookProfileURL' => 'facebook_profile_url',
             'billingCategoryId' => 'billing_category_id',
             'serverId' => 'server_id',
             'internetPlanId' => 'internet_plan_id',
