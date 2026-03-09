@@ -25,7 +25,6 @@ return new class extends Migration
             $table->decimal('billing_offset', 8, 2)->default(0);
             $table->decimal('billing_balance', 8, 2)->default(0);
             $table->string('billing_status');
-            $table->decimal('balance_from_prev_billing', 8, 2)->default(0);
             $table->date('billing_cutoff')->nullable();
             $table->date('disconnection_date')->nullable();
             $table->boolean('is_active');
