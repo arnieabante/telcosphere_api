@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\User;
 
 class BillingItem extends Model
 {
@@ -37,19 +38,35 @@ class BillingItem extends Model
         // Apply global site filter
         static::addGlobalScope(new SiteScope);
 
-        // Auto-assign site_id when creating a billing item
+        // Auto-assign site_id when creating a billing
         static::creating(function ($billingItem) {
             $billingItem->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
-             if (auth()->check()) {
-                $billingItem->created_by = auth()->id();
-                $billingItem->updated_by = auth()->id();
+
+            $userId = auth()->id();
+            if (!$userId) {
+                $userId = User::where('site_id', $billingItem->site_id)
+                    ->whereHas('role', function ($q) {
+                        $q->where('description', 'Administrator');
+                    })
+                    ->value('id');
             }
+
+            $billingItem->created_by = $userId;
+            $billingItem->updated_by = $userId;
         });
 
-         static::updating(function ($billingItem) {
-            if (auth()->check()) {
-                $billingItem->updated_by = auth()->id();
+        static::updating(function ($billingItem) {
+
+            $userId = auth()->id();
+            if (!$userId) {
+                $userId = User::where('site_id', $billingItem->site_id)
+                    ->whereHas('role', function ($q) {
+                        $q->where('description', 'Administrator');
+                    })
+                    ->value('id');
             }
+
+            $billingItem->updated_by = $userId;
         });
     }
 
