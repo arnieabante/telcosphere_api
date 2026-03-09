@@ -196,14 +196,15 @@ class BillingController extends ApiController
     public function find(Request $request)
     {
         try {
-            $q = Billing::with('client')
+            $billing = Billing::with('client')
                 ->where('billing_status', $request->input('status'))
                 ->whereHas('client', function ($query) use ($request) {
                     $query->where('billing_category_id', $request->input('category'))
                         ->where('server_id', $request->input('server'));
                 });
 
-            $rslt = $q->orderBy('billing_status', 'asc')->get();
+            $perPage = $request->input('per_page', 10);
+            $rslt = $billing->orderBy('billing_status', 'asc')->paginate($perPage);
             return BillingResource::collection($rslt);
 
         } catch (ModelNotFoundException $ex) {

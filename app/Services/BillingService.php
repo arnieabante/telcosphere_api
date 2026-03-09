@@ -75,7 +75,6 @@ class BillingService
                 ->where('id', '<>', $billing->id)
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->sum('billing_balance');
-
             $currentClientBalance = Billing::where('client_id', $client->id)
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->sum('billing_balance');
