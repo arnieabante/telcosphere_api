@@ -29,21 +29,6 @@ class Module extends Model
     {
         // Apply global site filter
         static::addGlobalScope(new SiteScope);
-
-        // Auto-assign site_id when creating a module
-        static::creating(function ($module) {
-            $module->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
-            if (auth()->check()) {
-                $module->created_by = auth()->id();
-                $module->updated_by = auth()->id();
-            }
-        });
-
-        static::updating(function ($module) {
-            if (auth()->check()) {
-                $module->updated_by = auth()->id();
-            }
-        });
     }
 
     public function getRouteKeyName(): string {
