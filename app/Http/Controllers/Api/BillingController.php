@@ -37,12 +37,12 @@ class BillingController extends ApiController
         $query = Billing::query()
             ->with('client')
             ->where('is_active', '=', '1');
-            
+
         // Filter by date range
         if (!empty($from) && !empty($to)) {
             $query->whereBetween('created_at', [$from, $to]);
         }
-        
+
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
@@ -196,32 +196,41 @@ class BillingController extends ApiController
     public function find(Request $request)
     {
         try {
-            $billing = Billing::with('client');
+            $billing = Billing::with('client')
+                ->where('is_active', 1);
 
-            if (!empty($request->input('status'))) {
-                $billing->where('billing_status', $request->input('status'));
+            if ($request->filled('status')) {
+                $status = trim($request->input('status'));
+                $billing->where(function ($query) use ($status) {
+                    $query->where('billing_status', $status);
+                });
             }
 
-            if (!empty($request->input('category')) || !empty($request->input('server'))) {
+            if ($request->filled('category') || $request->filled('server')) {
                 $billing->whereHas('client', function ($query) use ($request) {
-                    if (!empty($request->input('category'))) {
+
+                    if ($request->filled('category')) {
                         $query->where('billing_category_id', $request->input('category'));
                     }
-                    if (!empty($request->input('server'))) {
+
+                    if ($request->filled('server')) {
                         $query->where('server_id', $request->input('server'));
                     }
+
                 });
             }
 
             $perPage = $request->input('per_page', 10);
-            $rslt = $billing->orderBy('billing_status', 'asc')->paginate($perPage);
+            $rslt = $billing
+                ->orderBy('created_at', 'desc')
+                ->paginate($perPage);
+
             return BillingResource::collection($rslt);
 
-        } catch (ModelNotFoundException $ex) {
-            return $this->error('Billing record not found.', 404);
-
-        } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to delete a Billing.', 401);
+        } catch (\Exception $ex) {
+            return response()->json([
+                'error' => $ex->getMessage()
+            ], 500);
         }
     }
 }
