@@ -196,12 +196,22 @@ class BillingController extends ApiController
     public function find(Request $request)
     {
         try {
-            $billing = Billing::with('client')
-                ->where('billing_status', $request->input('status'))
-                ->whereHas('client', function ($query) use ($request) {
-                    $query->where('billing_category_id', $request->input('category'))
-                        ->where('server_id', $request->input('server'));
+            $billing = Billing::with('client');
+
+            if (!empty($request->input('status'))) {
+                $billing->where('billing_status', $request->input('status'));
+            }
+
+            if (!empty($request->input('category')) || !empty($request->input('server'))) {
+                $billing->whereHas('client', function ($query) use ($request) {
+                    if (!empty($request->input('category'))) {
+                        $query->where('billing_category_id', $request->input('category'));
+                    }
+                    if (!empty($request->input('server'))) {
+                        $query->where('server_id', $request->input('server'));
+                    }
                 });
+            }
 
             $perPage = $request->input('per_page', 10);
             $rslt = $billing->orderBy('billing_status', 'asc')->paginate($perPage);
