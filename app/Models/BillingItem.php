@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\User;
 
 class BillingItem extends Model
 {
@@ -16,9 +17,7 @@ class BillingItem extends Model
     // default values
     protected $attributes = [
         'site_id' => 1,
-        'is_active' => 1,
-        'created_by' => 1, // TODO
-        'updated_by' => 1 // TODO
+        'is_active' => 1
     ];
 
     protected $fillable = [
@@ -42,6 +41,32 @@ class BillingItem extends Model
         // Auto-assign site_id when creating a billing
         static::creating(function ($billingItem) {
             $billingItem->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+
+            $userId = auth()->id();
+            if (!$userId) {
+                $userId = User::where('site_id', $billingItem->site_id)
+                    ->whereHas('role', function ($q) {
+                        $q->where('description', 'Administrator');
+                    })
+                    ->value('id');
+            }
+
+            $billingItem->created_by = $userId;
+            $billingItem->updated_by = $userId;
+        });
+
+        static::updating(function ($billingItem) {
+
+            $userId = auth()->id();
+            if (!$userId) {
+                $userId = User::where('site_id', $billingItem->site_id)
+                    ->whereHas('role', function ($q) {
+                        $q->where('description', 'Administrator');
+                    })
+                    ->value('id');
+            }
+
+            $billingItem->updated_by = $userId;
         });
     }
 

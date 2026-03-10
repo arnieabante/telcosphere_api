@@ -15,9 +15,7 @@ class TicketCategory extends Model
     // default values
     protected $attributes = [
        'site_id' => 1,
-       'is_active' => 1,
-       'created_by' => 1,
-       'updated_by' => 1
+       'is_active' => 1
     ];
 
     protected $fillable = [
@@ -34,9 +32,18 @@ class TicketCategory extends Model
         // Auto-assign site_id when creating a ticketcategory
         static::creating(function ($ticketcategory) {
             $ticketcategory->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            if (auth()->check()) {
+                $ticketcategory->created_by = auth()->id();
+                $ticketcategory->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($ticketcategory) {
+            if (auth()->check()) {
+                $ticketcategory->updated_by = auth()->id();
+            }
         });
     }
-
 
     public function getRouteKeyName(): string {
         // use uuid instead of id in model binding

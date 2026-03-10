@@ -18,9 +18,7 @@ class Client extends Model
      */
     protected $attributes = [
         'site_id' => 1,
-        'is_active' => 1,
-        'created_by' => 1,
-        'updated_by' => 1,
+        'is_active' => 1
     ];
 
     /**
@@ -67,6 +65,17 @@ class Client extends Model
         // Auto-assign site_id when creating a client
         static::creating(function ($client) {
             $client->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+
+            if (auth()->check()) {
+                $client->created_by = auth()->id();
+                $client->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($client) {
+            if (auth()->check()) {
+                $client->updated_by = auth()->id();
+            }
         });
     }
 
@@ -154,7 +163,7 @@ class Client extends Model
             ->orderBy('soa_date')
             ->get();
     }
-    
+
     public function getAccountHistory(array $filters = [])
     {
         $from = $filters['from'] ?? null;

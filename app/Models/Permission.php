@@ -17,27 +17,23 @@ class Permission extends Pivot
     public $incrementing = true;
 
     protected $table = 'permissions';
-    
+
     // default values
     protected $attributes = [
        'site_id' => 1,
         'is_read' => 1,
         'is_write' => 0,
         'is_delete' => 0,
-        'is_active' => 1,
-       'created_by' => 1, // TODO
-       'updated_by' => 1 // TODO
+        'is_active' => 1
     ];
-    
+
     protected $fillable = [
         'role_id',
         'module_id',
         'is_read',
         'is_write',
         'is_delete',
-        'is_active',
-        'created_at', // assign manually
-        'updated_at' // assign manually
+        'is_active'
     ];
 
     protected static function booted()
@@ -45,9 +41,19 @@ class Permission extends Pivot
         // Apply global site filter
         static::addGlobalScope(new SiteScope);
 
-        // Auto-assign site_id when creating a role
-        static::creating(function ($role) {
-            $role->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+        // Auto-assign site_id when creating a permission
+        static::creating(function ($permission) {
+            $permission->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            if (auth()->check()) {
+                $permission->created_by = auth()->id();
+                $permission->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($permission) {
+            if (auth()->check()) {
+                $permission->updated_by = auth()->id();
+            }
         });
     }
 

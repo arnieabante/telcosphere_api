@@ -14,9 +14,7 @@ class Server extends Model
     // default values
     protected $attributes = [
        'site_id' => 1,
-       'is_active' => 1,
-       'created_by' => 1,
-       'updated_by' => 1
+       'is_active' => 1
     ];
 
     protected $fillable = [
@@ -31,7 +29,17 @@ class Server extends Model
 
         // Auto-assign site_id when creating a server
         static::creating(function ($server) {
-             $server->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            $server->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            if (auth()->check()) {
+                $server->created_by = auth()->id();
+                $server->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($server) {
+            if (auth()->check()) {
+                $server->updated_by = auth()->id();
+            }
         });
     }
 
