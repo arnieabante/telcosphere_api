@@ -16,9 +16,7 @@ class Payment extends Model
      */
     protected $attributes = [
         'site_id' => 1,
-        'is_active' => 1,
-        'created_by' => 1,
-        'updated_by' => 1,
+        'is_active' => 1
     ];
 
     /**
@@ -42,7 +40,7 @@ class Payment extends Model
         'is_active'
     ];
 
-    
+
     protected static function booted()
     {
         // Apply global site filter
@@ -51,6 +49,16 @@ class Payment extends Model
         // Auto-assign site_id when creating a payment
         static::creating(function ($payment) {
             $payment->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            if (auth()->check()) {
+                $payment->created_by = auth()->id();
+                $payment->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($payment) {
+            if (auth()->check()) {
+                $payment->updated_by = auth()->id();
+            }
         });
     }
 

@@ -49,6 +49,16 @@ class User extends Authenticatable
         // Auto-assign site_id when creating a user
         static::creating(function ($user) {
             $user->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            if (auth()->check()) {
+                $user->created_by = auth()->id();
+                $user->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($user) {
+            if (auth()->check()) {
+                $user->updated_by = auth()->id();
+            }
         });
     }
 

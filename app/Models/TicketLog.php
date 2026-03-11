@@ -14,9 +14,7 @@ class TicketLog extends Model
     // default values
     protected $attributes = [
        'site_id' => 1,
-       'is_active' => 1,
-       'created_by' => 1,
-       'updated_by' => 1
+       'is_active' => 1
     ];
 
     protected $fillable = [
@@ -36,6 +34,15 @@ class TicketLog extends Model
         // Auto-assign site_id when creating a ticketlog
         static::creating(function ($ticketlog) {
             $ticketlog->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            if (auth()->check()) {
+                $ticketlog->created_by = auth()->id();
+                $ticketlog->updated_by = auth()->id();
+            }
+        });
+        static::updating(function ($ticketlog) {
+            if (auth()->check()) {
+                $ticketlog->updated_by = auth()->id();
+            }
         });
     }
 
