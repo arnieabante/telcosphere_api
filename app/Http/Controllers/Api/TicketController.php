@@ -94,10 +94,13 @@ class TicketController extends ApiController
                 'status' => [
                     'total'   => Ticket::where('is_active', 1)->count(),
                     'new' => Ticket::where('status', 'new')->where('is_active', 1)->count(),
-                    'ongoing' => Ticket::whereIn('status', ['assigned', 'ongoing'])->where('is_active', 1)->count(),
+                    'ongoing' => Ticket::whereIn('status', ['assigned', 'ongoing'])
+                            ->whereDate('due_date', '>', Carbon::today())
+                            ->where('is_active', 1)->count(),
                     'done' => Ticket::where('status', 'done')->where('is_active', 1)->count(),
                     'hold' => Ticket::where('status', 'hold')->where('is_active', 1)->count(),
                     'due' => Ticket::where('is_active', 1)
+                            ->where('status', '!=', 'done')
                             ->whereDate('due_date', '<=', Carbon::today())
                             ->count(),
                 ]
