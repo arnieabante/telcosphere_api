@@ -11,6 +11,7 @@ class BaseTicketRequest extends FormRequest
             'ticketType' => 'ticket_type',
             'clientId' => 'client_id',
             'requestorName' => 'requestor_name',
+            'requestorLocation' => 'requestor_location',
             'name' => 'name',
             'description' => 'description',
             'categoryId' => 'category_id',
