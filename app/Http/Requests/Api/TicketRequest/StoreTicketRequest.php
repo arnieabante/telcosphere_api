@@ -25,6 +25,7 @@ class StoreTicketRequest extends BaseTicketRequest
             'ticketType' => 'required|string',
             'clientId' => 'nullable|string',
             'requestorName' => 'required|string|max:50',
+            'requestorLocation' => 'nullable|max:255',
             'name' => 'required|string|max:50',
             'description' => 'nullable|string|max:100',
             'categoryId' => 'required|string',
