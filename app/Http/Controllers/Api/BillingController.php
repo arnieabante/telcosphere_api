@@ -197,7 +197,7 @@ class BillingController extends ApiController
     public function find(Request $request)
     {
         try {
-            $billing = Billing::with('client');
+            $billing = Billing::with(['client', 'billingItems']);
 
             if (!empty($request->input('status'))) {
                 $billing->where('billing_status', $request->input('status'));
