@@ -12,6 +12,14 @@ class Invoice extends Model
 
     public function formatInvoiceNumber()
     {
-        return 'INV-' . date('y') . str_pad($this->id, 6, '0', STR_PAD_LEFT);
+        $site = Site::select(['invoice_id_pattern'])
+            ->where('id', auth()->user()->site_id)
+            ->first();
+
+        $prefix = strlen(trim($site['invoice_id_pattern'])) > 0 ?
+            $site['invoice_id_pattern'] . '-' :
+            '';
+
+        return $prefix . date('y') . str_pad($this->id, 6, '0', STR_PAD_LEFT);
     }
 }
