@@ -38,12 +38,12 @@ class BillingController extends ApiController
             ->with('client')
             ->with('billingItems')
             ->where('is_active', '=', '1');
-            
+
         // Filter by date range
         if (!empty($from) && !empty($to)) {
             $query->whereBetween('created_at', [$from, $to]);
         }
-        
+
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
@@ -200,7 +200,13 @@ class BillingController extends ApiController
             $billing = Billing::with(['client', 'billingItems']);
 
             if (!empty($request->input('status'))) {
-                $billing->where('billing_status', $request->input('status'));
+                $status = $request->input('status');
+
+                if (is_array($status)) {
+                    $billing->whereIn('billing_status', $status);
+                } else {
+                    $billing->where('billing_status', $status);
+                }
             }
 
             if (!empty($request->input('category')) || !empty($request->input('server'))) {
