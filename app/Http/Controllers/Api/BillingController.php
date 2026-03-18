@@ -197,41 +197,38 @@ class BillingController extends ApiController
     public function find(Request $request)
     {
         try {
-            $billing = Billing::with('client')
-                ->where('is_active', 1);
+            $billing = Billing::with(['client', 'billingItems']);
 
-            if ($request->filled('status')) {
-                $status = trim($request->input('status'));
-                $billing->where(function ($query) use ($status) {
-                    $query->where('billing_status', $status);
-                });
+            if (!empty($request->input('status'))) {
+                $status = $request->input('status');
+
+                if (is_array($status)) {
+                    $billing->whereIn('billing_status', $status);
+                } else {
+                    $billing->where('billing_status', $status);
+                }
             }
 
-            if ($request->filled('category') || $request->filled('server')) {
+            if (!empty($request->input('category')) || !empty($request->input('server'))) {
                 $billing->whereHas('client', function ($query) use ($request) {
-
-                    if ($request->filled('category')) {
+                    if (!empty($request->input('category'))) {
                         $query->where('billing_category_id', $request->input('category'));
                     }
-
-                    if ($request->filled('server')) {
+                    if (!empty($request->input('server'))) {
                         $query->where('server_id', $request->input('server'));
                     }
-
                 });
             }
 
             $perPage = $request->input('per_page', 10);
-            $rslt = $billing
-                ->orderBy('created_at', 'desc')
-                ->paginate($perPage);
-
+            $rslt = $billing->orderBy('billing_status', 'asc')->paginate($perPage);
             return BillingResource::collection($rslt);
 
-        } catch (\Exception $ex) {
-            return response()->json([
-                'error' => $ex->getMessage()
-            ], 500);
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('Billing record not found.', 404);
+
+        } catch (AuthorizationException $ex) {
+            return $this->error('You are not authorized to delete a Billing.', 401);
         }
     }
 }

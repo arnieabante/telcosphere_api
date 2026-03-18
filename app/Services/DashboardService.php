@@ -102,7 +102,7 @@ class DashboardService implements DashboardInterface
     {
         return Billing::where('is_active', 1)
             ->whereNot('billing_status', 'paid')
-            ->sum('billing_total');
+            ->sum('billing_balance');
     }
 
     public function getMonthlyBillingAmountGrowth(): float
@@ -114,7 +114,7 @@ class DashboardService implements DashboardInterface
             ->where('billing_status', 'pending')
             ->whereMonth('created_at', $now->month)
             ->whereYear('created_at', $now->year)
-            ->sum('billing_total');
+            ->sum('billing_balance');
 
         // Last month total billing amount
         $lastMonth = $now->copy()->subMonth();
@@ -123,7 +123,7 @@ class DashboardService implements DashboardInterface
             ->where('billing_status', 'pending')
             ->whereMonth('created_at', $lastMonth->month)
             ->whereYear('created_at', $lastMonth->year)
-            ->sum('billing_total');
+            ->sum('billing_balance');
 
         // Avoid division by zero
         if ($lastMonthTotal == 0.0) {
