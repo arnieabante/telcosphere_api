@@ -26,6 +26,7 @@ class Ticket extends Model
         'ticket_type',
         'client_id',
         'requestor_name',
+        'requestor_location',
         'name',
         'description',
         'category_id',

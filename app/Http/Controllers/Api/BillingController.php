@@ -36,6 +36,7 @@ class BillingController extends ApiController
 
         $query = Billing::query()
             ->with('client')
+            ->with('billingItems')
             ->where('is_active', '=', '1');
 
         // Filter by date range
