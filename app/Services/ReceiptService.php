@@ -3,37 +3,79 @@
 namespace App\Services;
 
 use App\Models\Receipt;
+use App\Models\Site;
 use Illuminate\Support\Facades\DB;
 
 class ReceiptService
 {
-    /**
-     * Generate a new receipt with a unique number.
-     *
-     * Format: receipt_YY + zero-padded number (e.g., 25000001)
-     * Receipt numbers reset yearly.
-     *
-     * @return Receipt
-     */
-    public function generateReceipt(): Receipt
+
+    private $site;
+    private $prefix;
+    private $suffix;
+
+    public function __construct()
     {
+        $this->site = Site::select([
+            'receipt_id_pattern',
+            'receipt_id_yy_last_count'
+        ])
+        ->where('id', auth()->user()->site_id)
+        ->first();
+
+        $this->setPrefix();
+    }
+
+    private function setPrefix(): Void
+    {
+        $this->prefix = strlen(trim(
+                $this->site['receipt_id_pattern']
+            )) > 0 ?
+            $this->site['receipt_id_pattern'] . '-' :
+            '';
+    }
+
+    private function setSuffix(): void
+    {
+        $maxDate = Receipt::max('created_at');
+        $site = Site::find(auth()->user()->site_id);
+
         $currentYear = date('y');
+        $lastYear = $maxDate ? date('y', strtotime($maxDate)) : null;
 
-        $lastReceipt = Receipt::where('receipt_YY', $currentYear)
-            ->whereNotNull('receipt_last_YY_no')
-            ->orderBy('receipt_last_YY_no', 'desc')
-            ->lockForUpdate()
-            ->first();
+        $count = $site->receipt_id_yy_last_count;
 
-        $nextNumber = $lastReceipt
-            ? $lastReceipt->receipt_last_YY_no + 1
-            : 1;
+        if ($maxDate && $currentYear > $lastYear) {
+            $count = 0;
+        }
 
-        return Receipt::create([
-            'receipt_YY' => $currentYear,
-            'receipt_last_YY_no' => $nextNumber,
-            'receipt_no' => $currentYear . str_pad($nextNumber, 6, '0', STR_PAD_LEFT),
+        $this->suffix = $count + 1;
+
+        $site->update([
+            'receipt_id_yy_last_count' => $this->suffix
         ]);
     }
 
+    public function generateReceipt(): Receipt
+    {
+        return DB::transaction(function () {
+            // lock row to prevent duplicate increments
+            $site = Site::find(auth()->user()->site_id)
+                ->lockForUpdate()
+                ->first();
+
+            $this->setSuffix($site);
+
+            $receipt = Receipt::create();
+            $receiptNumber = $receipt->formatReceiptNumber(
+                $this->prefix,
+                $this->suffix
+            );
+
+            $receipt->update([
+                'receipt_no' => $receiptNumber
+            ]);
+
+            return $receipt;
+        });
+    }
 }
