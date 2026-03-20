@@ -17,7 +17,6 @@ class Client extends Model
      * Default attribute values
      */
     protected $attributes = [
-        'site_id' => 1,
         'is_active' => 1
     ];
 
@@ -25,6 +24,7 @@ class Client extends Model
      * Mass assignable attributes
      */
     protected $fillable = [
+        'site_id',
         'first_name',
         'middle_name',
         'last_name',

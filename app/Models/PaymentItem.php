@@ -15,7 +15,6 @@ class PaymentItem extends Model
      * Default attribute values
      */
     protected $attributes = [
-        'site_id' => 1,
         'is_active' => 1
     ];
 
@@ -23,6 +22,7 @@ class PaymentItem extends Model
      * Mass assignable attributes
      */
     protected $fillable = [
+        'site_id',
         'payment_id',
         'billing_id',
         'billing_item_id',

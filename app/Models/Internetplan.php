@@ -14,11 +14,11 @@ class Internetplan extends Model
 
     // default values
     protected $attributes = [
-       'site_id' => 1,
        'is_active' => 1
     ];
 
     protected $fillable = [
+        'site_id',
         'name',
         'monthly_subscription',
         'is_active'

@@ -15,7 +15,6 @@ class Ticket extends Model
      * Default attribute values
      */
     protected $attributes = [
-        'site_id' => 1,
         'is_active' => 1
     ];
 
@@ -23,6 +22,7 @@ class Ticket extends Model
      * Mass assignable attributes
      */
     protected $fillable = [
+        'site_id',
         'ticket_type',
         'client_id',
         'requestor_name',
