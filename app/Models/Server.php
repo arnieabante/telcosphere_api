@@ -29,7 +29,11 @@ class Server extends Model
 
         // Auto-assign site_id when creating a server
         static::creating(function ($server) {
-            $server->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($server->site_id)) {
+                $server->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
             if (auth()->check()) {
                 $server->created_by = auth()->id();
                 $server->updated_by = auth()->id();

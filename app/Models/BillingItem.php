@@ -40,7 +40,10 @@ class BillingItem extends Model
 
         // Auto-assign site_id when creating a billing
         static::creating(function ($billingItem) {
-            $billingItem->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($billingItem->site_id)) {
+                $billingItem->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
 
             $userId = auth()->id();
             if (!$userId) {

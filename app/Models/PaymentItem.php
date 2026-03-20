@@ -41,7 +41,11 @@ class PaymentItem extends Model
 
         // Auto-assign site_id when creating a payment item
         static::creating(function ($paymentItem) {
-            $paymentItem->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($paymentItem->site_id)) {
+                $paymentItem->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
             if (auth()->check()) {
                 $paymentItem->created_by = auth()->id();
                 $paymentItem->updated_by = auth()->id();

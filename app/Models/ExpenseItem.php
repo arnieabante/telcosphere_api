@@ -38,7 +38,10 @@ class ExpenseItem extends Model
 
         // Auto-assign site_id when creating a expense item
         static::creating(function ($expenseItem) {
-            $expenseItem->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($expenseItem->site_id)) {
+                $expenseItem->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
 
             if (auth()->check()) {
                 $expenseItem->created_by = auth()->id();

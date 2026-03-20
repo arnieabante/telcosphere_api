@@ -31,7 +31,11 @@ class Internetplan extends Model
 
         // Auto-assign site_id when creating a internetplan
         static::creating(function ($internetplan) {
-            $internetplan->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($internetplan->site_id)) {
+                $internetplan->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
             if (auth()->check()) {
                 $internetplan->created_by = auth()->id();
                 $internetplan->updated_by = auth()->id();

@@ -34,7 +34,11 @@ class BillingCategory extends Model
 
         // Auto-assign site_id when creating a billingcategory
         static::creating(function ($billingcategory) {
-            $billingcategory->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($billingcategory->site_id)) {
+                $billingcategory->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
             if (auth()->check()) {
                 $billingcategory->created_by = auth()->id();
                 $billingcategory->updated_by = auth()->id();
