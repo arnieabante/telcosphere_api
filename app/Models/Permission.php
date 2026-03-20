@@ -20,7 +20,6 @@ class Permission extends Pivot
 
     // default values
     protected $attributes = [
-       'site_id' => 1,
         'is_read' => 1,
         'is_write' => 0,
         'is_delete' => 0,
@@ -28,6 +27,7 @@ class Permission extends Pivot
     ];
 
     protected $fillable = [
+        'site_id',
         'role_id',
         'module_id',
         'is_read',
@@ -43,7 +43,11 @@ class Permission extends Pivot
 
         // Auto-assign site_id when creating a permission
         static::creating(function ($permission) {
-            $permission->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($permission->site_id)) {
+                $permission->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
             if (auth()->check()) {
                 $permission->created_by = auth()->id();
                 $permission->updated_by = auth()->id();
