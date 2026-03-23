@@ -17,7 +17,6 @@ class Client extends Model
      * Default attribute values
      */
     protected $attributes = [
-        'site_id' => 1,
         'is_active' => 1
     ];
 
@@ -25,6 +24,7 @@ class Client extends Model
      * Mass assignable attributes
      */
     protected $fillable = [
+        'site_id',
         'first_name',
         'middle_name',
         'last_name',
@@ -64,7 +64,10 @@ class Client extends Model
 
         // Auto-assign site_id when creating a client
         static::creating(function ($client) {
-            $client->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($client->site_id)) {
+                $client->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
 
             if (auth()->check()) {
                 $client->created_by = auth()->id();

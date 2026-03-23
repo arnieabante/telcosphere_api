@@ -16,11 +16,11 @@ class Role extends Model
 
     // default values
     protected $attributes = [
-       'site_id' => 1,
        'is_active' => 1
     ];
 
     protected $fillable = [
+        'site_id',
         'name',
         'description',
         'is_active'
@@ -33,7 +33,11 @@ class Role extends Model
 
         // Auto-assign site_id when creating a role
         static::creating(function ($role) {
-            $role->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($role->site_id)) {
+                $role->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
             if (auth()->check()) {
                 $role->created_by = auth()->id();
                 $role->updated_by = auth()->id();
