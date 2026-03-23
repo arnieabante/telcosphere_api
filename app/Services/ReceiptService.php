@@ -34,17 +34,19 @@ class ReceiptService
             '';
     }
 
-    private function setSuffix(): void
+    private function setSuffix($site): void
     {
         $maxDate = Receipt::max('created_at');
         $site = Site::find(auth()->user()->site_id);
 
         $currentYear = date('y');
-        $lastYear = $maxDate ? date('y', strtotime($maxDate)) : null;
+        $lastYear = (!empty($maxDate) && strtotime($maxDate))
+            ? (int) date('y', strtotime($maxDate))
+            : null;
 
         $count = $site->receipt_id_yy_last_count;
 
-        if ($maxDate && $currentYear > $lastYear) {
+        if ($lastYear !== null && $currentYear > $lastYear) {
             $count = 0;
         }
 
