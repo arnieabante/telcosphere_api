@@ -15,7 +15,6 @@ class Ticket extends Model
      * Default attribute values
      */
     protected $attributes = [
-        'site_id' => 1,
         'is_active' => 1
     ];
 
@@ -23,6 +22,7 @@ class Ticket extends Model
      * Mass assignable attributes
      */
     protected $fillable = [
+        'site_id',
         'ticket_type',
         'client_id',
         'requestor_name',
@@ -46,7 +46,11 @@ class Ticket extends Model
 
         // Auto-assign site_id when creating a ticket
         static::creating(function ($ticket) {
-            $ticket->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($ticket->site_id)) {
+                $ticket->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
             if (auth()->check()) {
                 $ticket->created_by = auth()->id();
                 $ticket->updated_by = auth()->id();

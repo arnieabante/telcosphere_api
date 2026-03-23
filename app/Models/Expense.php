@@ -14,11 +14,11 @@ class Expense extends Model
 
     // default values
     protected $attributes = [
-       'site_id' => 1,
        'is_active' => 1
     ];
 
     protected $fillable = [
+        'site_id',
         'expense_date',
         'staff_name',
         'total',
@@ -32,7 +32,11 @@ class Expense extends Model
 
         // Auto-assign site_id when creating a expenses
         static::creating(function ($expenses) {
-            $expenses->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($expenses->site_id)) {
+                $expenses->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
             if (auth()->check()) {
                 $expenses->created_by = auth()->id();
                 $expenses->updated_by = auth()->id();
