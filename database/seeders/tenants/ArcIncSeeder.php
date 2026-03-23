@@ -16,7 +16,7 @@ class ArcIncSeeder extends Seeder
     {
         // 1. Create site (or find existing)
         $site = Site::firstOrCreate([
-            'company_name' => 'Arc Ventures',
+            'company_name' => 'Arc Ventures, Inc.',
             'company_address' => 'Quezon, City',
         ], [
             'uuid' => fake()->uuid(),
