@@ -85,6 +85,11 @@ class BillingService
                 'prorate_fee_status' => self::STATUS_BILLED,
                 'last_auto_billing_date' => date('Y-m-d H:i:s'), // current date
             ]);
+        
+            // update Billing balance from previous billing
+            $billing->update([
+                'balance_from_prev_billing' => $previousClientBalance,
+            ]);
         }
     }
 
@@ -145,6 +150,11 @@ class BillingService
             'balance_from_prev_billing' => $previousClientBalance,
             'current_balance' => $currentClientBalance,
             'house_no' => $data['billingDescription']
+        ]);
+        
+        // update Billing balance from previous billing
+        $billing->update([
+            'balance_from_prev_billing' => $previousClientBalance,
         ]);
 
         return new BillingResource($billing);

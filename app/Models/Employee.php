@@ -16,7 +16,6 @@ class Employee extends Model
      * Default attribute values
      */
     protected $attributes = [
-        'site_id' => 1,
         'is_active' => 1
     ];
 
@@ -24,6 +23,7 @@ class Employee extends Model
      * Mass assignable attributes
      */
     protected $fillable = [
+        'site_id',
         'firstname',
         'middlename',
         'lastname',
@@ -67,7 +67,11 @@ class Employee extends Model
 
         // Auto-assign site_id when creating a employee
         static::creating(function ($employee) {
-            $employee->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($employee->site_id)) {
+                $employee->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
              if (auth()->check()) {
                 $employee->created_by = auth()->id();
                 $employee->updated_by = auth()->id();
