@@ -22,17 +22,17 @@ class ReplaceTicketRequest extends BaseTicketRequest
     public function rules(): array
     {
         return [
-            'ticketType' => 'sometimes|required|string',
+            'ticketType' => 'sometimes|string',
             'clientId' => 'nullable|string',
-            'requestorName' => 'required|string|max:50',
+            'requestorName' => 'string|max:50',
             'requestorLocation' => 'nullable|max:255',
-            'name' => 'required|string|max:50',
+            'name' => 'string|max:50',
             'description' => 'nullable|string|max:100',
-            'categoryId' => 'required|string',
-            'requestedDate' => 'required|string',
+            'categoryId' => 'string',
+            'requestedDate' => 'string',
             'dueDate' => 'nullable|string',
-            'assignedTo' => 'nullable|string', 
-            'status' => 'required|string',
+            'assignedTo' => 'nullable|string',
+            'status' => 'string',
             'remarks' => 'nullable|string',
             'isActive' => 'required|string'
         ];
