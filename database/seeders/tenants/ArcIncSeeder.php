@@ -68,7 +68,7 @@ class ArcIncSeeder extends Seeder
         ], [
             'uuid' => fake()->uuid(),
             'fullname' => 'Administrator',
-            'email' => 'arc-inc.admin@telcosphere.com',
+            'email' => 'arc-inc.admin@telcosphere.co',
             'password' => Hash::make('A3cInc@password'),
             'role_id' => $adminRole->id,
             'is_active' => 1,

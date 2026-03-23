@@ -68,7 +68,7 @@ class CenascoToledoSeeder extends Seeder
         ], [
             'uuid' => fake()->uuid(),
             'fullname' => 'Administrator',
-            'email' => 'cenascotoledo.admin@telcosphere.com',
+            'email' => 'cenascotoledo.admin@telcosphere.co',
             'password' => Hash::make('C3nascoT0ledo@password'),
             'role_id' => $adminRole->id,
             'is_active' => 1,
