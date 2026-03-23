@@ -23,8 +23,8 @@ class ReplaceExpenseItemRequest extends BaseExpenseItemRequest
     {
        return [
             'expenseCategory' => 'sometimes|required|integer|exists:expense_categories,id',
-            'expenseRemark'   => 'required|string',
-            'expenseAmount'   => 'required|numeric|min:0',
+            'expenseRemark'   => 'string',
+            'expenseAmount'   => 'numeric|min:0',
             'isActive' => 'required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username

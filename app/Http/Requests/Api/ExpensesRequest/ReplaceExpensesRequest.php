@@ -22,9 +22,9 @@ class ReplaceExpensesRequest extends BaseExpensesRequest
     public function rules(): array
     {
         return [
-            'expenseDate' => 'required|date',
-            'staffName' => 'required|string|min:3',
-            'expenseTotal' => 'required|decimal:0,2',
+            'expenseDate' => 'date',
+            'staffName' => 'string|min:3',
+            'expenseTotal' => 'decimal:0,2',
             'isActive' => 'required|boolean'
         ];
     }

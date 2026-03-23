@@ -24,7 +24,7 @@ class UpdateServerRequest extends BaseServerRequest
     {
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => ['required','string','min:3', Rule::unique('servers')->where(fn ($query) => $query->where('site_id', $siteId))],
+            'name' => ['string','min:3', Rule::unique('servers')->where(fn ($query) => $query->where('site_id', $siteId))],
             'isActive' => 'sometimes|required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username

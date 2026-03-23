@@ -24,7 +24,7 @@ class UpdateTicketCategoryRequest extends BaseTicketCategoryRequest
     {
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => ['required','string','min:5', Rule::unique('ticket_categories')->where(fn ($query) => $query->where('site_id', $siteId))],
+            'name' => ['min:5', Rule::unique('ticket_categories')->where(fn ($query) => $query->where('site_id', $siteId))],
             'description' => 'string|min:3',
             'isActive' => 'required|boolean'
         ];

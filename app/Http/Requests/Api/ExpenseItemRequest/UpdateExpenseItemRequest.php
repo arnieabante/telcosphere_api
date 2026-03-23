@@ -24,7 +24,7 @@ class UpdateExpenseItemRequest extends FormRequest
     {
         return [
             'expenseCategory' => 'sometimes|integer|exists:expense_categories,id',
-            'expenseRemark'   => 'required|string',
+            'expenseRemark'   => 'string',
             'expenseAmount'   => 'sometimes|numeric|min:0',
             'isActive' => 'sometimes|required|boolean'
         ];

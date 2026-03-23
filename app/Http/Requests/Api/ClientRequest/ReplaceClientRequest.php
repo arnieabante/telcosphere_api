@@ -22,16 +22,16 @@ class ReplaceClientRequest extends BaseClientRequest
     public function rules(): array
     {
         return [
-            'firstName' => 'sometimes|required|string|min:2',
+            'firstName' => 'sometimes|string|min:2',
             'middleName' => 'sometimes|nullable|string|min:2',
-            'lastName' => 'sometimes|required|string|min:2',
+            'lastName' => 'sometimes|string|min:2',
             'mobileNo' => 'sometimes|string|min:11',
             'email' => 'sometimes|nullable|string|email',
             'houseNo' => 'sometimes|string|min:5',
             'latitude' => 'sometimes|nullable|string',
             'longitude' => 'sometimes|nullable|string',
-            'accountNo' => 'required|string', 
-            'installationDate' => 'sometimes|required|string',
+            'accountNo' => 'string',
+            'installationDate' => 'sometimes|string',
             'installationFee' => 'sometimes|string',
             'balanceFromPrevBilling' => 'sometimes|numeric',
             'currentBalance' => 'sometimes|numeric',
@@ -43,14 +43,14 @@ class ReplaceClientRequest extends BaseClientRequest
             'inactiveDate' => 'sometimes|string|min:5',
             'notes' => 'sometimes|nullable|string|min:2',
             'facebookProfileURL' => 'sometimes|nullable|string|min:5',
-            'billingCategoryId' => 'sometimes|required|int',
-            'serverId' => 'sometimes|required|int',
-            'internetPlanId' => 'sometimes|required|int',
+            'billingCategoryId' => 'sometimes|int',
+            'serverId' => 'sometimes|int',
+            'internetPlanId' => 'sometimes|int',
             'prevInternetPlanId' => 'sometimes|nullable|int',
             'last_auto_billing_date' => 'sometimes|string',
             'pppoe_username' => 'nullable|string',
             'pppoe_password' => 'nullable|string',
-            'isActive' => 'required|string'
+            'isActive' => 'string'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
     }

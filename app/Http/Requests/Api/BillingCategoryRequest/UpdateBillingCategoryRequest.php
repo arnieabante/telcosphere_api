@@ -24,12 +24,12 @@ class UpdateBillingCategoryRequest extends BaseBillingCategoryRequest
     {
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-           'name' => ['required','string','min:3', Rule::unique('billing_categories')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
-            'description' => 'sometimes|required|string|max:100',
-            'dateCycle' => 'required|integer',
-            'daysToDueDate' => 'required|integer',
-            'daysToDisconnectionDate' => 'required|integer',
-            'isActive' => 'sometimes|required|boolean'
+           'name' => ['string','min:3', Rule::unique('billing_categories')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
+            'description' => 'sometimes|string|max:100',
+            'dateCycle' => 'integer',
+            'daysToDueDate' => 'integer',
+            'daysToDisconnectionDate' => 'integer',
+            'isActive' => 'sometimes|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
     }

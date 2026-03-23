@@ -22,16 +22,16 @@ class UpdateClientRequest extends BaseClientRequest
     public function rules(): array
     {
          return [
-            'firstName' => 'sometimes|required|string|min:2',
+            'firstName' => 'sometimesstring|min:2',
             'middleName' => 'sometimes|nullable|string|min:2',
-            'lastName' => 'sometimes|required|string|min:2',
+            'lastName' => 'sometimes|string|min:2',
             'mobileNo' => 'sometimes|string|min:11',
             'email' => 'sometimes|nullable|string|email',
             'houseNo' => 'sometimes|string|min:5',
             'latitude' => 'sometimes|nullable|string',
             'longitude' => 'sometimes|nullable|string',
-            'accountNo' => 'required|string', 
-            'installationDate' => 'sometimes|required|string',
+            'accountNo' => 'string',
+            'installationDate' => 'sometimes|string',
             'installationFee' => 'sometimes|nullable|string',
             'balanceFromPrevBilling' => 'sometimes|nullable|numeric',
             'currentBalance' => 'sometimes|nullable|numeric',
@@ -43,14 +43,14 @@ class UpdateClientRequest extends BaseClientRequest
             'inactiveDate' => 'sometimes|string|min:5',
             'notes' => 'sometimes|nullable|string|min:2',
             'facebookProfileURL' => 'sometimes|nullable|string|min:5',
-            'billingCategoryId' => 'sometimes|required|int',
-            'serverId' => 'sometimes|required|int',
-            'internetPlanId' => 'sometimes|required|int',
+            'billingCategoryId' => 'sometimes|int',
+            'serverId' => 'sometimes|int',
+            'internetPlanId' => 'sometimes|int',
             'prevInternetPlanId' => 'sometimes|nullable|int',
             'lastAutoBillingDate' => 'sometimes|nullable|string',
             'pppoe_username' => 'nullable|string',
             'pppoe_password' => 'nullable|string',
-            'isActive' => 'sometimes|required|boolean'
+            'isActive' => 'sometimes|boolean'
         ];
     }
 }
