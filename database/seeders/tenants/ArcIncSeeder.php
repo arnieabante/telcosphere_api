@@ -10,18 +10,18 @@ use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-class CenascoToledoSeeder extends Seeder
+class ArcIncSeeder extends Seeder
 {
     public function run(): void
     {
         // 1. Create site (or find existing)
         $site = Site::firstOrCreate([
-            'company_name' => 'Cenasco Toledo',
-            'company_address' => 'Sangi, Toledo, City',
+            'company_name' => 'Arc Ventures, Inc.',
+            'company_address' => 'Quezon, City',
         ], [
             'uuid' => fake()->uuid(),
-            'site_url' => 'cenascotoledo.telcosphere.co',
-            'company_email' => 'admin.cenascotoledo@telcosphere.co',
+            'site_url' => 'arc-inc.telcosphere.co',
+            'company_email' => 'admin.arc-inc@telcosphere.co',
             'is_active' => 1,
             'created_by' => 1,
             'updated_by' => 1
@@ -63,13 +63,13 @@ class CenascoToledoSeeder extends Seeder
 
         // 5. Create default admin user
         User::firstOrCreate([
-            'username' => 'cenascotoledo.admin',
+            'username' => 'arc-inc.admin',
             'site_id' => $site->id
         ], [
             'uuid' => fake()->uuid(),
             'fullname' => 'Administrator',
-            'email' => 'cenascotoledo.admin@telcosphere.co',
-            'password' => Hash::make('C3nascoT0ledo@password'),
+            'email' => 'arc-inc.admin@telcosphere.co',
+            'password' => Hash::make('A3cInc@password'),
             'role_id' => $adminRole->id,
             'is_active' => 1,
             'created_by' => 1,
