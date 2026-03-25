@@ -24,7 +24,7 @@ class ReplaceRoleRequest extends BaseRoleRequest
     {
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => ['required','string','min:3', Rule::unique('roles')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
+            'name' => ['sometimes','required','string','min:3', Rule::unique('roles')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
             'description' => 'nullable|max:100',
             'isActive' => 'sometimes|required|boolean'
         ];
