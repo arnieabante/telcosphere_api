@@ -26,7 +26,7 @@ class ReplaceUserRequest extends BaseUserRequest
         return [
             'fullname' => 'required|string|min:2',
             'username' => ['required','string','min:3', Rule::unique('users')->where(fn ($query) => $query->where('site_id', $siteId))],
-            'email' => ['required','string','min:3', Rule::unique('users')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
+            'email' => ['sometimes', 'required','string','min:3', Rule::unique('users')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
             'password' => 'required|string|min:8',
             'isActive' => 'required|boolean'
         ];
