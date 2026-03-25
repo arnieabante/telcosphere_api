@@ -29,30 +29,35 @@ class BillingController extends ApiController
      */
     public function index(Request $request, DashboardService $service)
     {
-        $perPage = $request->get('per_page', 10);
-        $search = $request->get('search');
-        $from = $request->get('from');
-        $to = $request->get('to');
+            $perPage = $request->get('per_page', 10);
+            $search = $request->get('search');
+            $from = $request->get('from');
+            $to = $request->get('to');
 
-        $query = Billing::query()
-            ->with('client')
-            ->with('billingItems')
-            ->where('is_active', '=', '1');
+            $query = Billing::query()
+                ->with('client')
+                ->with('billingItems')
+                ->where('is_active', '=', '1');
 
-        // Filter by date range
-        if (!empty($from) && !empty($to)) {
-            $query->whereBetween('created_at', [$from, $to]);
-        }
+            // Filter by date range
+            if (!empty($from) && !empty($to)) {
+                $query->whereBetween('created_at', [$from, $to]);
+            }
 
-
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('billing_date', 'like', "%{$search}%")
-                    ->orWhere('billing_remarks', 'like', "%{$search}%")
-                    ->orWhere('billing_total', 'like', "%{$search}%")
-                    ->orWhere('billing_status', 'like', "%{$search}%");
-            });
-        }
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('billing_date', 'like', "%{$search}%")
+                        ->orWhere('billing_remarks', 'like', "%{$search}%")
+                        ->orWhere('billing_total', 'like', "%{$search}%")
+                        ->orWhere('billing_description', 'like', "%{$search}%")
+                        ->orWhere('billing_status', 'like', "%{$search}%")
+                        ->orWhereHas('client', function ($clientQuery) use ($search) {
+                        $clientQuery->where('first_name', 'like', "%{$search}%")
+                                    ->orWhere('last_name', 'like', "%{$search}%")
+                                    ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                    });
+                });
+            }
 
         $totalBilling = $service->getTotalPendingBilling();
         $totalGrowth = $service->getBillingGrowth();
@@ -197,38 +202,62 @@ class BillingController extends ApiController
     public function find(Request $request)
     {
         try {
-            $billing = Billing::with(['client', 'billingItems']);
+            $billing = Billing::with(['client', 'billingItems'])
+                ->where('is_active', 1);
 
-            if (!empty($request->input('status'))) {
-                $status = $request->input('status');
+            // STATUS FILTER
+            $status = $request->input('status', $request->input('status[]'));
 
-                if (is_array($status)) {
-                    $billing->whereIn('billing_status', $status);
-                } else {
-                    $billing->where('billing_status', $status);
-                }
+            if (!empty($status)) {
+                $billing->whereIn('billing_status', (array) $status);
             }
 
-            if (!empty($request->input('category')) || !empty($request->input('server'))) {
+            // CATEGORY & SERVER
+            if ($request->filled('category') || $request->filled('server')) {
                 $billing->whereHas('client', function ($query) use ($request) {
-                    if (!empty($request->input('category'))) {
+                    if ($request->filled('category')) {
                         $query->where('billing_category_id', $request->input('category'));
                     }
-                    if (!empty($request->input('server'))) {
+                    if ($request->filled('server')) {
                         $query->where('server_id', $request->input('server'));
                     }
                 });
             }
 
+            // SEARCH
+            if ($request->filled('search')) {
+                $search = $request->input('search');
+
+                $billing->where(function ($q) use ($search) {
+                    $q->where('billing_date', 'like', "%{$search}%")
+                    ->orWhere('billing_remarks', 'like', "%{$search}%")
+                    ->orWhere('billing_total', 'like', "%{$search}%")
+                    ->orWhere('billing_description', 'like', "%{$search}%")
+                    ->orWhere('billing_status', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($clientQuery) use ($search) {
+                        $clientQuery->where('first_name', 'like', "%{$search}%")
+                                    ->orWhere('last_name', 'like', "%{$search}%")
+                                    ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                    });
+                });
+            }
+
+            // DATE RANGE
+            if ($request->filled('from') && $request->filled('to')) {
+                $billing->whereBetween('created_at', [$request->from, $request->to]);
+            }
+
             $perPage = $request->input('per_page', 10);
+
             $rslt = $billing->orderBy('billing_status', 'asc')->paginate($perPage);
+
             return BillingResource::collection($rslt);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Billing record not found.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to delete a Billing.', 401);
+            return $this->error('You are not authorized.', 401);
         }
     }
 }
