@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('tickets', function (Blueprint $table) {
             $table->string('requestor_location')
-                ->default("")
+                ->nullable()
                 ->after('requestor_name');
         });
     }
