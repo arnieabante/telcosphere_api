@@ -14,11 +14,11 @@ class TicketCategory extends Model
 
     // default values
     protected $attributes = [
-       'site_id' => 1,
        'is_active' => 1
     ];
 
     protected $fillable = [
+        'site_id',
         'name',
         'description',
         'is_active'
@@ -31,7 +31,11 @@ class TicketCategory extends Model
 
         // Auto-assign site_id when creating a ticketcategory
         static::creating(function ($ticketcategory) {
-            $ticketcategory->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            // but only when site_id is not already set
+            if (empty($ticketcategory->site_id)) {
+                $ticketcategory->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
             if (auth()->check()) {
                 $ticketcategory->created_by = auth()->id();
                 $ticketcategory->updated_by = auth()->id();
