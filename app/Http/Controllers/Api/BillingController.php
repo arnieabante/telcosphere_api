@@ -257,7 +257,7 @@ class BillingController extends ApiController
             return $this->error('Billing record not found.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized.', 401);
+            return $this->error('You are not authorized to delete a Billing.', 401);
         }
     }
 }
