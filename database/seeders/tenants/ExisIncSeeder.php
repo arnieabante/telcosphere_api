@@ -68,7 +68,7 @@ class ExisIncSeeder extends Seeder
         ], [
             'uuid' => fake()->uuid(),
             'fullname' => 'Administrator',
-            'email' => 'exis-inc.admin@telcosphere.com',
+            'email' => 'exis-inc.admin@telcosphere.co',
             'password' => Hash::make('Ex1s1nc@password'),
             'role_id' => $adminRole->id,
             'is_active' => 1,
