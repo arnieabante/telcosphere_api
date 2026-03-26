@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Invoice;
 use App\Models\Site;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class InvoiceService
@@ -15,6 +16,7 @@ class InvoiceService
     public function __construct() 
     {
         $this->site = Site::select([
+                'id',
                 'invoice_id_pattern',
                 'invoice_id_yy_last_count'
             ])
@@ -38,38 +40,46 @@ class InvoiceService
     {
         // if new year reset count
         $maxDate = Invoice::max('created_at');
-        $site = Site::where('id', auth()->user()->site_id)->first();
-
         if ($maxDate && 
             (int) date('y') > (int) date('y', strtotime($maxDate))
         ) {
-            $site->update([
-                'invoice_id_yy_last_count' => 0
-            ]);
+            $this->suffix = 0;
+        } else { 
+            $this->suffix = ((int) $this->site['invoice_id_yy_last_count']) + 1;
         }
-
-        $this->suffix = ((int) $site['invoice_id_yy_last_count']) + 1;
-        
-        // update new count
-        $site->update([
-            'invoice_id_yy_last_count' => $this->suffix
-        ]);
     }
 
     public function generateInvoice(): Invoice
     {
-        return DB::transaction(function () {
-            $invoice = Invoice::create();
-            $invoiceNumber = $invoice->formatInvoiceNumber(
-                $this->prefix, 
-                $this->suffix
-            );
+        $invoice = new Invoice();
+        $invoiceNumber = $invoice->formatInvoiceNumber(
+            $this->prefix, 
+            $this->suffix
+        );
 
-            $invoice->update([
-                'invoice_number' => $invoiceNumber
+        // check if invoice number exists on the same site id 
+        $exists = Invoice::where('site_id', $this->site['id'])
+            ->where('invoice_number', $invoiceNumber)
+            ->exists();
+
+        if (!$exists) {
+            $newInvoice = Invoice::create([
+                'site_id' => $this->site['id'],
+                'invoice_number' => $invoiceNumber,
             ]);
 
-            return $invoice;
-        });
+            // increment last_count flag
+            Site::where('id', $this->site['id'])
+                ->update([
+                    'invoice_id_yy_last_count' => $this->suffix
+                ]);
+            
+            return $newInvoice;
+            
+        } else {
+            throw new Exception(
+                'Invoice Number already exists for the current Site ID.'
+            );
+        }
     }
 }
