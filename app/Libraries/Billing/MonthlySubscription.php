@@ -29,6 +29,7 @@ class MonthlySubscription implements BillingInterface
     public function getClients($data): object {
         // get clients with the same billing category/cycle
         return Client::where('billing_category_id', $data['billingCategory'])
+            ->where('is_active', 1)
             ->get([
                 'id', 
                 'billing_category_id', 
