@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\BillingItemRequest\StoreBillingItemRequest;
 use App\Http\Requests\Api\BillingRequest\ReplaceBillingRequest;
+use App\Http\Requests\Api\BillingRequest\StoreBillingRequest;
 use App\Http\Requests\Api\BillingRequest\UpdateBillingRequest;
 use App\Http\Resources\Api\BillingResource;
 use App\Libraries\Billing\Installation;
@@ -88,6 +90,14 @@ class BillingController extends ApiController
      */
     public function store(Request $request, BillingService $service)
     {
+        // validate billing
+        $billingRequest = app(StoreBillingRequest::class);
+        $billingRequest->validateResolved();
+
+        // validate billing items
+        $billingItemsRequest = app(StoreBillingItemRequest::class);
+        $billingItemsRequest->validateResolved();
+
         $attributes = $request->input('billing');
         switch ($attributes['billingType']) {
             case '1':

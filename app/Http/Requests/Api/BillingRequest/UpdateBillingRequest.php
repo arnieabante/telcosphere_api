@@ -23,13 +23,12 @@ class UpdateBillingRequest extends BaseBillingRequest
     public function rules(): array
     {
         return [
-            'billingDate' => 'sometimes|required|date',
-            'billingDescription' => 'sometimes|required|string|max:100|nullable',
-            'billingRemarks' => 'sometimes|required|string|max:100|nullable',
-            'billingTotal' => 'sometimes|required|digits_between:1,8|decimal:0,2',
-            'billingOffset' => 'sometimes|required|digits_between:1,8|decimal:0,2',
-            'billingBalance' => 'sometimes|required|digits_between:1,8|decimal:0,2',
-            'billingStatus' => 'sometimes|required|string'
+            'billing.billingType' => 'sometimes|required|string',
+            'billing.billingCutoff' => 'sometimes|required_if:billing_type,1|date',
+            'billing.disconnectionDate' => 'sometimes|required_if:billing_type,1|date',
+            'billing.clientId' => 'sometimes|required_if:billing_type,2,3,4|string',
+            'billing.billingDescription' => 'sometimes|required_if:billing_type,2,3,4|string|max:100|nullable',
+            'billing.billingRemarks' => 'sometimes|required_if:billing_type,2,3,4|string|max:100|nullable',
         ];
     }
 }
