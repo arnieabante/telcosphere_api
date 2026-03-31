@@ -22,14 +22,13 @@ class StoreBillingItemRequest extends BaseBillingItemRequest
     public function rules(): array
     {
         return [
-            'billingItemName' => 'required|string|min:5',
-            'billingItemParticulars' => 'required|string|min:5',
-            'billingItemQuantity' => 'required|numeric',
-            'billingItemRemark' => 'required|string|min:5',
-            'billingItemAmount' => 'required|digits_between:1,8|decimal:0,2',
-            'billingItemOffset' => 'required|digits_between:1,8|decimal:0,2',
-            'billingItemBalance' => 'required|digits_between:1,8|decimal:0,2',
-            'isActive' => 'required|boolean'
+            'billing.billingItems' => 'required|array|min:1',
+            'billing.billingItems.*.billingItemName' => 'required_if:billing_type,2,3,4|string|min:5',
+            'billing.billingItems.*.billingItemParticulars' => 'required_if:billing_type,2,3,4|string|min:5',
+            'billing.billingItems.*.billingItemQuantity' => 'required|numeric',
+            'billing.billingItems.*.billingItemRemark' => 'string|min:5|nullable',
+            'billing.billingItems.*.billingItemPrice' => 'required_if:billing_type,2,3,4|digits_between:1,8|decimal:0,2',
+            'billing.billingItems.*.billingItemAmount' => 'required_if:billing_type,2,3,4|digits_between:1,8|decimal:0,2'
         ];
     }
 }
