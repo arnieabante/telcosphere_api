@@ -24,7 +24,7 @@ class UpdateTicketRequest extends BaseTicketRequest
         return [
             'ticketType' => 'sometimes|required|string',
             'clientId' => 'nullable|string',
-            'requestorName' => 'required|string|max:50',
+            'requestorName' => 'string|max:50',
             'requestorLocation' => 'nullable|max:255',
             'name' => 'sometimes|required|string|max:50',
             'description' => 'nullable|string|max:100',

@@ -24,7 +24,8 @@ return [
                             'https://redjacobjaden.telcosphere.co',
                             'https://exis-inc.telcosphere.co', 
                             'https://cenascotoledo.telcosphere.co', 
-                            'https://arc-inc.telcosphere.co'
+                            'https://arc-inc.telcosphere.co',
+                            'https://redjacobjaden-oslob.telcosphere.co'
                         ],
 
     'allowed_origins_patterns' => [],

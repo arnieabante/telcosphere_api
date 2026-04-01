@@ -4,72 +4,69 @@ namespace App\Services;
 
 use App\Models\Invoice;
 use App\Models\Site;
-use Illuminate\Support\Facades\DB;
+use Exception;
 
 class InvoiceService
 {
-    private $site;
-    private $prefix;
-    private $suffix;
-
-    public function __construct() 
+    private function getPrefix($pattern): String 
     {
-        $this->site = Site::select([
+        return strlen(trim($pattern)) > 0 ?
+            $pattern . '-' :
+            '';
+    }
+
+    private function getSuffix($count): String 
+    {
+        // if new year, reset count
+        $maxDate = Invoice::max('created_at');
+        if ($maxDate && 
+            (int) date('y') > (int) date('y', strtotime($maxDate))
+        ) {
+            return '0';
+        } else { 
+            return $count + 1;
+        }
+    }
+
+    public function generateInvoice(): Invoice
+    {
+        $site = Site::select([
+                'id',
                 'invoice_id_pattern',
                 'invoice_id_yy_last_count'
             ])
             ->where('id', auth()->user()->site_id)
             ->first();
 
-        $this->setPrefix();
-        $this->setSuffix();
-    }
-
-    private function setPrefix(): Void
-    {
-        $this->prefix = strlen(trim(
-                $this->site['invoice_id_pattern']
-            )) > 0 ?
-            $this->site['invoice_id_pattern'] . '-' :
-            '';
-    }
-
-    private function setSuffix(): Void 
-    {
-        // if new year reset count
-        $maxDate = Invoice::max('created_at');
-        $site = Site::where('id', auth()->user()->site_id)->first();
-
-        if ($maxDate && 
-            (int) date('y') > (int) date('y', strtotime($maxDate))
-        ) {
-            $site->update([
-                'invoice_id_yy_last_count' => 0
-            ]);
-        }
-
-        $this->suffix = ((int) $site['invoice_id_yy_last_count']) + 1;
+        $prefix = $this->getPrefix($site['invoice_id_pattern']);
+        $suffix = $this->getSuffix($site['invoice_id_yy_last_count']);
         
-        // update new count
-        $site->update([
-            'invoice_id_yy_last_count' => $this->suffix
-        ]);
-    }
+        $invoice = new Invoice();
+        $invoiceNumber = $invoice->formatInvoiceNumber($prefix, $suffix);
 
-    public function generateInvoice(): Invoice
-    {
-        return DB::transaction(function () {
-            $invoice = Invoice::create();
-            $invoiceNumber = $invoice->formatInvoiceNumber(
-                $this->prefix, 
-                $this->suffix
-            );
+        // check if invoice number exists on the same site id 
+        $exists = Invoice::where('site_id', $site['id'])
+            ->where('invoice_number', $invoiceNumber)
+            ->exists();
 
-            $invoice->update([
-                'invoice_number' => $invoiceNumber
+        if (!$exists) {
+            $newInvoice = Invoice::create([
+                'site_id' => $site['id'],
+                'invoice_number' => $invoiceNumber,
             ]);
 
-            return $invoice;
-        });
+            // update last_count flag
+            Site::where('id', $site['id'])
+                ->update([
+                    'invoice_id_yy_last_count' => $suffix
+                ]);
+            
+            return $newInvoice;
+
+        } else {
+            throw new Exception(
+                'Failed to create billing. Invoice Number already exists for the current Site ID.'
+            );
+        }
     }
 }

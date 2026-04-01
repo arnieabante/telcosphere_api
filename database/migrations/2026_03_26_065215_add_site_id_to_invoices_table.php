@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('tickets', function (Blueprint $table) {
-            $table->string('requestor_location')
-                ->nullable()
-                ->after('requestor_name');
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->integer('site_id')
+                ->after('id');
         });
     }
 
@@ -23,8 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('tickets', function (Blueprint $table) {
-            $table->dropColumn('requestor_location');
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->dropColumn('site_id');
         });
     }
 };
