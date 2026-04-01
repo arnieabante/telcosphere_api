@@ -23,17 +23,11 @@ class StoreBillingRequest extends BaseBillingRequest
     {
         return [
             'billing.billingType' => 'required|string',
-            'billing.billingCutoff' => 'required_if:billing_type,1|date',
-            'billing.disconnectionDate' => 'required_if:billing_type,1|date',
-            'billing.clientId' => 'required_if:billing_type,2,3,4|string',
-            'billing.billingDescription' => 'required_if:billing_type,2,3,4|string|max:100|nullable',
-            'billing.billingRemarks' => 'required_if:billing_type,2,3,4|string|max:100|nullable',
-
-            // 'billing.billingDate' => 'required|date',
-            // 'billing.billingTotal' => 'required|digits_between:1,8|decimal:0,2',
-            // 'billing.billingOffset' => 'required|digits_between:1,8|decimal:0,2',
-            // 'billing.billingBalance' => 'required|digits_between:1,8|decimal:0,2',
-            // 'billing.billingStatus' => 'required|string'
+            'billing.billingCutoff' => 'required_if:billing.billingType,1|date',
+            'billing.disconnectionDate' => 'required_if:billing.billingType,1|date',
+            'billing.clientId' => 'required_if:billing.billingType,2,3,4|string',
+            'billing.billingDescription' => 'required_if:billing.billingType,2,3,4|string|min:5|max:100|nullable',
+            'billing.billingRemarks' => 'string|min:5|max:100|nullable'
         ];
     }
 }

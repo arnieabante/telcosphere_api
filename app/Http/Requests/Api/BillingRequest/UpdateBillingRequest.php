@@ -24,11 +24,11 @@ class UpdateBillingRequest extends BaseBillingRequest
     {
         return [
             'billing.billingType' => 'sometimes|required|string',
-            'billing.billingCutoff' => 'sometimes|required_if:billing_type,1|date',
-            'billing.disconnectionDate' => 'sometimes|required_if:billing_type,1|date',
-            'billing.clientId' => 'sometimes|required_if:billing_type,2,3,4|string',
-            'billing.billingDescription' => 'sometimes|required_if:billing_type,2,3,4|string|max:100|nullable',
-            'billing.billingRemarks' => 'sometimes|required_if:billing_type,2,3,4|string|max:100|nullable',
+            'billing.billingCutoff' => 'sometimes|required_if:billing.billingType,1|date',
+            'billing.disconnectionDate' => 'sometimes|required_if:billing.billingType,1|date',
+            'billing.clientId' => 'sometimes|required_if:billing.billingType,2,3,4|string',
+            'billing.billingDescription' => 'sometimes|required_if:billing.billingType,2,3,4|string|min:5|max:100|nullable',
+            'billing.billingRemarks' => 'sometimes|string|min:5|max:100|nullable',
         ];
     }
 }
