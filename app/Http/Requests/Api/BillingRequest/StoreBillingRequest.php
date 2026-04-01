@@ -30,4 +30,15 @@ class StoreBillingRequest extends BaseBillingRequest
             'billing.billingRemarks' => 'string|min:5|max:100|nullable'
         ];
     }
+
+    public function messages(): array 
+    {
+        return [
+            'billing.billingType.required' => 'Billing or Invoice Type is required.',
+            'billing.billingCutoff.required_if' => 'Billing Cut-off Date is required.',
+            'billing.disconnectionDate.required_if' => 'Disconnection Date is required.',
+            'billing.clientId.required_if' => 'Client is required.',
+            'billing.billingDescription.required_if' => 'Bill To / Description is required.',
+        ];
+    }
 }
