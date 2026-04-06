@@ -103,10 +103,10 @@ class PaymentController extends ApiController
     {
         try {
             return DB::transaction(function () use ($request) {
-                $receipt = $this->receiptService->generateReceipt(false);
+                $receipt = $this->receiptService->generateReceipt();
 
                 $attributes = array_merge($request->mappedAttributes(), [
-                    'receipt_no' => $receipt->receipt_no,
+                    'receipt_no' => $receipt->receipt_number,
                 ]);
 
                 $payment = Payment::create($attributes);

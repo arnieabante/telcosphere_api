@@ -4,80 +4,68 @@ namespace App\Services;
 
 use App\Models\Receipt;
 use App\Models\Site;
-use Illuminate\Support\Facades\DB;
 
 class ReceiptService
 {
-
-    private $site;
-    private $prefix;
-    private $suffix;
-
-    public function __construct()
+    private function getPrefix($pattern): String 
     {
-        $this->site = Site::select([
-            'receipt_id_pattern',
-            'receipt_id_yy_last_count'
-        ])
-        ->where('id', auth()->user()->site_id)
-        ->first();
-
-        $this->setPrefix();
-    }
-
-    private function setPrefix(): Void
-    {
-        $this->prefix = strlen(trim(
-                $this->site['receipt_id_pattern']
-            )) > 0 ?
-            $this->site['receipt_id_pattern'] . '-' :
+        return strlen(trim($pattern)) > 0 ?
+            $pattern . '-' :
             '';
     }
 
-    private function setSuffix($site): void
+    private function getSuffix($count): String 
     {
+        // if new year, reset count
         $maxDate = Receipt::max('created_at');
-        $site = Site::find(auth()->user()->site_id);
-
-        $currentYear = date('y');
-        $lastYear = (!empty($maxDate) && strtotime($maxDate))
-            ? (int) date('y', strtotime($maxDate))
-            : null;
-
-        $count = $site->receipt_id_yy_last_count;
-
-        if ($lastYear !== null && $currentYear > $lastYear) {
-            $count = 0;
+        if ($maxDate && 
+            (int) date('y') > (int) date('y', strtotime($maxDate))
+        ) {
+            return '0';
+        } else { 
+            return $count + 1;
         }
-
-        $this->suffix = $count + 1;
-
-        $site->update([
-            'receipt_id_yy_last_count' => $this->suffix
-        ]);
     }
 
     public function generateReceipt(): Receipt
     {
-        return DB::transaction(function () {
-            // lock row to prevent duplicate increments
-            $site = Site::find(auth()->user()->site_id)
-                ->lockForUpdate()
-                ->first();
+        $site = Site::select([
+                'id',
+                'receipt_id_pattern',
+                'receipt_id_yy_last_count'
+            ])
+            ->where('id', auth()->user()->site_id)
+            ->first();
 
-            $this->setSuffix($site);
+        $prefix = $this->getPrefix($site['receipt_id_pattern']);
+        $suffix = $this->getSuffix($site['receipt_id_yy_last_count']);
+        
+        $receipt = new Receipt();
+        $receiptNumber = $receipt->formatReceiptNumber($prefix, $suffix);
 
-            $receipt = Receipt::create();
-            $receiptNumber = $receipt->formatReceiptNumber(
-                $this->prefix,
-                $this->suffix
-            );
+        // check if invoice number exists on the same site id 
+        $exists = Receipt::where('site_id', $site['id'])
+            ->where('receipt_number', $receiptNumber)
+            ->exists();
 
-            $receipt->update([
-                'receipt_no' => $receiptNumber
+        if (!$exists) {
+            $newReceipt = Receipt::create([
+                'site_id' => $site['id'],
+                'receipt_number' => $receiptNumber,
             ]);
 
-            return $receipt;
-        });
+            // update last_count flag
+            Site::where('id', $site['id'])
+                ->update([
+                    'receipt_id_yy_last_count' => $suffix
+                ]);
+            
+            return $newReceipt;
+
+        } else {
+            throw new Exception(
+                'Failed to create payment. Receipt Number already exists for the current Site ID.'
+            );
+        }
     }
 }
