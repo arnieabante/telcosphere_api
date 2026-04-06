@@ -88,7 +88,7 @@ class BillingService
         
             // update Billing balance from previous billing
             $billing->update([
-                'balance_from_prev_billing' => $previousClientBalance,
+                'balance_from_prev_billing' => $currentClientBalance,
             ]);
         }
     }
@@ -154,7 +154,7 @@ class BillingService
         
         // update Billing balance from previous billing
         $billing->update([
-            'balance_from_prev_billing' => $previousClientBalance,
+            'balance_from_prev_billing' => $currentClientBalance,
         ]);
 
         return new BillingResource($billing);

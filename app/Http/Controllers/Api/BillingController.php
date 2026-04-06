@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\BillingItemRequest\StoreBillingItemRequest;
+use App\Http\Requests\Api\BillingItemRequest\UpdateBillingItemRequest;
 use App\Http\Requests\Api\BillingRequest\ReplaceBillingRequest;
+use App\Http\Requests\Api\BillingRequest\StoreBillingRequest;
 use App\Http\Requests\Api\BillingRequest\UpdateBillingRequest;
 use App\Http\Resources\Api\BillingResource;
 use App\Libraries\Billing\Installation;
@@ -88,6 +91,14 @@ class BillingController extends ApiController
      */
     public function store(Request $request, BillingService $service)
     {
+        // validate billing
+        $billingRequest = app(StoreBillingRequest::class);
+        $billingRequest->validateResolved();
+
+        // validate billing items
+        $billingItemsRequest = app(StoreBillingItemRequest::class);
+        $billingItemsRequest->validateResolved();
+
         $attributes = $request->input('billing');
         switch ($attributes['billingType']) {
             case '1':
@@ -148,10 +159,21 @@ class BillingController extends ApiController
      */
     public function update(Request $request, BillingService $service, string $uuid)
     {
+        // validate billing
+        $billingRequest = app(UpdateBillingRequest::class);
+        $billingRequest->validateResolved();
+
+        // validate billing items
+        $billingItemsRequest = app(UpdateBillingItemRequest::class);
+        $billingItemsRequest->validateResolved();
+
         try {
             $attributes = $request->input('billing');
             $billing = $service->updateBilling($uuid, $attributes);
             return $billing;
+
+        } catch (ValidationException $ex) {
+            return $this->error($ex->getMessage(), 400);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Billing does not exist.', 404);

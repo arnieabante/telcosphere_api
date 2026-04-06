@@ -23,13 +23,23 @@ class UpdateBillingRequest extends BaseBillingRequest
     public function rules(): array
     {
         return [
-            'billingDate' => 'sometimes|required|date',
-            'billingDescription' => 'sometimes|required|string|max:100|nullable',
-            'billingRemarks' => 'sometimes|required|string|max:100|nullable',
-            'billingTotal' => 'sometimes|required|digits_between:1,8|decimal:0,2',
-            'billingOffset' => 'sometimes|required|digits_between:1,8|decimal:0,2',
-            'billingBalance' => 'sometimes|required|digits_between:1,8|decimal:0,2',
-            'billingStatus' => 'sometimes|required|string'
+            'billing.billingType' => 'sometimes|required|string',
+            // 'billing.billingCutoff' => 'sometimes|required_if:billing.billingType,1|date',
+            // 'billing.disconnectionDate' => 'sometimes|required_if:billing.billingType,1|date',
+            'billing.clientId' => 'sometimes|required|string',
+            'billing.billingDescription' => 'sometimes|required|string|min:5|max:100|nullable',
+            'billing.billingRemarks' => 'sometimes|string|min:5|max:100|nullable',
+        ];
+    }
+
+    public function messages(): array 
+    {
+        return [
+            'billing.billingType.required' => 'Billing or Invoice Type is required.',
+            // 'billing.billingCutoff.required_if' => 'Billing Cut-off Date is required.',
+            // 'billing.disconnectionDate.required_if' => 'Disconnection Date is required.',
+            'billing.clientId.required' => 'Client is required.',
+            'billing.billingDescription.required' => 'Bill To / Description is required.',
         ];
     }
 }
