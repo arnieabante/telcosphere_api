@@ -103,6 +103,7 @@ class PaymentController extends ApiController
     {
         try {
             return DB::transaction(function () use ($request) {
+
                 $receipt = $this->receiptService->generateReceipt(false);
 
                 $attributes = array_merge($request->mappedAttributes(), [
@@ -111,50 +112,83 @@ class PaymentController extends ApiController
 
                 $payment = Payment::create($attributes);
 
-                $affectedBillingIds = [];
-                if ($request->has('collectionItems')) {
-                    foreach ($request->collectionItems as $item) {
-                        // Insert record to payment Item
-                        PaymentItem::create([
-                            'payment_id'       => $payment->id,
-                            'billing_item_id'  => $item['billing_item_id'],
-                            'particulars'      => $item['particulars'] ?? null,
-                            'amount'           => $item['amount'],
-                            'amount_paid'      => $item['amount_paid'],
-                            'amount_balance'   => $item['amount_balance'],
-                        ]);
+                $paymentAmount = floatval($request['amountPaid']);
 
-                        $amountPaid = floatval($item['amount_paid']);
-                        $amountBalance = floatval($item['amount_balance']);
-                        // Update billing item
-                        $billingItem = BillingItem::find($item['billing_item_id']);
+                // 🔥 GET ALL UNPAID BILLING ITEMS (FIFO)
+                $billingItems = BillingItem::whereHas('billing', function ($q) use ($request) {
+                        $q->where('client_id', $request['clientId']);
+                    })
+                    ->whereIn('billing_status', ['Pending', 'Partial'])
+                    ->orderBy('id', 'asc') // FIFO
+                    ->get();
 
-                        if ($billingItem) {
-                            $billingItem->update([
-                                'billing_item_offset' => DB::raw('billing_item_offset + ' . $amountPaid),
-                                'billing_item_balance' => DB::raw('billing_item_balance - ' . $amountPaid),
-                                'billing_status' => $amountBalance > 0 ? 'Partial' : 'Paid',
-                            ]);
-                        }
+                foreach ($billingItems as $item) {
 
-                        // update billing
-                        $billing = Billing::find($item['billing_id']);
-                        if ($billing) {
-                            $billing->billing_offset += $amountPaid;
-                            $billing->billing_balance -= $amountPaid;
-                            $billing->billing_status = $item['amount_balance'] > 0 ? 'Partial' : 'Paid';
-                            $billing->save();
-                        }
+                    if ($paymentAmount <= 0) break;
+
+                    $originalBalance = $item->billing_item_balance;
+
+                    if ($paymentAmount >= $originalBalance) {
+                        // ✅ FULL PAYMENT
+                        $amountPaid = $originalBalance;
+                        $newBalance = 0;
+                        $status = 'Paid';
+                    } else {
+                        // ⚠️ PARTIAL PAYMENT
+                        $amountPaid = $paymentAmount;
+                        $newBalance = $originalBalance - $paymentAmount;
+                        $status = 'Partial';
                     }
+
+                    // 🔥 SAVE PAYMENT ITEM
+                    PaymentItem::create([
+                        'payment_id'       => $payment->id,
+                        'billing_item_id'  => $item->id,
+                        'particulars'      => $item->billing_item_name ?? null,
+                        'amount'           => $item->billing_item_amount,
+                        'amount_paid'      => $amountPaid,
+                        'amount_balance'   => $newBalance,
+                    ]);
+
+                    // 🔥 UPDATE BILLING ITEM
+                    $item->update([
+                        'billing_item_offset' => DB::raw("billing_item_offset + {$amountPaid}"),
+                        'billing_item_balance' => $newBalance,
+                        'billing_status' => $status,
+                    ]);
+
+                    // 🔥 UPDATE BILLING (SAFE RECOMPUTE)
+                    $billing = $item->billing;
+
+                    $remaining = $billing->billingItems()
+                        ->whereIn('billing_status', ['Pending', 'Partial'])
+                        ->sum('billing_item_balance');
+
+                    $billing->update([
+                        'billing_offset' => DB::raw("billing_offset + {$amountPaid}"),
+                        'billing_balance' => $remaining,
+                        'billing_status' => $remaining == 0 ? 'Paid' : 'Partial',
+                    ]);
+
+                    $paymentAmount -= $amountPaid;
                 }
 
-                // Finally, let's update the balance_from_previous_billing of via $client->id
+                // 🔥 UPDATE CLIENT (CORRECT WAY)
+                $totalBalance = Billing::where('client_id', $request['clientId'])
+                    ->whereIn('billing_status', ['Pending', 'Partial'])
+                    ->sum('billing_balance');
+
                 $client = Client::find($request['clientId']);
+
                 if ($client) {
                     $client->update([
-                        'balance_from_prev_billing' => DB::raw('balance_from_prev_billing - ' . floatval($request['amountPaid'])),
+                        'billing_balance' => $totalBalance,
+                        'balance_from_prev_billing' => $totalBalance,
+                        'current_balance' => $totalBalance,
+                        'prorate_fee_status' => $totalBalance > 0 ? 'Partial' : 'Paid',
                     ]);
                 }
+
                 return new PaymentResource($payment);
             });
 
@@ -162,7 +196,6 @@ class PaymentController extends ApiController
             return $this->error('You are not authorized to create a Payment.', 401);
         }
     }
-
 
     /**
      * Display the specified resource.
