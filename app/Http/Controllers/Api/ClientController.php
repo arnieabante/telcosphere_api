@@ -264,11 +264,13 @@ class ClientController extends ApiController
             return response()->json([
                 'success' => true,
                 'total' => [
+                    'total_debit'  => number_format($totalDebit, 2, '.', ','),
+                    'total_credit' => number_format($totalCredit, 2, '.', ','),
+                    'balance'      => number_format($finalBalance, 2, '.', ','),
                     'previous_balance' => number_format($latestBilling->balance_from_prev_billing ?? 0, 2, '.', ','),
                     'monthly_fee'      => number_format($client->internetPlan->monthly_subscription ?? 0, 2, '.', ','),
                     'amount_due'       => number_format(
-                        ($latestBilling->billing_total ?? 0) + ($latestBilling->balance_from_prev_billing ?? 0),
-                        2, '.', ','
+                        ($latestBilling->billing_balance ?? 0), 2, '.', ','
                     ),
                     'status' => $latestBilling->billing_status ?? 'No Billing',
                 ],
