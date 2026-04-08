@@ -96,7 +96,14 @@ class InternetplanController extends ApiController
             // $this->isAble('update', Internetplan::class);
 
             $internetplan = Internetplan::where('uuid', $uuid)->firstOrFail();
-            $affected = $internetplan->update($request->mappedAttributes());
+
+            // activate / deactivate
+            if (isset($request['isActive'])) {
+                $internetplan->update([
+                    'is_active' => 0
+                ]);
+            } else 
+                $affected = $internetplan->update($request->mappedAttributes());
 
             return new InternetplanResource($internetplan);
 
