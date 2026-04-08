@@ -25,7 +25,7 @@ class StoreBillingItemRequest extends BaseBillingItemRequest
             'billing.billingItems' => 'required|array|min:1',
             'billing.billingItems.*.billingItemName' => 'required_if:billing.billingType,2,3,4|string|min:5|max:100',
             'billing.billingItems.*.billingItemParticulars' => 'required_if:billing.billingType,2,3,4|string|min:5|max:100',
-            'billing.billingItems.*.billingItemPrice' => 'required_if:billing.billingType,2,3,4|numeric|min:1|max:999999.99|decimal:0,2',
+            'billing.billingItems.*.billingItemPrice' => 'required_if:billing.billingType,2,3,4|numeric|min:1|decimal:0,2',
             'billing.billingItems.*.billingItemQuantity' => 'required|numeric|min:1|max:999',
             'billing.billingItems.*.billingItemRemark' => 'string|min:5|nullable',
         ];
