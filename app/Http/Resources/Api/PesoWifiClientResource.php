@@ -5,7 +5,7 @@ namespace App\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PesoWifiAreaResource extends JsonResource
+class PesoWifiClientResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,14 +15,19 @@ class PesoWifiAreaResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'type' => 'PesoWifiArea',
+            'type' => 'PesoWifiClient',
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
+                'areaId' => $this->area_id,
                 'name' => $this->name,
+                'harvestDay' => $this->harvest_day,
+                'resellerShare' => $this->reseller_share,
+                'deviceStatus' => $this->device_status,
+                'lastHarvestDate' => $this->status,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
-                    request()->routeIs('pesowifiareas.show'), [
+                    request()->routeIs('pesowificlients.show'), [
                         'siteId' => $this->site_id,
                         'createdBy' => $this->created_by,
                         'updatedBy' => $this->updated_by,
@@ -31,8 +36,11 @@ class PesoWifiAreaResource extends JsonResource
                     ]
                 ),
             ],
+            'relationships' => [
+                'pesoWifiArea' => new PesoWifiAreaResource($this->whenLoaded('pesoWifiArea'))
+            ],
             'links' => [
-                'pesowifiarea' => route('pesowifiareas.show', $this->id)
+                'pesowificlient' => route('pesowificlients.show', $this->id)
             ]
         ];
     }
