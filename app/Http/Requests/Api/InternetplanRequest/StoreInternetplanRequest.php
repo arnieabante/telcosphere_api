@@ -24,7 +24,11 @@ class StoreInternetplanRequest extends BaseInternetplanRequest
     {
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => ['required','string','min:5', Rule::unique('internetplans')->where(fn ($query) => $query->where('site_id', $siteId))],
+            'name' => ['required','string','min:5', Rule::unique('internetplans')
+                ->where(fn ($query) => $query
+                    ->where('site_id', $siteId)
+                    ->where('is_active', 1)
+            )],
             'monthly_subscription' => 'required|decimal:2'
         ];
     }

@@ -24,9 +24,13 @@ class UpdateInternetplanRequest extends BaseInternetplanRequest
     {
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => ['sometimes','required','string','min:5', Rule::unique('internetplans')->where(fn ($query) => $query->where('site_id', $siteId))],
-            'monthly_subscription' => 'sometimes|required|decimal:2',
-            'isActive' => 'sometimes|required|boolean'
+            'name' => ['sometimes','required','string','min:5', Rule::unique('internetplans')
+                ->ignore($this->uuid, 'uuid')
+                ->where(fn ($query) => $query
+                    ->where('site_id', $siteId)
+                    ->where('is_active', 1)
+            )],
+            'monthly_subscription' => 'sometimes|required|decimal:2'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
     }
