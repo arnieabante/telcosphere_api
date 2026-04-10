@@ -30,6 +30,7 @@ class MonthlySubscription implements BillingInterface
         // get clients with the same billing category/cycle
         return Client::where('billing_category_id', $data['billingCategory'])
             ->where('is_active', 1)
+            ->where('site_id', auth()->user()->site_id)
             ->get([
                 'id', 
                 'billing_category_id', 
@@ -75,6 +76,7 @@ class MonthlySubscription implements BillingInterface
     protected function getSubscriptionRate(string $planId): float {
         $plan = Internetplan::select(['monthly_subscription'])
             ->where('id', $planId)
+            ->where('site_id', auth()->user()->site_id)
             ->first();
 
         return round($plan->monthly_subscription, 2);
@@ -83,6 +85,7 @@ class MonthlySubscription implements BillingInterface
     protected function getSubscriptionName(string $planId): string {
         $plan = Internetplan::select(['name'])
             ->where('id', $planId)
+            ->where('site_id', auth()->user()->site_id)
             ->first();
 
         return $plan->name;
@@ -91,6 +94,7 @@ class MonthlySubscription implements BillingInterface
     protected function getBillingCycle($categoryId): string {
         $cycle = BillingCategory::select(['date_cycle'])
             ->where('id', $categoryId)
+            ->where('site_id', auth()->user()->site_id)
             ->first();
         
         return $cycle->date_cycle;

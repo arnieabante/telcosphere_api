@@ -164,6 +164,7 @@ class BillingService
     {
         $categories = BillingCategory::select(['id', 'name'])
             ->where('date_cycle', date('d'))
+            ->where('site_id', auth()->user()->site_id)
             ->get();
 
         if (count($categories) < 1)
