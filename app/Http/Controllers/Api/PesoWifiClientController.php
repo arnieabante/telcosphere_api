@@ -76,7 +76,7 @@ class PesoWifiClientController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $pesowifiarea = PesoWifiClient::where('uuid', $uuid)->firstOrFail();
+            $pesowifiarea = PesoWifiClient::with(['pesoWifiArea'])->where('uuid', $uuid)->firstOrFail();
             return new PesoWifiClientResource($pesowifiarea);
 
         } catch (ModelNotFoundException $ex) {
