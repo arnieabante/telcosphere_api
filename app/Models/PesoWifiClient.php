@@ -27,6 +27,8 @@ class pesowificlient extends Model
         'reseller_share',
         'device_status',
         'last_harvest_date',
+        'next_harvest_date',
+        'is_harvested',
         'is_active'
     ];
 

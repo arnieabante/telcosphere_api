@@ -29,7 +29,9 @@ class StorePesoWifiClientRequest extends BasePesoWifiClientRequest
             'harvestDay' => 'sometimes|required|int',
             'resellerShare' => 'nullable|int',
             'deviceStatus' => 'nullable|string',
-            'last_harvest_date' => 'nullable|string',
+            'lastHarvestDate' => 'nullable|string',
+            'nextHarvestDate' => 'nullable|string',
+            'isHarvested' => 'boolean',
             'isActive' => 'required|boolean'
         ];
     }

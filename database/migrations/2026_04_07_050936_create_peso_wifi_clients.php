@@ -21,6 +21,8 @@ return new class extends Migration
             $table->integer('reseller_share');
             $table->string('device_status');
             $table->string('last_harvest_date')->nullable();
+            $table->string('next_harvest_date')->nullable();
+            $table->boolean('is_harvested')->default(false);
             $table->boolean('is_active');
             $table->integer('created_by');
             $table->integer('updated_by');

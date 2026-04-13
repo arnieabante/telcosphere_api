@@ -13,7 +13,9 @@ class BasePesoWifiClientRequest extends FormRequest
             'harvestDay' => 'harvest_day',
             'resellerShare' => 'reseller_share',
             'deviceStatus' => 'device_status',
-            'last_harvest_date' => 'lastHarvestDate',
+            'lastHarvestDate' => 'lastHarvestDate',
+            'nextHarvestDate' => 'lastHarvestDate',
+            'isHarvested' => 'isHarvested',
             'isActive' => 'is_active'
         ];
 

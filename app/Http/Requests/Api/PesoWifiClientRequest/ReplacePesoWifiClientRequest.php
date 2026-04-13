@@ -29,7 +29,9 @@ class ReplacePesoWifiClientRequest extends BasePesoWifiClientRequest
             'harvestDay' => 'sometimes|required|int',
             'resellerShare' => 'sometimes|nullable|int',
             'deviceStatus' => 'sometimes|nullable|string',
-            'last_harvest_date' => 'sometimes|nullable|string',
+            'lastHarvestDate' => 'sometimes|nullable|string',
+            'nextHarvestDate' => 'sometimes|nullable|string',
+            'isHarvested' => 'boolean',
             'isActive' => 'required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username

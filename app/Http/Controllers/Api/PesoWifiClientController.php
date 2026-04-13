@@ -12,6 +12,7 @@ use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class PesoWifiClientController extends ApiController
 {
@@ -27,9 +28,15 @@ class PesoWifiClientController extends ApiController
         $include = $request->get('include');
         $from = $request->get('from');
         $to = $request->get('to');
+        $forHarvest = $request->get('for_harvest'); 
 
         $query = PesoWifiClient::with(['pesoWifiArea'])
             ->where('is_active', 1);
+
+        // FOR HARVEST FILTER
+        if (!empty($forHarvest) && $forHarvest == 1) {
+            $query->where('next_harvest_date', '<=', Carbon::now()->addDays(5));
+        }
 
         if (!empty($include) && $include == 'all') {
             $pesowifiarea = $query->orderBy('name', 'asc')->get();
@@ -58,11 +65,23 @@ class PesoWifiClientController extends ApiController
     public function store(StorePesoWifiClientRequest $request)
     {
         try {
-            // create policy
-            // $this->isAble('create', PesoWifiClient::class);
+            $data = $request->mappedAttributes();
+
+            $harvestDay = (int) ($data['harvest_day'] ?? 0);
+
+            $nextHarvestDate = now()
+                ->addMonthNoOverflow();
+
+            $nextHarvestDate = $nextHarvestDate->setDay(
+                min($harvestDay, $nextHarvestDate->daysInMonth)
+            );
+
+            $data['next_harvest_date'] = $nextHarvestDate;
+            $data['last_harvest_date'] = $data['last_harvest_date'] ?? null;
+            $data['is_harvested'] = false;
 
             return new PesoWifiClientResource(
-                PesoWifiClient::create($request->mappedAttributes())
+                PesoWifiClient::create($data)
             );
 
         } catch (AuthorizationException $ex) {

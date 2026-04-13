@@ -24,7 +24,9 @@ class PesoWifiClientResource extends JsonResource
                 'harvestDay' => $this->harvest_day,
                 'resellerShare' => $this->reseller_share,
                 'deviceStatus' => $this->device_status,
-                'lastHarvestDate' => $this->status,
+                'lastHarvestDate' => $this->last_harvest_date,
+                'nextHarvestDate' => $this->next_harvest_date,
+                'isActive' => $this->is_harvested,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('pesowificlients.show'), [
