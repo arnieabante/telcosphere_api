@@ -29,6 +29,7 @@ class UpdateBillingRequest extends BaseBillingRequest
             'billing.clientId' => 'sometimes|required|string',
             'billing.billingDescription' => 'sometimes|required|string|min:5|max:100|nullable',
             'billing.billingRemarks' => 'sometimes|string|min:5|max:100|nullable',
+            'billing.isActive' => 'required|boolean'
         ];
     }
 
