@@ -16,7 +16,7 @@ use App\Models\Billing;
 use App\Services\BillingService;
 use App\Services\DashboardService;
 use App\Traits\ApiResponses;
-use BadFunctionCallException;
+use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -91,31 +91,32 @@ class BillingController extends ApiController
      */
     public function store(Request $request, BillingService $service)
     {
-        // validate billing
-        $billingRequest = app(StoreBillingRequest::class);
-        $billingRequest->validateResolved();
-
-        // validate billing items
-        $billingItemsRequest = app(StoreBillingItemRequest::class);
-        $billingItemsRequest->validateResolved();
-
-        $attributes = $request->input('billing');
-        switch ($attributes['billingType']) {
-            case '1':
-                $billingType = new MonthlySubscription();
-                break;
-            case '2':
-                $billingType = new Installation();
-                break;
-            case '3':
-                $billingType = new Repair();
-                break;
-            case '4':
-                $billingType = new OtherServices();
-                break;
-        }
-
         try {
+            // validate billing
+            $billingRequest = app(StoreBillingRequest::class);
+
+            if ($billingRequest->validateResolved()) {
+                // validate billing items
+                $billingItemsRequest = app(StoreBillingItemRequest::class);
+                $billingItemsRequest->validateResolved();
+            }
+
+            $attributes = $request->input('billing');
+            switch ($attributes['billingType']) {
+                case '1':
+                    $billingType = new MonthlySubscription();
+                    break;
+                case '2':
+                    $billingType = new Installation();
+                    break;
+                case '3':
+                    $billingType = new Repair();
+                    break;
+                case '4':
+                    $billingType = new OtherServices();
+                    break;
+            }
+
             $service->generateBilling($billingType, $attributes);
 
         } catch (ValidationException $ex) {
@@ -124,9 +125,8 @@ class BillingController extends ApiController
         } catch (QueryException $ex) {
             return $this->error($ex->getMessage(), 400);
 
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return $this->error($ex->getMessage(), 400);
-
         }
 
         return $this->ok('Billing is successfully created for client/s.');
@@ -159,17 +159,22 @@ class BillingController extends ApiController
      */
     public function update(Request $request, BillingService $service, string $uuid)
     {
-        // validate billing
-        $billingRequest = app(UpdateBillingRequest::class);
-        $billingRequest->validateResolved();
-
-        // validate billing items
-        $billingItemsRequest = app(UpdateBillingItemRequest::class);
-        $billingItemsRequest->validateResolved();
-
         try {
+            // validate billing
+            $billingRequest = app(UpdateBillingRequest::class);
+            $billingRequest->validateResolved();
+
             $attributes = $request->input('billing');
-            $billing = $service->updateBilling($uuid, $attributes);
+            if ($attributes['isActive'] == 0) {
+                // de-activate billing
+                $billing = $service->deactivateBilling($uuid, $attributes);
+            } else {
+                // validate billing items
+                $billingItemsRequest = app(UpdateBillingItemRequest::class);
+                $billingItemsRequest->validateResolved();
+                $billing = $service->updateBilling($uuid, $attributes);
+            }
+
             return $billing;
 
         } catch (ValidationException $ex) {
@@ -180,6 +185,9 @@ class BillingController extends ApiController
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to update a Billing.', 401);
+
+        } catch (Exception $ex) {
+            return $this->error($ex->getMessage(), 400);
         }
     }
 

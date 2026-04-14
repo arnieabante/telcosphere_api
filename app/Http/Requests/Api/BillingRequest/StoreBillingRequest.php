@@ -27,7 +27,8 @@ class StoreBillingRequest extends BaseBillingRequest
             'billing.disconnectionDate' => 'required_if:billing.billingType,1|date',
             'billing.clientId' => 'required_if:billing.billingType,2,3,4|string',
             'billing.billingDescription' => 'required_if:billing.billingType,2,3,4|string|min:5|max:100|nullable',
-            'billing.billingRemarks' => 'string|min:5|max:100|nullable'
+            'billing.billingRemarks' => 'string|min:5|max:100|nullable',
+            'billing.isActive' => 'required|boolean'
         ];
     }
 
