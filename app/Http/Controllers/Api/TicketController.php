@@ -113,7 +113,7 @@ class TicketController extends ApiController
                 'tickets_growth' => $totalGrowth,
                 'status' => [
                     'total'   => Ticket::where('is_active', 1)->count(),
-                    'new' => Ticket::where('status', 'new')->where('is_active', 1)->count(),
+                    'new' => Ticket::where('status', 'new')->whereNull('due_date')->where('is_active', 1)->count(),
                     'ongoing' => Ticket::whereIn('status', ['assigned', 'ongoing'])
                             ->whereDate('due_date', '>', Carbon::today())
                             ->where('is_active', 1)->count(),
