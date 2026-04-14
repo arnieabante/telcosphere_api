@@ -70,7 +70,8 @@ class TicketController extends ApiController
         if (!empty($statusFilter)) {
             switch ($statusFilter) {
                 case 'new':
-                    $query->where('status', 'new');
+                    $query->where('status', 'new')
+                        ->whereNull('due_date');
                     break;
 
                 case 'ongoing':
