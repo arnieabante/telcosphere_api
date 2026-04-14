@@ -69,9 +69,12 @@ class TicketController extends ApiController
 
         if (!empty($statusFilter)) {
             switch ($statusFilter) {
-                case 'new':
+               case 'new':
                     $query->where('status', 'new')
-                        ->whereNull('due_date');
+                        ->where(function ($q) use ($today) {
+                            $q->whereNull('due_date')
+                            ->orWhereDate('due_date', '>', $today);
+                        });
                     break;
 
                 case 'ongoing':
@@ -113,7 +116,13 @@ class TicketController extends ApiController
                 'tickets_growth' => $totalGrowth,
                 'status' => [
                     'total'   => Ticket::where('is_active', 1)->count(),
-                    'new' => Ticket::where('status', 'new')->whereNull('due_date')->where('is_active', 1)->count(),
+                    'new' => Ticket::where('status', 'new')
+                        ->where('is_active', 1)
+                        ->where(function ($q) use ($today) {
+                            $q->whereNull('due_date')
+                            ->orWhereDate('due_date', '>', $today);
+                        })
+                        ->count(),
                     'ongoing' => Ticket::whereIn('status', ['assigned', 'ongoing'])
                             ->whereDate('due_date', '>', Carbon::today())
                             ->where('is_active', 1)->count(),
