@@ -19,6 +19,9 @@ use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\SiteController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\PesoWifiAreaController;
+use App\Http\Controllers\Api\PesoWifiClientController;
+use App\Http\Controllers\Api\PesoWifiHarvestController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('sites/url/{url}', [SiteController::class, 'showByUrl']);
@@ -100,5 +103,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('sites', SiteController::class)->except(['update']);
     Route::patch('sites/{uuid}', [SiteController::class, 'update']);
     Route::put('sites/{uuid}', [SiteController::class, 'replace']);
+
+    Route::apiResource('pesowifiareas', PesoWifiAreaController::class)->except(['update']);
+    Route::patch('pesowifiareas/{uuid}', [PesoWifiAreaController::class, 'update']);
+    Route::put('pesowifiareas/{uuid}', [PesoWifiAreaController::class, 'replace']);
+
+    Route::apiResource('pesowificlients', PesoWifiClientController::class)->except(['update']);
+    Route::patch('pesowificlients/{uuid}', [PesoWifiClientController::class, 'update']);
+    Route::put('pesowificlients/{uuid}', [PesoWifiClientController::class, 'replace']);
+
+    Route::apiResource('pesowifiharvests', PesoWifiHarvestController::class)->except(['update']);
+    Route::patch('pesowifiharvests/{uuid}', [PesoWifiHarvestController::class, 'update']);
+    Route::put('pesowifiharvests/{uuid}', [PesoWifiHarvestController::class, 'replace']);
+    Route::get('pesowifi/dashboard', [PesoWifiHarvestController::class, 'dashboard']);
 
 });
