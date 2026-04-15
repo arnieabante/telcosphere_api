@@ -74,7 +74,7 @@ class PesoWifiDashboardService
 
         $data = PesoWifiHarvest::where('is_active', 1)
             ->whereYear('created_at', $year)
-            ->selectRaw('MONTH(created_at) as month, SUM(amount_harvested) as total')
+            ->selectRaw('MONTH(created_at) as month, SUM(owner_income) as total')
             ->groupBy('month')
             ->pluck('total', 'month');
 
