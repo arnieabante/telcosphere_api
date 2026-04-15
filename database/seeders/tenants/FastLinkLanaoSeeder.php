@@ -10,7 +10,7 @@ use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-class RedJacobJadenSeeder extends Seeder
+class FastLinkLanaoSeeder extends Seeder
 {
     public function run(): void
     {
