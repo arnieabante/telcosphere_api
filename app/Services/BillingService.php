@@ -59,9 +59,11 @@ class BillingService
             $latestBilling->load('billingItems');
             $latestBillingTotal = $latestBilling->billingItems()
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                ->where('is_active', 1)
                 ->sum('billing_item_amount');
             $latestBillingBalance = $latestBilling->billingItems()
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                ->where('is_active', 1)
                 ->sum('billing_item_balance');
 
             $billing->update([
@@ -74,9 +76,11 @@ class BillingService
             $previousClientBalance = Billing::where('client_id', $client->id)
                 ->where('id', '<>', $billing->id)
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                ->where('is_active', 1)
                 ->sum('billing_balance');
             $currentClientBalance = Billing::where('client_id', $client->id)
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                ->where('is_active', 1)
                 ->sum('billing_balance');
 
             $billing->client()->update([
@@ -97,35 +101,29 @@ class BillingService
     {
         $billing = Billing::where('uuid', $uuid)->firstOrFail();
 
-        // activate / deactivate
-        if (isset($data['isActive'])) {
-            $billing->update([
-                'is_active' => 0
-            ]);
-
-            return new BillingResource($billing);
-        }
-
         // update Billing Items
         foreach ($data['billingItems'] as $item) {
-            $billing->billingItems()->updateOrCreate([
-                'uuid' => $item['uuid']
-            ], [
+            $billingItem = $billing->billingItems()->firstOrNew(['uuid' => $item['uuid']]);
+            $billingItemBalance = $item['amount'] - ($billingItem->billing_item_offset ?? 0);
+            $billingItem->fill([
                 'billing_item_name' => $item['category'],
                 'billing_item_particulars' => $item['particulars'],
                 'billing_item_quantity' => $item['qty'],
                 'billing_item_price' => $item['price'],
                 'billing_item_amount' => $item['amount'],
+                'billing_item_balance' => $billingItemBalance,
                 'billing_status' => self::STATUS_PENDING
-            ]);
+            ])->save();
         }
 
         // update Billing Total/Balance and Billing Details
         $latestBillingTotal = $billing->billingItems()
             ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+            ->where('is_active', 1)
             ->sum('billing_item_amount');
         $latestBillingBalance = $billing->billingItems()
             ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+            ->where('is_active', 1)
             ->sum('billing_item_balance');
             
         $billing->update([
@@ -140,10 +138,12 @@ class BillingService
         $previousClientBalance = $billing->where('client_id', $data['clientId'])
             ->where('id', '<>', $billing->id)
             ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+            ->where('is_active', 1)
             ->sum('billing_balance');
 
         $currentClientBalance = $billing->where('client_id', $data['clientId'])
             ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+            ->where('is_active', 1)
             ->sum('billing_balance');
 
         $billing->client()->update([
@@ -160,10 +160,71 @@ class BillingService
         return new BillingResource($billing);
     }
 
+    public function deactivateBilling($uuid, $data)
+    {
+        // only PENDING billing can be de-activated
+        $billing = Billing::where('uuid', $uuid)
+            ->where('billing_status', self::STATUS_PENDING)
+            ->where('is_active', 1)
+            ->first();
+        
+        if ($billing) {
+            // deactive billing
+            $billing->update(['is_active' => 0]);
+
+            // deactivate Billing Items
+            $billing->billingItems()->update([
+                'is_active' => 0
+            ]);
+
+            // re-calculate Billing Total/Balance and Billing Details
+            $latestBillingTotal = $billing->billingItems()
+                ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                ->where('is_active', 1)
+                ->sum('billing_item_amount');
+            $latestBillingBalance = $billing->billingItems()
+                ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                ->where('is_active', 1)
+                ->sum('billing_item_balance');
+                
+            $billing->update([
+                'billing_total' => $latestBillingTotal,
+                'billing_balance' => $latestBillingBalance,
+            ]);
+
+            // re-calculate Client Balance and Client Details
+            $previousClientBalance = $billing->where('client_id', $billing->client_id)
+                ->where('id', '<>', $billing->id)
+                ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                ->where('is_active', 1)
+                ->sum('billing_balance');
+
+            $currentClientBalance = $billing->where('client_id', $billing->client_id)
+                ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                ->where('is_active', 1)
+                ->sum('billing_balance');
+
+            $billing->client()->update([
+                'balance_from_prev_billing' => $previousClientBalance,
+                'current_balance' => $currentClientBalance
+            ]);
+        
+            // update Billing balance from previous billing
+            $billing->update([
+                'balance_from_prev_billing' => $currentClientBalance,
+            ]);
+            
+        } else 
+            throw new Exception('Cannot delete Partial or Paid billing.');
+
+        return new BillingResource($billing);
+    }
+
     public function runAutomatedBilling(BillingInterface $billingType)
     {
         $categories = BillingCategory::select(['id', 'name'])
             ->where('date_cycle', date('d'))
+            ->where('site_id', auth()->user()->site_id)
             ->get();
 
         if (count($categories) < 1)
