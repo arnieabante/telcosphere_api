@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Scopes\SiteScope;
 
-class pesowificlient extends Model
+class PesoWifiClient extends Model
 {
     use HasFactory, HasUuids;
 
@@ -68,6 +68,6 @@ class pesowificlient extends Model
 
     public function pesoWifiArea()
     {
-        return $this->belongsTo(\App\Models\pesoWifiArea::class, 'area_id');
+        return $this->belongsTo(\App\Models\PesoWifiArea::class, 'area_id');
     }
 }
