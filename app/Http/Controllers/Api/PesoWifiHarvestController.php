@@ -14,6 +14,7 @@ use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use App\Services\PesoWifiDashboardService;
 use Carbon\Carbon;
 
 class PesoWifiHarvestController extends ApiController
@@ -202,5 +203,17 @@ class PesoWifiHarvestController extends ApiController
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to delete a PesoWifiHarvest.', 401);
         }
+    }
+
+    public function dashboard(PesoWifiDashboardService $service)
+    {
+        return response()->json([
+            'total_areas' => $service->getTotalAreas(),
+            'total_resellers' => $service->getTotalResellers(),
+            'monthly_collections' => $service->getMonthlyCollections(),
+            'total_collections' => $service->getTotalCollections(),
+            'clients_status' => $service->getClientsStatus(),
+            'monthly_sales' => $service->getMonthlySales(),
+        ]);
     }
 }

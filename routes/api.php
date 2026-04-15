@@ -115,5 +115,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('pesowifiharvests', PesoWifiHarvestController::class)->except(['update']);
     Route::patch('pesowifiharvests/{uuid}', [PesoWifiHarvestController::class, 'update']);
     Route::put('pesowifiharvests/{uuid}', [PesoWifiHarvestController::class, 'replace']);
+    Route::get('pesowifi/dashboard', [PesoWifiHarvestController::class, 'dashboard']);
 
 });
