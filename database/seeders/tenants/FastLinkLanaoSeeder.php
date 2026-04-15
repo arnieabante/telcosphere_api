@@ -20,7 +20,7 @@ class FastLinkLanaoSeeder extends Seeder
             'company_address' => 'Lanao, Philippines',
         ], [
             'uuid' => fake()->uuid(),
-            'site_url' => 'fastlinklanao.telcosphere.co',
+            'site_url' => 'fastlink-lanao.telcosphere.co',
             'company_email' => 'admin.fastlinklanao@telcosphere.co',
             'is_active' => 1,
             'created_by' => 1,
