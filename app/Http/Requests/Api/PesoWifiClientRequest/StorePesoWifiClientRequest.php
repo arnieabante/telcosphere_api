@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Api\PesoWificlientRequest;
+namespace App\Http\Requests\Api\PesoWifiClientRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
