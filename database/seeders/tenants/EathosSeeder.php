@@ -10,18 +10,18 @@ use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-class FastLinkLanaoSeeder extends Seeder
+class EathosSeeder extends Seeder
 {
     public function run(): void
     {
         // 1. Create site (or find existing)
         $site = Site::firstOrCreate([
-            'company_name' => 'FastLink Network & Data Solutions',
-            'company_address' => 'Lanao, Philippines',
+            'company_name' => 'Eathos IT Services',
+            'company_address' => 'Bohol, Philippines',
         ], [
             'uuid' => fake()->uuid(),
-            'site_url' => 'fastlink-lanao.telcosphere.co',
-            'company_email' => 'admin.fastlinklanao@telcosphere.co',
+            'site_url' => 'eathos.telcosphere.co',
+            'company_email' => 'admin.eathos@telcosphere.co',
             'is_active' => 1,
             'created_by' => 1,
             'updated_by' => 1
@@ -63,13 +63,13 @@ class FastLinkLanaoSeeder extends Seeder
 
         // 5. Create default admin user
         User::firstOrCreate([
-            'username' => 'fastlinklanao.admin',
+            'username' => 'eathos.admin',
             'site_id' => $site->id
         ], [
             'uuid' => fake()->uuid(),
             'fullname' => 'Administrator',
             'email' => 'admin@client.com',
-            'password' => Hash::make('fastlinkp@ssw0rd'),
+            'password' => Hash::make('eathosp@ssw0rd'),
             'role_id' => $adminRole->id,
             'is_active' => 1,
             'created_by' => 1,
