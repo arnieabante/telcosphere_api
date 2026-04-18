@@ -13,7 +13,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
-class SiteBankAccountsController extends ApiController
+class SiteBankAccountController extends ApiController
 {
     use ApiResponses;
 
@@ -74,7 +74,7 @@ class SiteBankAccountsController extends ApiController
 
             if ($request->hasFile('companyLogo')) {
                 // access/store the image file separeately
-                $imgUpload = $_FILES['companyLogo'];
+                $imgUpload = $_FILES['accountQR'];
                 $tmpPath = $imgUpload['tmp_name'];
                 $newImgName = uniqid() . '.' . pathinfo($imgUpload['name'], PATHINFO_EXTENSION);
 
@@ -83,7 +83,7 @@ class SiteBankAccountsController extends ApiController
                     storage_path('app/public/' . $newImgName)
                 );
 
-                $attr['company_logo'] = $newImgName;
+                $attr['accountQR'] = $newImgName;
             }
 
             // update site

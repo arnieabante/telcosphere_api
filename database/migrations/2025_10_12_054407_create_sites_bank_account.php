@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('sites_bank_account', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
-            $table->site_id();
+            $table->integer('site_id');
             $table->string('bank_name');
             $table->string('account_name');
             $table->string('account_number');
