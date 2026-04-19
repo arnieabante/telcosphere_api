@@ -8,6 +8,7 @@ use App\Http\Requests\Api\SiteBankAccountRequest\StoreSiteBankAccountRequest;
 use App\Http\Requests\Api\SiteBankAccountRequest\UpdateSiteBankAccountRequest;
 use App\Http\Resources\Api\SiteBankAccountResource;
 use App\Models\SiteBankAccount;
+use App\Models\Site;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -31,11 +32,19 @@ class SiteBankAccountController extends ApiController
     public function store(StoreSiteBankAccountRequest $request)
     {
         try {
-            // create policy
-            // $this->isAble('create', Site::class);
+            $attr = $request->mappedAttributes();
+
+            if ($request->hasFile('accountQR')) {
+
+                $file = $request->file('accountQR');
+                $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('account_qr', $filename);
+
+                $attr['account_qr'] = $filename;
+            }
 
             return new SiteBankAccountResource(
-                SiteBankAccount::create($request->mappedAttributes())
+                SiteBankAccount::create($attr)
             );
 
         } catch (AuthorizationException $ex) {
@@ -49,8 +58,8 @@ class SiteBankAccountController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $site = SiteBankAccount::where('uuid', $uuid)->firstOrFail();
-            return new SiteBankAccountResource($site);
+            $site_bank_account = SiteBankAccount::where('uuid', $uuid)->firstOrFail();
+            return new SiteBankAccountResource($site_bank_account);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Site does not exist.', 404);
@@ -63,34 +72,29 @@ class SiteBankAccountController extends ApiController
     /**
      * Update the specified resource in storage.
      */
-   public function update(UpdateSiteBankAccountRequest $request, string $uuid)
+    public function update(UpdateSiteBankAccountRequest $request, string $uuid)
     {
         try {
             // fetch the site
-            $site = SiteBankAccount::where('uuid', $uuid)->firstOrFail();
+            $site_bank_account = SiteBankAccount::where('uuid', $uuid)->firstOrFail();
 
             // update using the validated/mapped attributes
             $attr = $request->mappedAttributes();
 
-            if ($request->hasFile('companyLogo')) {
-                // access/store the image file separeately
-                $imgUpload = $_FILES['accountQR'];
-                $tmpPath = $imgUpload['tmp_name'];
-                $newImgName = uniqid() . '.' . pathinfo($imgUpload['name'], PATHINFO_EXTENSION);
+            if ($request->hasFile('accountQR')) {
 
-                move_uploaded_file(
-                    $tmpPath,
-                    storage_path('app/public/' . $newImgName)
-                );
+                $file = $request->file('accountQR');
+                $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('account_qr', $filename);
 
-                $attr['accountQR'] = $newImgName;
+                $attr['account_qr'] = $filename;
             }
 
             // update site
-            $site->update($attr);
+            $site_bank_account->update($attr);
 
             // return the updated site resource
-            return new SiteBankAccountResource($site);
+            return new SiteBankAccountResource($site_bank_account);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Site does not exist.', 404);
@@ -108,10 +112,10 @@ class SiteBankAccountController extends ApiController
             // replace policy
             // $this->isAble('replace', Site::class);
 
-            $site = SiteBankAccount::where('uuid', $uuid)->firstOrFail();
-            $affected = $site->update($request->mappedAttributes());
+            $site_bank_account = SiteBankAccount::where('uuid', $uuid)->firstOrFail();
+            $affected = $site_bank_account->update($request->mappedAttributes());
 
-            return new SiteBankAccountResource($site);
+            return new SiteBankAccountResource($site_bank_account);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Site does not exist.', 404);
@@ -127,8 +131,8 @@ class SiteBankAccountController extends ApiController
     public function destroy(string $uuid)
     {
         try {
-            $site = SiteBankAccount::where('uuid', $uuid)->firstOrFail();
-            $affected = $site->delete();
+            $site_bank_account = SiteBankAccount::where('uuid', $uuid)->firstOrFail();
+            $affected = $site_bank_account->delete();
 
             return $this->ok("Deleted $affected record.", []);
 
@@ -140,20 +144,28 @@ class SiteBankAccountController extends ApiController
         }
     }
 
-        /**
+    /**
      * Display the specified resource via link.
      */
-    public function showByUrl(string $url)
+    public function getBankAccount(string $siteUuid)
     {
-        try {
-            $site = SiteBankAccount::where('site_url', $url)->firstOrFail();
-            return new SiteBankAccountResource($site);
+        $site = Site::where('uuid', $siteUuid)->firstOrFail();
+        $bank = SiteBankAccount::where('site_id', $site->id)->first();
 
-        } catch (ModelNotFoundException $ex) {
-            return $this->error('Site does not exist.', 404);
-
-        } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to view a Site.', 401);
-        }
+        return response()->json([
+            'data' => [
+                'site_uuid' => $site->uuid,
+                'bank_uuid' => $bank?->uuid,
+                'attributes' => $bank ? [
+                    'bank_name' => $bank->bank_name,
+                    'account_name' => $bank->account_name,
+                    'account_number' => $bank->account_number,
+                    'account_qr' => $bank->account_qr,
+                    'account_qr_url' => $bank->account_qr
+                        ? asset('storage/account_qr/' . $bank->account_qr)
+                        : null,
+                ] : null
+            ]
+        ]);
     }
 }

@@ -108,6 +108,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('bank_account', SiteBankAccountController::class)->except(['update']);
     Route::patch('bank_account/{uuid}', [SiteBankAccountController::class, 'update']);
     Route::put('bank_account/{uuid}', [SiteBankAccountController::class, 'replace']);
+    Route::get('bank_account/site/{siteUuid}', [SiteBankAccountController::class, 'getBankAccount']);
 
     Route::apiResource('pesowifiareas', PesoWifiAreaController::class)->except(['update']);
     Route::patch('pesowifiareas/{uuid}', [PesoWifiAreaController::class, 'update']);

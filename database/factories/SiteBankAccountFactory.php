@@ -2,12 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Models\Site;
+use App\Models\SiteBankAccount;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SiteBankAccountFactory extends Factory
 {
-    protected $model = Site::class;
+    protected $model = SiteBankAccount::class;
 
     public function definition(): array
     {

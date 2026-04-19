@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sites_bank_account', function (Blueprint $table) {
+        Schema::create('site_bank_accounts', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
             $table->integer('site_id');
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sites_bank_account');
+        Schema::dropIfExists('site_bank_accounts');
     }
 };

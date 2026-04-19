@@ -25,16 +25,9 @@ class StoreSiteBankAccountRequest extends BaseSiteBankAccountRequest
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
             'bankName' => 'required|string|min:3',
-            'accountName' => ['required','string','min:5', Rule::unique('sites_bank_account')
-                ->where(fn ($query) => $query
-                    ->where('site_id', $siteId)
-                    ->where('is_active', 1)
-            )],
-            'accountNumber' => ['required','string','min:5', Rule::unique('sites_bank_account')
-                ->where(fn ($query) => $query
-                    ->where('site_id', $siteId)
-                    ->where('is_active', 1)
-            )]
+            'accountName' =>'required|string|min:3',
+            'accountNumber' =>'required|string|min:3',
+            'accountQR' => 'sometimes|required|file'
         ];
     }
 }
