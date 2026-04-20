@@ -73,24 +73,6 @@ class MonthlySubscription implements BillingInterface
         return $data;
     }
 
-    protected function calculatePrice($client, $billingDate): float {
-
-        $monthlyRate = $this->getSubscriptionRate($client->internet_plan_id);
-
-        if (date('m', strtotime($client->installation_date)) == date('m', strtotime($billingDate))) {
-            $totalDaysOfMonth = date('t');
-            $dailyRate = $monthlyRate / $totalDaysOfMonth;
-
-            $startDate = new DateTime(date('Y-m-d', strtotime($client->installation_date)));
-            $endDate = new DateTime(date('Y-m-d', strtotime($billingDate)));
-            $interval = $startDate->diff($endDate);
-
-            $price = $dailyRate * (int) $interval->days;
-            return round($price, 2);
-        } else 
-            return $monthlyRate;
-    }
-
     protected function getSubscriptionRate(string $planId): float {
         $plan = Internetplan::select(['monthly_subscription'])
             ->where('id', $planId)
@@ -189,5 +171,23 @@ class MonthlySubscription implements BillingInterface
         $proratedCurrentPlanRate = $dailyRate * (int) $interval->days;
 
         return round($proratedCurrentPlanRate, 2);
+    }
+
+    protected function calculatePrice($client, $billingDate): float {
+        $startDate = new DateTime(date('Y-m-d', strtotime($client->installation_date)));
+        $endDate = new DateTime(date('Y-m-d', strtotime($billingDate)));
+        $interval = $startDate->diff($endDate);
+        $monthlyRate = $this->getSubscriptionRate($client->internet_plan_id);
+
+        // prorate amount if billing date is within 1month from installation date
+        if ($interval->days < 30) {
+            $totalDaysOfMonth = date('t');
+            $dailyRate = $monthlyRate / $totalDaysOfMonth;
+            $price = $dailyRate * (int) $interval->days;
+            return round($price, 2);
+        } 
+        // else apply monthly rate
+        else 
+            return $monthlyRate;
     }
 }
