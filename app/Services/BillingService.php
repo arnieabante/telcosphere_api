@@ -228,7 +228,7 @@ class BillingService
             ->get();
 
         if (count($categories) < 1)
-            throw new Exception('No Category found.');
+            throw new Exception('No billing due today.');
 
         foreach ($categories as $category) {
             $remark = "Automated Subscription Billing ({$category['name']})";

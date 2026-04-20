@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Scopes\SiteScope;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BillingCategory extends Model
 {
@@ -59,5 +60,9 @@ class BillingCategory extends Model
 
     public function uniqueIds(): array {
         return ['uuid'];
+    }
+
+    public function clients(): HasMany {
+        return $this->hasMany(Client::class);
     }
 }
