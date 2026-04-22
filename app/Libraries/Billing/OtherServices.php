@@ -8,6 +8,7 @@ use App\Models\Client;
 class OtherServices implements BillingInterface
 {
     const ITEM_NAME = 'Other Services Fee';
+    const ITEM_NAME_BALANCE_FROM_PREV_BILLING = 'Balance from previous Billing';
     const ITEM_STATUS_DEFAULT = 'Pending';
 
     public function getName(): string {
@@ -43,7 +44,25 @@ class OtherServices implements BillingInterface
             ];
         }
 
-        return $data;
+        // create corresponding billing item if there is balance from previous billing
+        if ($billing->balance_from_prev_billing > 0) {
+            $balance = $billing->balance_from_prev_billing;
+            $prevBillingItem = [
+                'billing_item_name' => self::ITEM_NAME_BALANCE_FROM_PREV_BILLING,
+                'billing_item_particulars' => self::ITEM_NAME_BALANCE_FROM_PREV_BILLING,
+                'billing_item_quantity' => 1,
+                'billing_item_price' => $balance,
+                'billing_item_amount' => $balance * $item['billingItemQuantity'],
+                'billing_item_offset' => '0.00',
+                'billing_item_balance' => $balance * $item['billingItemQuantity'],
+                'billing_item_remark' => NULL,
+                'billing_status' => self::ITEM_STATUS_DEFAULT
+            ];
+
+            return array_merge([$prevBillingItem], $data);
+
+        } else
+            return $data;
     }
     
 }
