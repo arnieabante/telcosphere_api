@@ -140,26 +140,14 @@ class BillingService
         ]);
 
         // update Client Balance and Client Details
-        $previousClientBalance = $billing->where('client_id', $data['clientId'])
-            ->where('id', '<>', $billing->id)
-            ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
-            ->where('is_active', 1)
-            ->sum('billing_balance');
-
         $currentClientBalance = $billing->where('client_id', $data['clientId'])
             ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
             ->where('is_active', 1)
             ->sum('billing_balance');
 
         $billing->client()->update([
-            'balance_from_prev_billing' => $previousClientBalance,
             'current_balance' => $currentClientBalance,
             'house_no' => $data['billingDescription']
-        ]);
-        
-        // update Billing balance from previous billing
-        $billing->update([
-            'balance_from_prev_billing' => $currentClientBalance,
         ]);
 
         return new BillingResource($billing);
@@ -198,27 +186,14 @@ class BillingService
             ]);
 
             // re-calculate Client Balance and Client Details
-            $previousClientBalance = $billing->where('client_id', $billing->client_id)
-                ->where('id', '<>', $billing->id)
-                ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
-                ->where('is_active', 1)
-                ->sum('billing_balance');
-
             $currentClientBalance = $billing->where('client_id', $billing->client_id)
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->where('is_active', 1)
                 ->sum('billing_balance');
 
             $billing->client()->update([
-                'balance_from_prev_billing' => $previousClientBalance,
                 'current_balance' => $currentClientBalance
             ]);
-        
-            // update Billing balance from previous billing
-            $billing->update([
-                'balance_from_prev_billing' => $currentClientBalance,
-            ]);
-            
         } else 
             throw new Exception('Cannot delete Partial or Paid billing.');
 
