@@ -73,34 +73,18 @@ class BillingService
             ]);
 
             // update Client Balance
-            // Get value from request payload (frontend)
-            $inputPreviousBalance = $data['balanceFromPrevBilling'] ?? null;
-
-            // Get previous billings (excluding current)
-            $previousBillingSum = Billing::where('client_id', $client->id)
+            $previousClientBalance = Billing::where('client_id', $client->id)
                 ->where('id', '<>', $billing->id)
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->where('is_active', 1)
                 ->sum('billing_balance');
-
             $currentClientBalance = Billing::where('client_id', $client->id)
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->where('is_active', 1)
                 ->sum('billing_balance');
 
-            // 🔥 Priority logic
-            if ($previousBillingSum > 0) {
-                // If client already has billing records → use DB
-                $basePreviousBalance = $previousBillingSum;
-            } else {
-                // If no billing records → use payload FIRST, fallback to DB
-                $basePreviousBalance = $inputPreviousBalance + $latestBillingBalance ?? ($client->balance_from_prev_billing ?? 0);
-                $currentClientBalance = $inputPreviousBalance + $latestBillingBalance;
-            }
-
-            // update client billing details
             $billing->client()->update([
-                'balance_from_prev_billing' => $basePreviousBalance,
+                'balance_from_prev_billing' => $previousClientBalance,
                 'current_balance' => $currentClientBalance,
                 'prorate_fee_status' => self::STATUS_BILLED,
                 'last_auto_billing_date' => date('Y-m-d H:i:s'), // current date
@@ -108,7 +92,7 @@ class BillingService
 
             // update Billing balance from previous billing
             $billing->update([
-                'balance_from_prev_billing' => $basePreviousBalance,
+                'balance_from_prev_billing' => $currentClientBalance,
             ]);
         }
     }
