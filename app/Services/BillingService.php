@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Services;
 
@@ -18,7 +18,7 @@ class BillingService
 
     protected $invoice;
 
-    public function __construct(InvoiceService $invoice) 
+    public function __construct(InvoiceService $invoice)
     {
         $this->invoice = $invoice;
     }
@@ -47,7 +47,7 @@ class BillingService
 
             // create new Billing
             $billing = Billing::create([
-                'client_id' => $client->id, 
+                'client_id' => $client->id,
                 'invoice_number' => $this->invoice->generateInvoice()->invoice_number,
                 'billing_type' => $data['billingType'],
                 'billing_date' => date('Y-m-d H:i:s'), // current date
@@ -67,7 +67,7 @@ class BillingService
 
             if (count($billingItems) > 1)
                 $billing->billingItems()->createMany($billingItems);
-            else 
+            else
                 $billing->billingItems()->create($billingItems[0]);
 
             // update Billing Total/Balance
@@ -130,7 +130,7 @@ class BillingService
             ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
             ->where('is_active', 1)
             ->sum('billing_item_balance');
-            
+
         $billing->update([
             'billing_total' => $latestBillingTotal,
             'billing_balance' => $latestBillingBalance,
@@ -160,7 +160,7 @@ class BillingService
             ->where('billing_status', self::STATUS_PENDING)
             ->where('is_active', 1)
             ->first();
-        
+
         if ($billing) {
             // deactive billing
             $billing->update(['is_active' => 0]);
@@ -179,7 +179,7 @@ class BillingService
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->where('is_active', 1)
                 ->sum('billing_item_balance');
-                
+
             $billing->update([
                 'billing_total' => $latestBillingTotal,
                 'billing_balance' => $latestBillingBalance,
@@ -218,7 +218,7 @@ class BillingService
                 'billingRemarks' => $remark,
                 'billingItems' => [
                     [
-                        'billingItemQuantity' => 1, 
+                        'billingItemQuantity' => 1,
                         'billingItemRemark' => $remark
                     ]
                 ]
