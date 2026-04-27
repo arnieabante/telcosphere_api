@@ -56,7 +56,7 @@ class MonthlySubscription implements BillingInterface
                 ];
             } else {
                 $this->setName(self::ITEM_NAME . " ($planName)");
-                $price = $this->calculatePrice($billing->client, $billing->billing_date);
+                $price = $this->calculatePrice($billing->client);
                 $data[] = [
                     'billing_item_name' => $item['billingItemName'] ?? self::ITEM_NAME,
                     'billing_item_particulars' => $item['billingItemParticulars'] ?? $this->getName(),
@@ -174,9 +174,9 @@ class MonthlySubscription implements BillingInterface
         return round($proratedCurrentPlanRate, 2);
     }
 
-    protected function calculatePrice($client, $billingDate): float {
+    protected function calculatePrice($client): float {
         $startDate = new DateTime(date('Y-m-d', strtotime($client->installation_date)));
-        $endDate = new DateTime(date('Y-m-d', strtotime($billingDate)));
+        $endDate = new DateTime(date('Y-m-d', strtotime($client->category->date_cycle)));
         $interval = $startDate->diff($endDate);
         $monthlyRate = $this->getSubscriptionRate($client->internet_plan_id);
 
