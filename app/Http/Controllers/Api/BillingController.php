@@ -12,6 +12,7 @@ use App\Libraries\Billing\Installation;
 use App\Libraries\Billing\MonthlySubscription;
 use App\Libraries\Billing\OtherServices;
 use App\Libraries\Billing\Repair;
+use App\Libraries\Billing\BillingAdjustment;
 use App\Models\Billing;
 use App\Services\BillingService;
 use App\Services\DashboardService;
@@ -114,6 +115,9 @@ class BillingController extends ApiController
                     break;
                 case '4':
                     $billingType = new OtherServices();
+                    break;
+                case '5':
+                    $billingType = new BillingAdjustment();
                     break;
             }
 
