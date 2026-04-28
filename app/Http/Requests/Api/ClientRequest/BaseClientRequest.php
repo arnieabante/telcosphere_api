@@ -20,6 +20,7 @@ class BaseClientRequest extends FormRequest
             'installationDate' => 'installation_date',
             'installationFee' => 'installation_fee',
             'balanceFromPrevBilling' => 'balance_from_prev_billing',
+            'balanceFromPrevBillingStatus' => 'balance_from_prev_billing_status',
             'currentBalance' => 'current_balance',
             'prorateFee' => 'prorate_fee',
             'prorateStartDate' => 'prorate_start_date',
