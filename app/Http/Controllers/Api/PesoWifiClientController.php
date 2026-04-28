@@ -35,7 +35,10 @@ class PesoWifiClientController extends ApiController
 
         // FOR HARVEST FILTER
         if (!empty($forHarvest) && $forHarvest == 1) {
-            $query->where('next_harvest_date', '<=', Carbon::now()->addDays(5));
+            $query->where(function ($q) {
+                $q->where('next_harvest_date', '<=', now()->addDays(5))
+                ->orWhereNull('next_harvest_date');
+            });
         }
 
         if (!empty($include) && $include == 'all') {
