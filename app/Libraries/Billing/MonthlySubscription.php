@@ -7,6 +7,7 @@ use App\Models\BillingCategory;
 use App\Models\Client;
 use App\Models\Internetplan;
 use DateTime;
+use Exception;
 
 class MonthlySubscription implements BillingInterface
 {
@@ -157,17 +158,19 @@ class MonthlySubscription implements BillingInterface
             default:
                 // irregular billing cycle
                 // if prorated previous end date falls on current month
-                if (date('m', strtotime($client->prorate_end_date)) === date('m')) {
+                if (date('m', strtotime($client->prorate_start_date)) === date('m')) {
                     // end date is of current month
                     $proratedCurrentPlanEnd = new DateTime(date('Y-m-' . $cycle));
                 } else {
                     // else, end date is of next month
-                    $proratedCurrentPlanEnd = new DateTime(date('Y-m-' . $cycle, strtotime('next month')));
+                    $proratedCurrentPlanEnd = new DateTime(date('Y-m-' . $cycle, 
+                        strtotime($client->prorate_start_date . ' next month'))
+                    );
                 }
                 break;
         }
 
-        $proratedCurrentPlanStart = new DateTime(date('Y-m-d', strtotime($client->prorate_end_date)));
+        $proratedCurrentPlanStart = new DateTime(date('Y-m-d', strtotime($client->prorate_start_date)));
         $interval = $proratedCurrentPlanStart->diff($proratedCurrentPlanEnd);
         $proratedCurrentPlanRate = $dailyRate * (int) $interval->days;
 
@@ -175,19 +178,33 @@ class MonthlySubscription implements BillingInterface
     }
 
     protected function calculatePrice($client): float {
-        $startDate = new DateTime(date('Y-m-d', strtotime($client->installation_date)));
-        $endDate = new DateTime(date('Y-m-d', strtotime($client->category->date_cycle)));
-        $interval = $startDate->diff($endDate);
         $monthlyRate = $this->getSubscriptionRate($client->internet_plan_id);
+        $totalDaysOfMonth = date('t');
+        $dailyRate = $monthlyRate / $totalDaysOfMonth;
 
-        // prorate amount if billing date is within 1month from installation date
-        if ($interval->days < 30) {
-            $totalDaysOfMonth = date('t');
-            $dailyRate = $monthlyRate / $totalDaysOfMonth;
-            $price = $dailyRate * (int) $interval->days;
+        $cycle = $this->getBillingCycle($client->billing_category_id);
+        switch ($cycle) {
+            case '30':
+                $endDate = new DateTime(date('Y-m-t'));
+                break;
+            
+            default:
+                if (date('m', strtotime($client->installation_date)) === date('m')) {
+                    $endDate = new DateTime(date('Y-m-' . $cycle));
+                } else {
+                    $endDate = new DateTime(date('Y-m-' . $cycle, 
+                        strtotime($client->installation_date . ' next month'))
+                    );   
+                }
+                break;
+        }
+
+        $startDate = new DateTime(date('Y-m-d', strtotime($client->installation_date)));
+        $interval = $startDate->diff($endDate);
+        $price = $dailyRate * (int) $interval->days;
+
+        if ($interval->days < 30)
             return round($price, 2);
-        } 
-        // else apply monthly rate
         else 
             return $monthlyRate;
     }
