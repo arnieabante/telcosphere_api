@@ -37,13 +37,13 @@ class PesoWifiClientController extends ApiController
         if (!empty($forHarvest) && $forHarvest == 1) {
             $query->where(function ($q) {
                 $q->where('next_harvest_date', '<=', now()->addDays(5))
-                ->orWhereNull('next_harvest_date');
+                ->orWhereNull('last_harvest_date');
             });
         }
 
         if (!empty($include) && $include == 'all') {
-            $pesowifiarea = $query->orderBy('name', 'asc')->get();
-            return PesoWifiClientResource::collection($pesowifiarea);
+            $pesowificlient = $query->orderBy('name', 'asc')->get();
+            return PesoWifiClientResource::collection($pesowificlient);
         } else {
             if (!empty($search)) {
                 $query->where(function ($q) use ($search) {
@@ -58,8 +58,8 @@ class PesoWifiClientController extends ApiController
             $query->whereBetween('created_at', [$from, $to]);
         }
         
-        $pesowifiarea = $query->orderBy('created_at', 'desc')->paginate($perPage);
-        return PesoWifiClientResource::collection($pesowifiarea);
+        $pesowificlient = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        return PesoWifiClientResource::collection($pesowificlient);
     }
 
     /**
@@ -98,8 +98,8 @@ class PesoWifiClientController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $pesowifiarea = PesoWifiClient::with(['pesoWifiArea'])->where('uuid', $uuid)->firstOrFail();
-            return new PesoWifiClientResource($pesowifiarea);
+            $pesowificlient = PesoWifiClient::with(['pesoWifiArea'])->where('uuid', $uuid)->firstOrFail();
+            return new PesoWifiClientResource($pesowificlient);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Peso Wifi Client does not exist.', 404);
@@ -118,10 +118,10 @@ class PesoWifiClientController extends ApiController
             // update policy
             // $this->isAble('update', PesoWifiClient::class);
 
-            $pesowifiarea = PesoWifiClient::where('uuid', $uuid)->firstOrFail();
-            $affected = $pesowifiarea->update($request->mappedAttributes());
+            $pesowificlient = PesoWifiClient::where('uuid', $uuid)->firstOrFail();
+            $affected = $pesowificlient->update($request->mappedAttributes());
 
-            return new PesoWifiClientResource($pesowifiarea);
+            return new PesoWifiClientResource($pesowificlient);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Peso Wifi Client does not exist.', 404);
@@ -140,10 +140,10 @@ class PesoWifiClientController extends ApiController
             // replace policy
             // $this->isAble('replace', PesoWifiClient::class);
 
-            $pesowifiarea = PesoWifiClient::where('uuid', $uuid)->firstOrFail();
-            $affected = $pesowifiarea->update($request->mappedAttributes());
+            $pesowificlient = PesoWifiClient::where('uuid', $uuid)->firstOrFail();
+            $affected = $pesowificlient->update($request->mappedAttributes());
 
-            return new PesoWifiClientResource($pesowifiarea);
+            return new PesoWifiClientResource($pesowificlient);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Peso Wifi Client does not exist.', 404);
@@ -159,8 +159,8 @@ class PesoWifiClientController extends ApiController
     public function destroy(string $uuid)
     {
         try {
-            $pesowifiarea = PesoWifiClient::where('uuid', $uuid)->firstOrFail();
-            $affected = $pesowifiarea->delete();
+            $pesowificlient = PesoWifiClient::where('uuid', $uuid)->firstOrFail();
+            $affected = $pesowificlient->delete();
 
             return $this->ok("Deleted $affected record.", []);
 
