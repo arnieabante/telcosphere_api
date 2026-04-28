@@ -34,6 +34,7 @@ class UpdateClientRequest extends BaseClientRequest
             'installationDate' => 'sometimes|required|string',
             'installationFee' => 'sometimes|nullable|string',
             'balanceFromPrevBilling' => 'sometimes|nullable|numeric',
+            'balanceFromPrevBillingStatus' => 'sometimes|nullable|string',
             'currentBalance' => 'sometimes|nullable|numeric',
             'prorateFee' => 'sometimes|numeric',
             'prorateStartDate' => 'sometimes|nullable|string',
