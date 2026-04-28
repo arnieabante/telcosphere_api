@@ -15,7 +15,7 @@ class MonthlySubscription implements BillingInterface
     const ITEM_NAME_PRORATED = 'Monthly Subscription Fee with Pro-rated Amount';
     const ITEM_NAME_PRORATED_PREV = 'Pro-rated Previous Plan Internet Fee';
     const ITEM_NAME_PRORATED_CUR = 'Pro-rated Current Plan Internet Fee';
-    const ITEM_NAME_BALANCE_FROM_PREV_BILLING = 'Balance from previous Billing';
+    const ITEM_NAME_BALANCE_FROM_PREV_BILLING = 'Balance from Previous Billing';
     const ITEM_STATUS_DEFAULT = 'Pending';
 
     protected $name;
@@ -72,7 +72,30 @@ class MonthlySubscription implements BillingInterface
             }
         }
 
-        return $data; 
+        if (strlen(trim($billing->client->balance_from_prev_billing_status)) < 1) {
+            $billing->client()->update([
+                'balance_from_prev_billing_status' => 'Billed'
+            ]);
+
+            $prevBillingItem = $this->generatePrevBalanceBillingItem($billing->client->balance_from_prev_billing);
+            return array_merge([$prevBillingItem], $data);
+            
+        } else 
+            return $data; 
+    }
+
+    protected function generatePrevBalanceBillingItem($balance) : array {
+        return [
+            'billing_item_name' => self::ITEM_NAME_BALANCE_FROM_PREV_BILLING,
+            'billing_item_particulars' => self::ITEM_NAME_BALANCE_FROM_PREV_BILLING,
+            'billing_item_quantity' => 1,
+            'billing_item_price' => $balance,
+            'billing_item_amount' => $balance * 1,
+            'billing_item_offset' => '0.00',
+            'billing_item_balance' => $balance * 1,
+            'billing_item_remark' => NULL,
+            'billing_status' => self::ITEM_STATUS_DEFAULT
+        ];
     }
 
     protected function getSubscriptionRate(string $planId): float {
