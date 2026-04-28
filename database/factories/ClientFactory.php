@@ -32,6 +32,7 @@ class ClientFactory extends Factory
             'installation_date' => $this->faker->date(),
             'installation_fee' => '1000.00',
             'balance_from_prev_billing' => '0.00',
+            'balance_from_prev_billing_status' => null,
             'current_balance' => '0.00',
             'prorate_fee' => '0.00',
             'prorate_start_date' => null, 

@@ -158,6 +158,9 @@ class PaymentController extends ApiController
                         'balance_from_prev_billing' => DB::raw(
                             'GREATEST(balance_from_prev_billing - ' . $amountPaid . ', 0.00)'
                         ),
+                        'current_balance' => DB::raw(
+                            'GREATEST(current_balance - ' . $amountPaid . ', 0.00)'
+                        )
                     ]);
                 }
                 return new PaymentResource($payment);
