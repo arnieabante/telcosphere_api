@@ -103,52 +103,73 @@ class PaymentController extends ApiController
     {
         try {
             return DB::transaction(function () use ($request) {
-                $receipt = $this->receiptService->generateReceipt();
 
+                $receipt = $this->receiptService->generateReceipt();
                 $attributes = array_merge($request->mappedAttributes(), [
                     'receipt_no' => $receipt->receipt_number,
                 ]);
 
                 $payment = Payment::create($attributes);
-
                 $affectedBillingIds = [];
+
                 if ($request->has('collectionItems')) {
                     foreach ($request->collectionItems as $item) {
-                        // Insert record to payment Item
+
+                        $amountPaid = floatval($item['amount_paid']);
+                        // 🔹 Insert Payment Item
                         PaymentItem::create([
                             'payment_id'       => $payment->id,
                             'billing_item_id'  => $item['billing_item_id'],
                             'particulars'      => $item['particulars'] ?? null,
                             'amount'           => $item['amount'],
-                            'amount_paid'      => $item['amount_paid'],
-                            'amount_balance'   => $item['amount_balance'],
+                            'amount_paid'      => $amountPaid,
+                            'amount_balance'   => $item['amount_balance'], // optional (can remove if not needed)
                         ]);
-
-                        $amountPaid = floatval($item['amount_paid']);
-                        $amountBalance = floatval($item['amount_balance']);
-                        // Update billing item
+                        // 🔹 Update Billing Item safely
                         $billingItem = BillingItem::find($item['billing_item_id']);
 
                         if ($billingItem) {
                             $billingItem->update([
                                 'billing_item_offset' => DB::raw('billing_item_offset + ' . $amountPaid),
-                                'billing_item_balance' => DB::raw('billing_item_balance - ' . $amountPaid),
-                                'billing_status' => $amountBalance > 0 ? 'Partial' : 'Paid',
+                                'billing_item_balance' => DB::raw(
+                                    'GREATEST(billing_item_balance - ' . $amountPaid . ', 0)'
+                                ),
                             ]);
-                        }
-
-                        // update billing
-                        $billing = Billing::find($item['billing_id']);
-                        if ($billing) {
-                            $billing->billing_offset += $amountPaid;
-                            $billing->billing_balance -= $amountPaid;
-                            $billing->billing_status = $item['amount_balance'] > 0 ? 'Partial' : 'Paid';
-                            $billing->save();
+                            // 🔹 Refresh and update status based on DB value
+                            $billingItem->refresh();
+                            $billingItem->update([
+                                'billing_status' => $billingItem->billing_item_balance > 0 ? 'Partial' : 'Paid',
+                            ]);
+                            // collect affected billing IDs
+                            $affectedBillingIds[] = $billingItem->billing_id;
                         }
                     }
                 }
 
-                // Finally, let's update the balance_from_previous_billing of via $client->id
+                // 🔹 Recalculate Billing totals & status AFTER loop
+                $billingIds = array_unique($affectedBillingIds);
+
+                foreach ($billingIds as $billingId) {
+                    $billing = Billing::find($billingId);
+
+                    if ($billing) {
+                        $totalOffset = $billing->billingItems()
+                            ->where('is_active', 1)
+                            ->sum('billing_item_offset');
+
+                        $totalBalance = $billing->billingItems()
+                            ->where('is_active', 1)
+                            ->sum('billing_item_balance');
+
+                        $billing->update([
+                            'billing_offset' => $totalOffset,
+                            'billing_balance' => $totalBalance,
+                            'billing_status' => $totalBalance > 0 ? 'Partial' : 'Paid',
+                        ]);
+                    }
+                }
+
+                // 🔹 Update Client balances safely
                 $client = Client::find($request['clientId']);
 
                 if ($client) {
@@ -156,13 +177,14 @@ class PaymentController extends ApiController
 
                     $client->update([
                         'balance_from_prev_billing' => DB::raw(
-                            'GREATEST(balance_from_prev_billing - ' . $amountPaid . ', 0.00)'
+                            'GREATEST(balance_from_prev_billing - ' . $amountPaid . ', 0)'
                         ),
                         'current_balance' => DB::raw(
-                            'GREATEST(current_balance - ' . $amountPaid . ', 0.00)'
+                            'GREATEST(current_balance - ' . $amountPaid . ', 0)'
                         )
                     ]);
                 }
+
                 return new PaymentResource($payment);
             });
 
