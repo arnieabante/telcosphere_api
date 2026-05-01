@@ -33,6 +33,13 @@ class MonthlySubscription implements BillingInterface
         return Client::where('billing_category_id', $data['billingCategory'])
             ->where('is_active', 1)
             ->where('site_id', auth()->user()->site_id)
+            // only return clients with no billed subscription for the month yet
+            ->whereDoesntHave('billings', function ($query) {
+            $query->where('billing_type', 1)
+                ->where('is_active', 1)
+                ->whereIn('billing_status', ['Partial', 'Pending'])
+                ->whereRaw('billing_date BETWEEN DATE_SUB(billing_cutoff, INTERVAL 1 MONTH) AND billing_cutoff');
+            })
             ->get([
                 'id', 
                 'billing_category_id', 
