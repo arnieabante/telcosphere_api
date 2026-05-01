@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Api\PesoWifiClientRequest;
+namespace App\Http\Requests\Api\MikrotikRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdatePesoWifiClientRequest extends BasePesoWifiClientRequest
+class ReplaceMikrotikRequest extends BaseMikrotikRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,15 +24,15 @@ class UpdatePesoWifiClientRequest extends BasePesoWifiClientRequest
     {
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => ['sometimes','required','string','min:5', Rule::unique('peso_wifi_clients')->where(fn ($query) => $query->where('site_id', $siteId))],
+            'name' => ['somtimes','required','string','min:3', Rule::unique('mikrotiks')->where(fn ($query) => $query->where('site_id', $siteId))],
             'areaId' => 'sometimes|required|int',
             'harvestDay' => 'sometimes|required|int',
             'resellerShare' => 'sometimes|nullable|int',
             'deviceStatus' => 'sometimes|nullable|string',
-            'last_harvest_date' => 'sometimes|nullable|string',
+            'lastHarvestDate' => 'sometimes|nullable|string',
             'nextHarvestDate' => 'sometimes|nullable|string',
             'isHarvested' => 'boolean',
-            'isActive' => 'sometimes|required|boolean'
+            'isActive' => 'required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username
     }

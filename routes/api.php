@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PesoWifiAreaController;
 use App\Http\Controllers\Api\PesoWifiClientController;
 use App\Http\Controllers\Api\PesoWifiHarvestController;
+use App\Http\Controllers\Api\MikrotikController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('sites/url/{url}', [SiteController::class, 'showByUrl']);
@@ -116,5 +117,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('pesowifiharvests/{uuid}', [PesoWifiHarvestController::class, 'update']);
     Route::put('pesowifiharvests/{uuid}', [PesoWifiHarvestController::class, 'replace']);
     Route::get('pesowifi/dashboard', [PesoWifiHarvestController::class, 'dashboard']);
+
+    Route::apiResource('mikrotiks', MikrotikController::class)->except(['update']);
+    Route::patch('mikrotiks/{uuid}', [MikrotikController::class, 'update']);
+    Route::put('mikrotiks/{uuid}', [MikrotikController::class, 'replace']);
 
 });

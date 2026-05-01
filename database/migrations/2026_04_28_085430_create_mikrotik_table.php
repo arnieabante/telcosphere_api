@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('mikrotiks', function (Blueprint $table) {
             $table->id();
-            // Tenant (SaaS)
+            $table->uuid('uuid');
             $table->integer('site_id')->nullable();
             $table->string('name'); // e.g. "Main Router"
             $table->string('ip_address'); // public or local IP
@@ -22,8 +22,8 @@ return new class extends Migration
             $table->string('username');
             $table->text('password'); // encrypted
             $table->unsignedInteger('timeout')->default(3);
-            $table->boolean('is_active')->default(true); // Status
             $table->timestamp('last_seen_at')->nullable(); // Monitoring
+            $table->boolean('is_active')->default(true); // Status
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->timestamps();
