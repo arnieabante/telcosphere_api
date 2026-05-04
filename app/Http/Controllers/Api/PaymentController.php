@@ -193,7 +193,6 @@ class PaymentController extends ApiController
         }
     }
 
-
     /**
      * Display the specified resource.
      */
@@ -221,7 +220,11 @@ class PaymentController extends ApiController
             return DB::transaction(function () use ($request, $uuid) {
 
                 $payment = Payment::with('paymentItems')->where('uuid', $uuid)->firstOrFail();
+
+                $oldTotalPaid = $payment->paymentItems->sum('amount_paid');
                 $payment->update($request->mappedAttributes());
+
+                $affectedBillingIds = [];
 
                 if ($request->has('collectionItems')) {
 
@@ -235,50 +238,84 @@ class PaymentController extends ApiController
 
                         $oldAmountPaid = floatval($paymentItem->amount_paid);
                         $newAmountPaid = floatval($item['amount_paid']);
-
                         $difference = $newAmountPaid - $oldAmountPaid;
 
-                        // Update payment item
+                        // Update Payment Item
                         $paymentItem->update([
                             'amount'         => $item['amount'],
                             'amount_paid'    => $newAmountPaid,
                             'amount_balance' => $item['amount_balance'],
                         ]);
 
+                        // 🔹 Update Billing Item safely (LIKE STORE)
                         if ($difference != 0) {
-                            // Update billing item
                             $billingItem = BillingItem::find($item['billing_item_id']);
-                            if ($billingItem) {
-                                $billingItem->billing_item_offset += $difference;
-                                $billingItem->billing_item_balance -= $difference;
-                                $billingItem->billing_status =
-                                    $billingItem->billing_item_balance > 0 ? 'Partial' : 'Paid';
-                                $billingItem->save();
-                            }
 
-                            // Update billing
-                            $billing = Billing::find($item['billing_id']);
-                            if ($billing) {
-                                $billing->billing_offset += $difference;
-                                $billing->billing_balance -= $difference;
-                                $billing->billing_status =
-                                    $billing->billing_balance > 0 ? 'Partial' : 'Paid';
-                                $billing->save();
+                            if ($billingItem) {
+                                $billingItem->update([
+                                    'billing_item_offset' => DB::raw('billing_item_offset + ' . $difference),
+                                    'billing_item_balance' => DB::raw(
+                                        'GREATEST(billing_item_balance - ' . $difference . ', 0)'
+                                    ),
+                                ]);
+
+                                // refresh + update status
+                                $billingItem->refresh();
+                                $billingItem->update([
+                                    'billing_status' => $billingItem->billing_item_balance > 0 ? 'Partial' : 'Paid',
+                                ]);
+
+                                $affectedBillingIds[] = $billingItem->billing_id;
                             }
                         }
                     }
                 }
 
-                $oldAmountPaid = floatval($payment->getOriginal('amount_paid'));
-                $newAmountPaid = floatval($request['amountPaid']);
-                $clientDiff = $newAmountPaid - $oldAmountPaid;
+                // Recalculate Billing totals
+                $billingIds = array_unique($affectedBillingIds);
 
-                if ($clientDiff != 0) {
-                    $client = Client::find($request['clientId']);
-                    if ($client) {
-                        $client->balance_from_prev_billing -= $clientDiff;
-                        $client->save();
+                foreach ($billingIds as $billingId) {
+                    $billing = Billing::find($billingId);
+
+                    if ($billing) {
+                        $totalOffset = $billing->billingItems()
+                            ->where('is_active', 1)
+                            ->sum('billing_item_offset');
+
+                        $totalBalance = $billing->billingItems()
+                            ->where('is_active', 1)
+                            ->sum('billing_item_balance');
+
+                        $billing->update([
+                            'billing_offset' => $totalOffset,
+                            'billing_balance' => $totalBalance,
+                            'billing_status' => $totalBalance > 0 ? 'Partial' : 'Paid',
+                        ]);
                     }
+                }
+
+                // NEW total AFTER updates
+                $newTotalPaid = 0;
+                if ($request->has('collectionItems')) {
+                    $newTotalPaid = collect($request->collectionItems)->sum(function ($item) {
+                        return floatval($item['amount_paid']);
+                    });
+                }
+
+                $difference = $newTotalPaid - $oldTotalPaid;
+
+                // Update Client
+                $client = Client::find($request['clientId']);
+
+                if ($client && $difference != 0) {
+                    $client->update([
+                        'balance_from_prev_billing' => DB::raw(
+                            'GREATEST(balance_from_prev_billing - ' . $difference . ', 0)'
+                        ),
+                        'current_balance' => DB::raw(
+                            'GREATEST(current_balance - ' . $difference . ', 0)'
+                        )
+                    ]);
                 }
 
                 return new PaymentResource($payment->fresh());
