@@ -34,6 +34,7 @@ class ReplaceClientRequest extends BaseClientRequest
             'installationDate' => 'sometimes|required|string',
             'installationFee' => 'sometimes|string',
             'balanceFromPrevBilling' => 'sometimes|numeric',
+            'balanceFromPrevBillingStatus' => 'nullable|string',
             'currentBalance' => 'sometimes|numeric',
             'prorateFee' => 'sometimes|numeric',
             'prorateStartDate' => 'sometimes|nullable|string',

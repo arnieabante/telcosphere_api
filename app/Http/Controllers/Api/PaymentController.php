@@ -150,9 +150,17 @@ class PaymentController extends ApiController
 
                 // Finally, let's update the balance_from_previous_billing of via $client->id
                 $client = Client::find($request['clientId']);
+
                 if ($client) {
+                    $amountPaid = floatval($request['amountPaid']);
+
                     $client->update([
-                        'balance_from_prev_billing' => DB::raw('balance_from_prev_billing - ' . floatval($request['amountPaid'])),
+                        'balance_from_prev_billing' => DB::raw(
+                            'GREATEST(balance_from_prev_billing - ' . $amountPaid . ', 0.00)'
+                        ),
+                        'current_balance' => DB::raw(
+                            'GREATEST(current_balance - ' . $amountPaid . ', 0.00)'
+                        )
                     ]);
                 }
                 return new PaymentResource($payment);
