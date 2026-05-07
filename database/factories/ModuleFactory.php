@@ -59,7 +59,7 @@ class ModuleFactory extends Factory
                 'icon' => 'fa fa-list-alt',
                 'parent_id' => 0,
                 'description' => 'Manage clients service request',
-                'url' => 'clientsrequest'
+                'url' => 'clientsticket'
             ],
             [
                 'name' => 'Billing',
