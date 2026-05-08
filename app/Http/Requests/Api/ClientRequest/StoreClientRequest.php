@@ -30,10 +30,11 @@ class StoreClientRequest extends BaseClientRequest
             'houseNo' => 'string|min:5',
             'latitude' => 'nullable|string',
             'longitude' => 'nullable|string',
-            'accountNo' => 'nullable|string', 
+            'accountNo' => 'required|string', 
             'installationDate' => 'required|string',
             'installationFee' => 'nullable|string',
             'balanceFromPrevBilling' => 'nullable|numeric',
+            'balanceFromPrevBillingStatus' => 'nullable|string',
             'currentBalance' => 'nullable|numeric',
             'prorateFee' => 'numeric',
             'prorateStartDate' => 'nullable|string',
@@ -42,11 +43,14 @@ class StoreClientRequest extends BaseClientRequest
             'prorateFeeStatus' => 'nullable|string',
             'inactiveDate' => 'string|min:5',
             'notes' => 'nullable|string|min:2',
-            'facebookProfileUrl' => 'nullable|string|min:5',
+            'facebookProfileURL' => 'nullable|string|min:5',
             'billingCategoryId' => 'required|int',
             'serverId' => 'required|int',
             'internetPlanId' => 'required|int',
+            'prevInternetPlanId' => 'nullable|int',
             'lastAutoBillingDate' => 'nullable|string',
+            'pppoe_username' => 'nullable|string',
+            'pppoe_password' => 'nullable|string',
             'isActive' => 'required|string'
         ];
     }

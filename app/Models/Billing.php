@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\User;
 
 class Billing extends Model
 {
@@ -16,13 +17,11 @@ class Billing extends Model
 
     // default values
     protected $attributes = [
-        'site_id' => 1,
-        'is_active' => 1,
-        'created_by' => 1, // TODO
-        'updated_by' => 1 // TODO
+        'is_active' => 1
     ];
 
     protected $fillable = [
+        'site_id',
         'is_active',
         'client_id',
         'invoice_number',
@@ -34,6 +33,7 @@ class Billing extends Model
         'billing_offset',
         'billing_balance',
         'billing_status',
+        'balance_from_prev_billing',
         'billing_cutoff',
         'disconnection_date'
     ];
@@ -45,11 +45,36 @@ class Billing extends Model
 
         // Auto-assign site_id when creating a billing
         static::creating(function ($billing) {
-            $billing->site_id = $billing->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            // but only when site_id is not already set
+            if (empty($billing->site_id)) {
+                $billing->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
+            $userId = auth()->id();
+            if (!$userId) {
+                $userId = User::where('site_id', $billing->site_id)
+                    ->whereHas('role', function ($q) {
+                        $q->where('description', 'Administrator');
+                    })
+                    ->value('id');
+            }
+
+            $billing->created_by = $userId;
+            $billing->updated_by = $userId;
+        });
+
+        static::updating(function ($billing) {
+
+            $userId = auth()->id();
+            if (!$userId) {
+                $userId = User::where('site_id', $billing->site_id)
+                    ->whereHas('role', function ($q) {
+                        $q->where('description', 'Administrator');
+                    })
+                    ->value('id');
+            }
+
+            $billing->updated_by = $userId;
         });
     }
 

@@ -17,7 +17,18 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://192.168.254.102:5173','https://app.telcosphere.co'],
+    'allowed_origins' => ['http://localhost:5173', 
+                            'http://127.0.0.1:5173', 
+                            'http://192.168.254.102:5173',
+                            'https://app.telcosphere.co',
+                            'https://redjacobjaden.telcosphere.co',
+                            'https://exis-inc.telcosphere.co', 
+                            'https://cenascotoledo.telcosphere.co', 
+                            'https://arc-inc.telcosphere.co',
+                            'https://redjacobjaden-oslob.telcosphere.co',
+                            'https://fastlink-lanao.telcosphere.co',
+                            'https://eathos.telcosphere.co'
+                        ],
 
     'allowed_origins_patterns' => [],
 

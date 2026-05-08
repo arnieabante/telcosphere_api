@@ -28,9 +28,16 @@ class ClientController extends ApiController
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
         $include = $request->get('include');
+        $from = $request->get('from');
+        $to = $request->get('to');
 
         $query = Client::with(['internetPlan', 'billingCategory', 'server', 'billings'])
             ->where('is_active', 1);
+
+        // Filter by date range
+        if (!empty($from) && !empty($to)) {
+            $query->whereBetween('created_at', [$from, $to]);
+        }
 
         if (!empty($include) && $include == 'all') {
            $clients = $query->orderBy('first_name', 'asc')->get();
@@ -211,21 +218,44 @@ class ClientController extends ApiController
     public function fetchClientSOA(Request $request, string $uuid)
     {
         try {
-            $client = Client::where('uuid', $uuid)
+            $client = Client::with('internetPlan')
+                ->where('uuid', $uuid)
                 ->where('is_active', 1)
                 ->firstOrFail();
 
             // Fetch client Transaction History
-            $soa = $client->getSOA($request->only(['from', 'to']));
+            $soaData = $client->getSOA($request->only(['from', 'to']));
+            $previousBalance = $soaData['previous_balance'];
+            $soa = collect($soaData['transactions']);
 
-            // Running balance
-            $balance = 0;
+            $balance = $previousBalance;
+
+            $soa->prepend((object)[
+                'soa_date' => $request->input('from'),
+                'particulars' => 'Previous Balance',
+                'debit' => $previousBalance > 0 ? $previousBalance : 0,
+                'credit' => $previousBalance < 0 ? abs($previousBalance) : 0,
+                'created_at' => now(),
+            ]);
+
+            // Running Balance
             $soa = $soa->map(function ($row) use (&$balance) {
                 $balance += ($row->debit - $row->credit);
                 // Format running balance with 2 decimals
                 $row->balance = number_format($balance, 2, '.', ',');
                 return $row;
             });
+
+            $latestBilling = DB::table('billings')
+                ->where('client_id', $client->id)
+                ->latest('billing_date')
+                ->first();
+
+            $previousBalanceDisplay = $latestBilling->balance_from_prev_billing ?? 0;
+            $billingTotal = $latestBilling->billing_total ?? 0;
+            $monthlyFee = $client->internetPlan->monthly_subscription ?? 0;
+            $amountDue = $latestBilling->billing_balance ?? 0;
+            $status = $latestBilling->billing_status ?? 'No Billing';
 
             $totalDebit  = $soa->sum('debit');
             $totalCredit = $soa->sum('credit');
@@ -237,6 +267,12 @@ class ClientController extends ApiController
                     'total_debit'  => number_format($totalDebit, 2, '.', ','),
                     'total_credit' => number_format($totalCredit, 2, '.', ','),
                     'balance'      => number_format($finalBalance, 2, '.', ','),
+                    'previous_balance' => number_format($latestBilling->balance_from_prev_billing ?? 0, 2, '.', ','),
+                    'monthly_fee'      => number_format($client->internetPlan->monthly_subscription ?? 0, 2, '.', ','),
+                    'amount_due'       => number_format(
+                        ($latestBilling->billing_balance ?? 0), 2, '.', ','
+                    ),
+                    'status' => $latestBilling->billing_status ?? 'No Billing',
                 ],
                 'data' => $soa,
                 'client' => $client

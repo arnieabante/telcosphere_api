@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class Invoice extends Model
 {
     protected $fillable = [
+        'site_id',
         'invoice_number'
     ];
 
-    public function formatInvoiceNumber()
+    public function formatInvoiceNumber($prefix, $suffix)
     {
-        return 'INV-' . str_pad($this->id, 6, '0', STR_PAD_LEFT);
+        return $prefix . date('y') . str_pad($suffix, 6, '0', STR_PAD_LEFT);
     }
 }

@@ -15,6 +15,7 @@ class BaseBillingRequest extends FormRequest
             'billingOffset' => 'billing_offset',
             'billingBalance' => 'billing_balance',
             'billingStatus' => 'billing_status',
+            'balanceFromPrevBilling' => 'balance_from_prev_billing',
 
             // not from Model
             'billingType' => 'billing_type',

@@ -25,6 +25,8 @@ class InternetplanController extends ApiController
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
         $include = $request->get('include');
+        $from = $request->get('from');
+        $to = $request->get('to');
 
         $query = Internetplan::query()
             ->where('is_active', 1);
@@ -40,6 +42,11 @@ class InternetplanController extends ApiController
             }
         }
 
+        // Filter by date range
+        if (!empty($from) && !empty($to)) {
+            $query->whereBetween('created_at', [$from, $to]);
+        }
+        
         $internetplan = $query->orderBy('created_at', 'desc')->paginate($perPage);
         return InternetplanResource::collection($internetplan);
     }
@@ -89,7 +96,14 @@ class InternetplanController extends ApiController
             // $this->isAble('update', Internetplan::class);
 
             $internetplan = Internetplan::where('uuid', $uuid)->firstOrFail();
-            $affected = $internetplan->update($request->mappedAttributes());
+
+            // activate / deactivate
+            if (isset($request['isActive'])) {
+                $internetplan->update([
+                    'is_active' => 0
+                ]);
+            } else 
+                $affected = $internetplan->update($request->mappedAttributes());
 
             return new InternetplanResource($internetplan);
 
