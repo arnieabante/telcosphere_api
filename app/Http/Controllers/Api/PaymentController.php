@@ -198,9 +198,80 @@ class PaymentController extends ApiController
         try {
             return DB::transaction(function () use ($request, $uuid) {
 
-                $payment = Payment::with('paymentItems')->where('uuid', $uuid)->firstOrFail();
+                $payment = Payment::with('paymentItems')
+                    ->where('uuid', $uuid)
+                    ->firstOrFail();
+
                 $payment->update($request->mappedAttributes());
 
+                // SOFT DELETE / DEACTIVATE PAYMENT
+                if ($request->has('isActive') && intval($request->isActive) === 0) {
+
+                    foreach ($payment->paymentItems as $paymentItem) {
+
+                        $amountPaid = floatval($paymentItem->amount_paid);
+
+                        // REVERSE BILLING ITEM
+                        $billingItem = BillingItem::find($paymentItem->billing_item_id);
+
+                        if ($billingItem) {
+                            // restore balance
+                            $billingItem->billing_item_balance += $amountPaid;
+                            // reverse offset
+                            $billingItem->billing_item_offset -= $amountPaid;
+
+                            // status checker
+                            if ($billingItem->billing_item_balance <= 0) {
+                                $billingItem->billing_status = 'Paid';
+                            } elseif (
+                                $billingItem->billing_item_balance < $billingItem->billing_item_amount
+                            ) {
+                                $billingItem->billing_status = 'Partial';
+                            } else {
+                                $billingItem->billing_status = 'Pending';
+                            }
+
+                            $billingItem->save();
+                        }
+
+                        // REVERSE BILLING
+                        $billing = Billing::find($paymentItem->billing_id);
+
+                        if ($billing) {
+
+                            $billing->billing_balance += $amountPaid;
+                            $billing->billing_offset -= $amountPaid;
+
+                            // status checker
+                            if ($billing->billing_balance <= 0) {
+                                $billing->billing_status = 'Paid';
+                            } elseif (
+                                $billing->billing_balance < $billing->billing_amount
+                            ) {
+                                $billing->billing_status = 'Partial';
+                            } else {
+                                $billing->billing_status = 'Pending';
+                            }
+
+                            $billing->save();
+                        }
+                    }
+
+                    // UPDATE CLIENT BALANCE
+                    $client = Client::find($payment->client_id);
+
+                    if ($client) {
+
+                        $totalReversedAmount = $payment->paymentItems->sum('amount_paid');
+                        $client->current_balance += $totalReversedAmount;
+
+                        $client->save();
+                    }
+
+                    return new PaymentResource($payment->fresh());
+                }
+
+                // NORMAL UPDATE
                 if ($request->has('collectionItems')) {
 
                     foreach ($request->collectionItems as $item) {
@@ -224,23 +295,36 @@ class PaymentController extends ApiController
                         ]);
 
                         if ($difference != 0) {
+
                             // Update billing item
                             $billingItem = BillingItem::find($item['billing_item_id']);
+
                             if ($billingItem) {
+
                                 $billingItem->billing_item_offset += $difference;
                                 $billingItem->billing_item_balance -= $difference;
+
                                 $billingItem->billing_status =
-                                    $billingItem->billing_item_balance > 0 ? 'Partial' : 'Paid';
+                                    $billingItem->billing_item_balance > 0
+                                        ? 'Partial'
+                                        : 'Paid';
+
                                 $billingItem->save();
                             }
 
                             // Update billing
                             $billing = Billing::find($item['billing_id']);
+
                             if ($billing) {
+
                                 $billing->billing_offset += $difference;
                                 $billing->billing_balance -= $difference;
+
                                 $billing->billing_status =
-                                    $billing->billing_balance > 0 ? 'Partial' : 'Paid';
+                                    $billing->billing_balance > 0
+                                        ? 'Partial'
+                                        : 'Paid';
+
                                 $billing->save();
                             }
                         }
@@ -249,12 +333,17 @@ class PaymentController extends ApiController
 
                 $oldAmountPaid = floatval($payment->getOriginal('amount_paid'));
                 $newAmountPaid = floatval($request['amountPaid']);
+
                 $clientDiff = $newAmountPaid - $oldAmountPaid;
 
                 if ($clientDiff != 0) {
+
                     $client = Client::find($request['clientId']);
+
                     if ($client) {
+
                         $client->balance_from_prev_billing -= $clientDiff;
+
                         $client->save();
                     }
                 }
@@ -263,7 +352,11 @@ class PaymentController extends ApiController
             });
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to update a Payment.', 401);
+
+            return $this->error(
+                'You are not authorized to update a Payment.',
+                401
+            );
         }
     }
 
