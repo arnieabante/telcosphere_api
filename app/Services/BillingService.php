@@ -36,7 +36,7 @@ class BillingService
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->where('is_active', 1)
                 ->sum('billing_balance');
-            
+
             // get inputted prev balance in add new client
             if ((int) $prevBalance == 0) {
                 $clientPrevBalance = Client::where('id', $client->id)
@@ -194,7 +194,7 @@ class BillingService
             $billing->client()->update([
                 'current_balance' => $currentClientBalance
             ]);
-        } else 
+        } else
             throw new Exception('Cannot delete Partial or Paid billing.');
 
         return new BillingResource($billing);

@@ -103,12 +103,7 @@ class PaymentController extends ApiController
     {
         try {
             return DB::transaction(function () use ($request) {
-<<<<<<< HEAD
-
-                $receipt = $this->receiptService->generateReceipt(false);
-=======
                 $receipt = $this->receiptService->generateReceipt();
->>>>>>> development
 
                 $attributes = array_merge($request->mappedAttributes(), [
                     'receipt_no' => $receipt->receipt_number,
@@ -188,19 +183,12 @@ class PaymentController extends ApiController
                     $amountPaid = floatval($request['amountPaid']);
 
                     $client->update([
-<<<<<<< HEAD
-                        'billing_balance' => $totalBalance,
-                        'balance_from_prev_billing' => $totalBalance,
-                        'current_balance' => $totalBalance,
-                        'prorate_fee_status' => $totalBalance > 0 ? 'Partial' : 'Paid',
-=======
                         'balance_from_prev_billing' => DB::raw(
                             'GREATEST(balance_from_prev_billing - ' . $amountPaid . ', 0.00)'
                         ),
                         'current_balance' => DB::raw(
                             'GREATEST(current_balance - ' . $amountPaid . ', 0.00)'
                         )
->>>>>>> development
                     ]);
                 }
 
