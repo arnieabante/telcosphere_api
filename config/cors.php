@@ -25,7 +25,9 @@ return [
                             'https://exis-inc.telcosphere.co', 
                             'https://cenascotoledo.telcosphere.co', 
                             'https://arc-inc.telcosphere.co',
-                            'https://redjacobjaden-oslob.telcosphere.co'
+                            'https://redjacobjaden-oslob.telcosphere.co',
+                            'https://fastlink-lanao.telcosphere.co',
+                            'https://eathos.telcosphere.co'
                         ],
 
     'allowed_origins_patterns' => [],

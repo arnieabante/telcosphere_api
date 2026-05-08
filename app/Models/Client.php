@@ -37,6 +37,7 @@ class Client extends Model
         'installation_date',
         'installation_fee',
         'balance_from_prev_billing',
+        'balance_from_prev_billing_status',
         'current_balance',
         'prorate_fee',
         'prorate_start_date',
@@ -126,6 +127,22 @@ class Client extends Model
         $from = $filters['from'] ?? null;
         $to   = $filters['to'] ?? null;
 
+        // GET PREVIOUS BALANCE (BEFORE DATE RANGE)
+        $previousBilling = DB::table('billings')
+            ->where('client_id', $this->id);
+
+        $previousPayments = DB::table('payments')
+            ->where('client_id', $this->id);
+
+        if ($from) {
+            $previousBilling->whereDate('billing_date', '<', $from);
+            $previousPayments->whereDate('collection_date', '<', $from);
+        }
+
+        $prevDebit  = $previousBilling->sum('billing_total');
+        $prevCredit = $previousPayments->sum('amount_paid');
+        $previousBalance = $prevDebit - $prevCredit;
+
         $billings = DB::table('billings')
             ->select([
                 DB::raw("billings.invoice_number AS id"),
@@ -160,11 +177,16 @@ class Client extends Model
                 ->whereDate('payments.collection_date', '<=', $to);
         }
 
-        return $billings
+        $transactions = $billings
             ->unionAll($payments)
             ->orderBy('created_at')
             ->orderBy('soa_date')
             ->get();
+
+        return [
+            'previous_balance' => $previousBalance,
+            'transactions' => $transactions
+        ];
     }
 
     public function getAccountHistory(array $filters = [])

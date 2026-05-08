@@ -179,7 +179,7 @@ class ModuleFactory extends Factory
                 'parent_id' => 0,
                 'description' => 'Site Settings',
                 'url' => 'sitesettings'
-            ],
+            ]
         ];
 
         return array_shift($modules);
