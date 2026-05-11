@@ -10,18 +10,18 @@ use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-class CenascoAusturiasSeeder extends Seeder
+class CenascoAsturiasSeeder extends Seeder
 {
     public function run(): void
     {
         // 1. Create site (or find existing)
         $site = Site::firstOrCreate([
-            'company_name' => 'Cenasco Austurias',
-            'company_address' => 'Sangi, Austurias, City',
+            'company_name' => 'Cenasco Asturias',
+            'company_address' => 'Sangi, Asturias, City',
         ], [
             'uuid' => fake()->uuid(),
-            'site_url' => 'cenascoausturias.telcosphere.co',
-            'company_email' => 'admin.cenascoausturias@telcosphere.co',
+            'site_url' => 'cenascoasturias.telcosphere.co',
+            'company_email' => 'admin.cenascoasturias@telcosphere.co',
             'is_active' => 1,
             'created_by' => 1,
             'updated_by' => 1
@@ -63,13 +63,13 @@ class CenascoAusturiasSeeder extends Seeder
 
         // 5. Create default admin user
         User::firstOrCreate([
-            'username' => 'cenascoausturias.admin',
+            'username' => 'cenascoasturias.admin',
             'site_id' => $site->id
         ], [
             'uuid' => fake()->uuid(),
             'fullname' => 'Administrator',
-            'email' => 'cenascoausturias.admin@telcosphere.co',
-            'password' => Hash::make('C3nascoAusturias@password'),
+            'email' => 'cenascoasturias.admin@telcosphere.co',
+            'password' => Hash::make('C3nascoAsturias@password'),
             'role_id' => $adminRole->id,
             'is_active' => 1,
             'created_by' => 1,
