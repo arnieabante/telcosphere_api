@@ -27,7 +27,8 @@ return [
                             'https://arc-inc.telcosphere.co',
                             'https://redjacobjaden-oslob.telcosphere.co',
                             'https://fastlink-lanao.telcosphere.co',
-                            'https://eathos.telcosphere.co'
+                            'https://eathos.telcosphere.co',
+                            'https://cenascoasturias.telcosphere.co'
                         ],
 
     'allowed_origins_patterns' => [],
