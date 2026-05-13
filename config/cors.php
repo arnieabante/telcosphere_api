@@ -28,7 +28,8 @@ return [
                             'https://redjacobjaden-oslob.telcosphere.co',
                             'https://fastlink-lanao.telcosphere.co',
                             'https://eathos.telcosphere.co',
-                            'https://cenascoasturias.telcosphere.co'
+                            'https://cenascoasturias.telcosphere.co',
+                            'https://cenascobantayan.telcosphere.co'
                         ],
 
     'allowed_origins_patterns' => [],
