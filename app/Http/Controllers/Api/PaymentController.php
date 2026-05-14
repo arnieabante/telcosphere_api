@@ -428,53 +428,38 @@ class PaymentController extends ApiController
 
                     // UPDATE PAYMENT
                     $payment->update($request->mappedAttributes());
-
-                    // UPDATE CLIENT
+                    // RELOAD PAYMENT ITEMS
                     $payment->load('paymentItems');
-
-                    $oldPaymentTotal = floatval($oldPaymentTotal);
-
+                    // COMPUTE NEW TOTAL
                     $newPaymentTotal = floatval(
                         $payment->paymentItems->sum('amount_paid')
                     );
-
+                    // DIFFERENCE
                     $clientDifference = $newPaymentTotal - $oldPaymentTotal;
+                    // UPDATE CLIENT
                     $client = Client::find($payment->client_id);
 
                     if ($client && $clientDifference != 0) {
 
-                        $client->current_balance -= $clientDifference;
-                        // prevent negative value
+                        // CURRENT BALANCE
+                        $client->current_balance =
+                            floatval($client->current_balance) - $clientDifference;
+
+                        // PREVIOUS BILLING BALANCE
+                        $client->balance_from_prev_billing =
+                            floatval($client->balance_from_prev_billing) - $clientDifference;
+
+                        // PREVENT NEGATIVE
                         if ($client->current_balance < 0) {
                             $client->current_balance = 0;
                         }
 
+                        if ($client->balance_from_prev_billing < 0) {
+                            $client->balance_from_prev_billing = 0;
+                        }
+
                         $client->save();
                     }
-                }
-
-                // NEW total AFTER updates
-                $newTotalPaid = 0;
-                if ($request->has('collectionItems')) {
-                    $newTotalPaid = collect($request->collectionItems)->sum(function ($item) {
-                        return floatval($item['amount_paid']);
-                    });
-                }
-
-                $difference = $newTotalPaid - $oldTotalPaid;
-
-                // Update Client
-                $client = Client::find($request['clientId']);
-
-                if ($client && $difference != 0) {
-                    $client->update([
-                        'balance_from_prev_billing' => DB::raw(
-                            'GREATEST(balance_from_prev_billing - ' . $difference . ', 0)'
-                        ),
-                        'current_balance' => DB::raw(
-                            'GREATEST(current_balance - ' . $difference . ', 0)'
-                        )
-                    ]);
                 }
 
                 return new PaymentResource($payment->fresh());
