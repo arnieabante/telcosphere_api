@@ -219,110 +219,258 @@ class PaymentController extends ApiController
         try {
             return DB::transaction(function () use ($request, $uuid) {
 
-                $payment = Payment::with('paymentItems')->where('uuid', $uuid)->firstOrFail();
+                $payment = Payment::with('paymentItems')
+                    ->where('uuid', $uuid)
+                    ->firstOrFail();
 
-                $oldTotalPaid = $payment->paymentItems->sum('amount_paid');
                 $payment->update($request->mappedAttributes());
 
-                $affectedBillingIds = [];
+                // SOFT DELETE / DEACTIVATE PAYMENT
+                if ($request->has('isActive') && intval($request->isActive) === 0) {
 
+                    foreach ($payment->paymentItems as $paymentItem) {
+                        $amountPaid = floatval($paymentItem->amount_paid);
+
+
+                        // REVERSE BILLING ITEM
+                        $billingItem = BillingItem::find($paymentItem->billing_item_id);
+
+                        if ($billingItem) {
+                            // revert balance
+                            $billingItem->billing_item_balance =
+                                floatval($billingItem->billing_item_balance) + $amountPaid;
+                            // revert offset
+                            $billingItem->billing_item_offset =
+                                floatval($billingItem->billing_item_offset) - $amountPaid;
+                            // prevent negative offset
+                            if ($billingItem->billing_item_offset < 0) {
+                                $billingItem->billing_item_offset = 0;
+                            }
+
+                            // BILLING ITEM STATUS
+
+                            if ($billingItem->billing_item_balance <= 0) {
+
+                                $billingItem->billing_status = 'Paid';
+
+                            } elseif (
+                                $billingItem->billing_item_balance <
+                                floatval($billingItem->billing_item_amount)
+                            ) {
+
+                                $billingItem->billing_status = 'Partial';
+
+                            } else {
+
+                                $billingItem->billing_status = 'Pending';
+                            }
+
+                            $billingItem->save();
+
+                            // REVERSE BILLING
+
+                            $billing = Billing::find($billingItem->billing_id);
+
+                            if ($billing) {
+                                // revert billing balance
+                                $billing->billing_balance =
+                                    floatval($billing->billing_balance) + $amountPaid;
+                                // revert billing offset
+                                $billing->billing_offset =
+                                    floatval($billing->billing_offset) - $amountPaid;
+                                // prevent negative offset
+                                if ($billing->billing_offset < 0) {
+                                    $billing->billing_offset = 0;
+                                }
+
+                                // BILLING STATUS
+                                if ($billing->billing_balance <= 0) {
+
+                                    $billing->billing_status = 'Paid';
+
+                                } elseif (
+                                    $billing->billing_balance <
+                                    floatval($billing->billing_amount)
+                                ) {
+
+                                    $billing->billing_status = 'Partial';
+
+                                } else {
+
+                                    $billing->billing_status = 'Pending';
+                                }
+
+                                $billing->save();
+                            }
+                        }
+
+                        // DEACTIVATE PAYMENT ITEMS
+                        $paymentItem->is_active = 0;
+                        $paymentItem->save();
+                    }
+
+                    // UPDATE CLIENT BALANCE
+                    $client = Client::find($payment->client_id);
+
+                    if ($client) {
+
+                        $totalReversedAmount =
+                            floatval($payment->paymentItems->sum('amount_paid'));
+
+                        $client->current_balance += $totalReversedAmount;
+
+                        $client->save();
+                    }
+
+                    // DEACTIVATE PAYMENT
+                    $payment->is_active = 0;
+                    $payment->save();
+
+                    return new PaymentResource($payment->fresh());
+                }
+
+                // NORMAL UPDATE
                 if ($request->has('collectionItems')) {
+                    // store old payment total
+                    $oldPaymentTotal = floatval(
+                        $payment->paymentItems->sum('amount_paid')
+                    );
 
                     foreach ($request->collectionItems as $item) {
 
-                        $paymentItem = PaymentItem::where('payment_id', $payment->id)
-                            ->where('billing_item_id', $item['billing_item_id'])
-                            ->first();
+                        $paymentItem = PaymentItem::find($item['id']);
 
-                        if (!$paymentItem) continue;
+                        if (!$paymentItem) {
+                            continue;
+                        }
 
                         $oldAmountPaid = floatval($paymentItem->amount_paid);
                         $newAmountPaid = floatval($item['amount_paid']);
                         $difference = $newAmountPaid - $oldAmountPaid;
 
-                        // Update Payment Item
+                        // UPDATE PAYMENT ITEM
                         $paymentItem->update([
                             'amount'         => $item['amount'],
                             'amount_paid'    => $newAmountPaid,
                             'amount_balance' => $item['amount_balance'],
                         ]);
 
-                        // 🔹 Update Billing Item safely (LIKE STORE)
+                        // only update related tables if changed
                         if ($difference != 0) {
-                            $billingItem = BillingItem::find($item['billing_item_id']);
+
+                            // UPDATE BILLING ITEM
+                            $billingItem = BillingItem::find($paymentItem->billing_item_id);
 
                             if ($billingItem) {
-                                $billingItem->update([
-                                    'billing_item_offset' => DB::raw('billing_item_offset + ' . $difference),
-                                    'billing_item_balance' => DB::raw(
-                                        'GREATEST(billing_item_balance - ' . $difference . ', 0)'
-                                    ),
-                                ]);
 
-                                // refresh + update status
-                                $billingItem->refresh();
-                                $billingItem->update([
-                                    'billing_status' => $billingItem->billing_item_balance > 0 ? 'Partial' : 'Paid',
-                                ]);
+                                $billingItem->billing_item_offset += $difference;
+                                $billingItem->billing_item_balance -= $difference;
 
-                                $affectedBillingIds[] = $billingItem->billing_id;
+                                // prevent negative values
+                                if ($billingItem->billing_item_offset < 0) {
+                                    $billingItem->billing_item_offset = 0;
+                                }
+
+                                if ($billingItem->billing_item_balance < 0) {
+                                    $billingItem->billing_item_balance = 0;
+                                }
+
+                                // STATUS
+                                if ($billingItem->billing_item_balance <= 0) {
+
+                                    $billingItem->billing_status = 'Paid';
+
+                                } elseif (
+                                    $billingItem->billing_item_balance <
+                                    floatval($billingItem->billing_item_amount)
+                                ) {
+
+                                    $billingItem->billing_status = 'Partial';
+
+                                } else {
+
+                                    $billingItem->billing_status = 'Pending';
+                                }
+
+                                $billingItem->save();
+
+                                // UPDATE BILLING
+                                $billing = Billing::find($billingItem->billing_id);
+
+                                if ($billing) {
+
+                                    $billing->billing_offset += $difference;
+                                    $billing->billing_balance -= $difference;
+
+                                    // prevent negative values
+                                    if ($billing->billing_offset < 0) {
+                                        $billing->billing_offset = 0;
+                                    }
+
+                                    if ($billing->billing_balance < 0) {
+                                        $billing->billing_balance = 0;
+                                    }
+
+                                    // BILLING STATUS
+                                    if ($billing->billing_offset <= 0) {
+                                        $billing->billing_status = 'Pending';
+                                    } elseif ($billing->billing_balance <= 0) {
+                                        $billing->billing_status = 'Paid';
+                                    } else {
+                                        $billing->billing_status = 'Partial';
+                                    }
+
+                                    $billing->save();
+                                }
                             }
                         }
                     }
-                }
 
-                // Recalculate Billing totals
-                $billingIds = array_unique($affectedBillingIds);
+                    // UPDATE PAYMENT
+                    $payment->update($request->mappedAttributes());
+                    // RELOAD PAYMENT ITEMS
+                    $payment->load('paymentItems');
+                    // COMPUTE NEW TOTAL
+                    $newPaymentTotal = floatval(
+                        $payment->paymentItems->sum('amount_paid')
+                    );
+                    // DIFFERENCE
+                    $clientDifference = $newPaymentTotal - $oldPaymentTotal;
+                    // UPDATE CLIENT
+                    $client = Client::find($payment->client_id);
 
-                foreach ($billingIds as $billingId) {
-                    $billing = Billing::find($billingId);
+                    if ($client && $clientDifference != 0) {
 
-                    if ($billing) {
-                        $totalOffset = $billing->billingItems()
-                            ->where('is_active', 1)
-                            ->sum('billing_item_offset');
+                        // CURRENT BALANCE
+                        $client->current_balance =
+                            floatval($client->current_balance) - $clientDifference;
 
-                        $totalBalance = $billing->billingItems()
-                            ->where('is_active', 1)
-                            ->sum('billing_item_balance');
+                        // PREVIOUS BILLING BALANCE
+                        $client->balance_from_prev_billing =
+                            floatval($client->balance_from_prev_billing) - $clientDifference;
 
-                        $billing->update([
-                            'billing_offset' => $totalOffset,
-                            'billing_balance' => $totalBalance,
-                            'billing_status' => $totalBalance > 0 ? 'Partial' : 'Paid',
-                        ]);
+                        // PREVENT NEGATIVE
+                        if ($client->current_balance < 0) {
+                            $client->current_balance = 0;
+                        }
+
+                        if ($client->balance_from_prev_billing < 0) {
+                            $client->balance_from_prev_billing = 0;
+                        }
+
+                        $client->save();
                     }
-                }
-
-                // NEW total AFTER updates
-                $newTotalPaid = 0;
-                if ($request->has('collectionItems')) {
-                    $newTotalPaid = collect($request->collectionItems)->sum(function ($item) {
-                        return floatval($item['amount_paid']);
-                    });
-                }
-
-                $difference = $newTotalPaid - $oldTotalPaid;
-
-                // Update Client
-                $client = Client::find($request['clientId']);
-
-                if ($client && $difference != 0) {
-                    $client->update([
-                        'balance_from_prev_billing' => DB::raw(
-                            'GREATEST(balance_from_prev_billing - ' . $difference . ', 0)'
-                        ),
-                        'current_balance' => DB::raw(
-                            'GREATEST(current_balance - ' . $difference . ', 0)'
-                        )
-                    ]);
                 }
 
                 return new PaymentResource($payment->fresh());
             });
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to update a Payment.', 401);
+
+            return $this->error(
+                'You are not authorized to update a Payment.',
+                401
+            );
         }
     }
 
