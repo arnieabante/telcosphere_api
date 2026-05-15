@@ -29,7 +29,7 @@ return [
                             'https://fastlink-lanao.telcosphere.co',
                             'https://eathos.telcosphere.co',
                             'https://cenascoasturias.telcosphere.co',
-                            'https://cenascobantayan.telcosphere.co'
+                            'https://cenascodaanbantayan.telcosphere.co'
                         ],
 
     'allowed_origins_patterns' => [],
