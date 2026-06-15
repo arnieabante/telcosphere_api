@@ -50,6 +50,9 @@ class TicketController extends ApiController
                 ->orWhere('requestor_location', 'like', "%{$search}%")
                 ->orWhere('requested_date', 'like', "%{$search}%")
                 ->orWhere('due_date', 'like', "%{$search}%")
+                ->orWhereHas('client', function ($clientQuery) use ($search) {
+                    $clientQuery->where('account_no', 'like', "%{$search}%");
+                })
                 ->orWhereHas('ticketCategory', function ($ticketCategoryQuery) use ($search) {
                     $ticketCategoryQuery->where('name', 'like', "%{$search}%");
                 })
