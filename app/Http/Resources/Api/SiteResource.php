@@ -31,6 +31,9 @@ class SiteResource extends JsonResource
                 'invoice_id_yy_last_count'  => $this->invoice_id_yy_last_count,
                 'receipt_id_pattern'  => $this->receipt_id_pattern,
                 'receipt_id_yy_last_count'  => $this->receipt_id_yy_last_count,
+                'account_number_pattern' => $this->account_number_pattern,
+                'enable_account_number_pattern' => $this->enable_account_number_pattern,
+                'account_no_last_count' => $this->account_no_last_count,
                 'payment_details' => $this->payment_details,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
