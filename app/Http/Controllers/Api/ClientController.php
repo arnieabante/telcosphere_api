@@ -14,6 +14,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\AccountNoService;
 
 class ClientController extends ApiController
 {
@@ -79,18 +80,34 @@ class ClientController extends ApiController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreClientRequest $request)
+    public function store(StoreClientRequest $request, AccountNoService $accountNoService)
     {
         try {
-            // create policy
-            // $this->isAble('create', Client::class);
+
+            $attributes = $request->mappedAttributes();
+
+            if (isset($attributes['account_no']) && $attributes['account_no'] === 'auto') {
+                $attributes['account_no'] = $accountNoService->generateAccountNo();
+            }
 
             return new ClientResource(
-                Client::create($request->mappedAttributes())
+                Client::create($attributes)
             );
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to create a Client.', 401);
+
+            return $this->error(
+                'You are not authorized to create a Client.',
+                401
+            );
+
+        } catch (\Exception $ex) {
+
+            return $this->error(
+                $ex->getMessage(),
+                500
+            );
+
         }
     }
 
