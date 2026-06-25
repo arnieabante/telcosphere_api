@@ -27,11 +27,11 @@ class UpdateBillingItemRequest extends BaseBillingItemRequest
             'billing.billingItems.*.category' => 'sometimes|required_if:billing.billingType,2,3,4|string|min:5|max:100',
             'billing.billingItems.*.particulars' => 'sometimes|required_if:billing.billingType,2,3,4|string|min:5|max:100',
             'billing.billingItems.*.qty' => 'sometimes|required|numeric|min:1|max:999',
-            'billing.billingItems.*.price' => 'sometimes|required_if:billing.billingType,2,3,4|numeric|min:1|decimal:0,2'
+            'billing.billingItems.*.price' => 'sometimes|required_if:billing.billingType,2,3,4|numeric|between:-999999.99,999999.99|decimal:0,2'
         ];
     }
 
-    public function messages(): array 
+    public function messages(): array
     {
         return [
             'billing.billingItems.*.category.required_if' => 'Category or Item Name is required.',
