@@ -56,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('internetplans/{uuid}', [InternetplanController::class, 'update']);
     Route::put('internetplans/{uuid}', [InternetplanController::class, 'replace']);
 
+    Route::get('clients/find', [ClientController::class, 'find']);
     Route::apiResource('clients', ClientController::class)->except(['update']);
     Route::patch('clients/{uuid}', [ClientController::class, 'update']);
     Route::put('clients/{uuid}', [ClientController::class, 'replace']);
@@ -99,7 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('expenseitems', ExpenseItemController::class)->except(['update']);
     Route::patch('expenseitems/{uuid}', [ExpenseItemController::class, 'update']);
     Route::put('expenseitems/{uuid}', [ExpenseItemController::class, 'replace']);
-    
+
     Route::apiResource('sites', SiteController::class)->except(['update']);
     Route::patch('sites/{uuid}', [SiteController::class, 'update']);
     Route::put('sites/{uuid}', [SiteController::class, 'replace']);
