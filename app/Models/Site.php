@@ -31,6 +31,9 @@ class Site extends Model
         'invoice_id_yy_last_count',
         'receipt_id_pattern',
         'receipt_id_yy_last_count',
+        'account_number_pattern',
+        'enable_account_number_pattern',
+        'account_no_last_count',
         'payment_details',
         'is_active'
     ];
