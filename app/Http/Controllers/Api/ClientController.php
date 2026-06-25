@@ -14,6 +14,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\AccountNoService;
 
 class ClientController extends ApiController
 {
@@ -79,18 +80,34 @@ class ClientController extends ApiController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreClientRequest $request)
+    public function store(StoreClientRequest $request, AccountNoService $accountNoService)
     {
         try {
-            // create policy
-            // $this->isAble('create', Client::class);
+
+            $attributes = $request->mappedAttributes();
+
+            if (isset($attributes['account_no']) && $attributes['account_no'] === 'auto') {
+                $attributes['account_no'] = $accountNoService->generateAccountNo();
+            }
 
             return new ClientResource(
-                Client::create($request->mappedAttributes())
+                Client::create($attributes)
             );
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to create a Client.', 401);
+
+            return $this->error(
+                'You are not authorized to create a Client.',
+                401
+            );
+
+        } catch (\Exception $ex) {
+
+            return $this->error(
+                $ex->getMessage(),
+                500
+            );
+
         }
     }
 
@@ -317,6 +334,59 @@ class ClientController extends ApiController
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Client does not exist.', 404);
+        }
+    }
+
+    public function find(Request $request)
+    {
+        try {
+            $client = Client::with(['internetPlan', 'billingCategory', 'server', 'billings']);
+
+            // STATUS FILTER
+            $status = $request->input('status');
+
+            if ($status !== null && $status !== '') {
+                $client->where('is_active', $status);
+            }
+
+            // SEARCH
+            if ($request->filled('search')) {
+                $search = $request->input('search');
+
+                $client->where(function ($q) use ($search) {
+                    $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('installation_date', 'like', "%{$search}%")
+                        ->orWhere('house_no', 'like', "%{$search}%")
+                        ->orWhereHas('internetPlan', function ($planQuery) use ($search) {
+                            $planQuery->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('server', function ($planQuery) use ($search) {
+                            $planQuery->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('billingCategory', function ($billingQuery) use ($search) {
+                            $billingQuery->where('name', 'like', "%{$search}%");
+                        });
+                    });
+            }
+
+            // DATE RANGE
+            if ($request->filled('from') && $request->filled('to')) {
+                $client->whereBetween('created_at', [$request->from, $request->to]);
+            }
+
+            $perPage = $request->input('per_page', 10);
+
+            $rslt = $client->orderBy('created_at', 'asc')->paginate($perPage);
+
+            return ClientResource::collection($rslt);
+
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('Clients not found.', 404);
+
+        } catch (AuthorizationException $ex) {
+            return $this->error('You are not authorized to delete a Client.', 401);
         }
     }
 }
