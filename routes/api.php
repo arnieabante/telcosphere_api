@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\AboutUsSettingsController;
 use App\Http\Controllers\Api\PricingSettingsController;
 use App\Http\Controllers\Api\CtaSettingsController;
 use App\Http\Controllers\Api\FooterSettingsController;
+use App\Http\Controllers\Api\SmsSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('sites/url/{url}', [SiteController::class, 'showByUrl']);
@@ -142,5 +143,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('footersettings', FooterSettingsController::class)->except(['update']);
     Route::patch('footersettings/{uuid}', [FooterSettingsController::class, 'update']);
     Route::put('footersettings/{uuid}', [FooterSettingsController::class, 'replace']);
+
+    Route::apiResource('smssettings', SmsSettingsController::class)->except(['update']);
+    Route::patch('smssettings/{uuid}', [SmsSettingsController::class, 'update']);
+    Route::put('smssettings/{uuid}', [SmsSettingsController::class, 'replace']);
 
 });
