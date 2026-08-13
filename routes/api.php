@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\PesoWifiClientController;
 use App\Http\Controllers\Api\PesoWifiHarvestController;
 use App\Http\Controllers\Api\HomepageSettingsController;
 use App\Http\Controllers\Api\AboutUsSettingsController;
+use App\Http\Controllers\Api\PricingSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('sites/url/{url}', [SiteController::class, 'showByUrl']);
@@ -127,5 +128,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('aboutussettings', AboutUsSettingsController::class)->except(['update']);
     Route::patch('aboutussettings/{uuid}', [AboutUsSettingsController::class, 'update']);
     Route::put('aboutussettings/{uuid}', [AboutUsSettingsController::class, 'replace']);
+
+    Route::apiResource('pricingsettings', PricingSettingsController::class)->except(['update']);
+    Route::patch('pricingsettings/{uuid}', [PricingSettingsController::class, 'update']);
+    Route::put('pricingsettings/{uuid}', [PricingSettingsController::class, 'replace']);
 
 });
