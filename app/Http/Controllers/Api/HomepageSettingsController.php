@@ -57,15 +57,24 @@ class HomepageSettingsController extends ApiController
     public function store(StoreHomepageSettingsRequest $request)
     {
         try {
-            // create policy
             // $this->isAble('create', HomepageSettings::class);
 
-            return new HomepageSettingsResource(
-                HomepageSettings::create($request->mappedAttributes())
+            $attributes = $request->mappedAttributes();
+
+            $homepageSettings = HomepageSettings::updateOrCreate(
+                [
+                    'site_id' => $attributes['site_id']
+                ],
+                $attributes
             );
 
+            return new HomepageSettingsResource($homepageSettings);
+
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to create a HomepageSettings.', 401);
+            return $this->error(
+                'You are not authorized to create or update HomepageSettings.',
+                401
+            );
         }
     }
 

@@ -8,6 +8,7 @@ class BaseHomePageSettingsRequest extends FormRequest
 {
     public function mappedAttributes(): array {
         $attributes = [
+            'siteId' => 'site_id',
             'heroEnabled' => 'hero_enabled',
             'heroTitle' => 'hero_title',
             'heroSubtitle' => 'hero_subtitle',

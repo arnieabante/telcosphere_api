@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PesoWifiAreaController;
 use App\Http\Controllers\Api\PesoWifiClientController;
 use App\Http\Controllers\Api\PesoWifiHarvestController;
+use App\Http\Controllers\Api\HomepageSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('sites/url/{url}', [SiteController::class, 'showByUrl']);
@@ -117,5 +118,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('pesowifiharvests/{uuid}', [PesoWifiHarvestController::class, 'update']);
     Route::put('pesowifiharvests/{uuid}', [PesoWifiHarvestController::class, 'replace']);
     Route::get('pesowifi/dashboard', [PesoWifiHarvestController::class, 'dashboard']);
+
+    Route::apiResource('homepagesettings', HomepageSettingsController::class)->except(['update']);
+    Route::patch('homepagesettings/{uuid}', [HomepageSettingsController::class, 'update']);
+    Route::put('homepagesettings/{uuid}', [HomepageSettingsController::class, 'replace']);
 
 });

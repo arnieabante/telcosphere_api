@@ -7,7 +7,7 @@ class StoreHomePageSettingsRequest extends BaseHomePageSettingsRequest
     public function rules(): array
     {
         return [
-            'siteId' => 'required|integer|exists:sites,id',
+            'siteId' => 'integer|exists:sites,id',
 
             // Hero Section
             'heroEnabled' => 'required|boolean',
