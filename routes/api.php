@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\HomepageSettingsController;
 use App\Http\Controllers\Api\AboutUsSettingsController;
 use App\Http\Controllers\Api\PricingSettingsController;
 use App\Http\Controllers\Api\CtaSettingsController;
+use App\Http\Controllers\Api\FooterSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('sites/url/{url}', [SiteController::class, 'showByUrl']);
@@ -137,5 +138,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('ctasettings', CtaSettingsController::class)->except(['update']);
     Route::patch('ctasettings/{uuid}', [CtaSettingsController::class, 'update']);
     Route::put('ctasettings/{uuid}', [CtaSettingsController::class, 'replace']);
+
+    Route::apiResource('footersettings', FooterSettingsController::class)->except(['update']);
+    Route::patch('footersettings/{uuid}', [FooterSettingsController::class, 'update']);
+    Route::put('footersettings/{uuid}', [FooterSettingsController::class, 'replace']);
 
 });
