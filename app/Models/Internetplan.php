@@ -21,7 +21,16 @@ class Internetplan extends Model
         'site_id',
         'name',
         'monthly_subscription',
+        'is_featured',
+        'features',
         'is_active'
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'is_featured' => 'boolean',
+        'features' => 'array',
+        'monthly_subscription' => 'decimal:2',
     ];
 
     protected static function booted()
