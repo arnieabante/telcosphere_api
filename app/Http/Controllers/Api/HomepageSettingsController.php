@@ -22,33 +22,34 @@ class HomepageSettingsController extends ApiController
      */
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
-        $search = $request->get('search');
-        $include = $request->get('include');
-        $from = $request->get('from');
-        $to = $request->get('to');
+        try {
+            $siteId = $request->get('site_id')
+                ?? $request->header('site_id')
+                ?? auth()->user()->site_id
+                ?? null;
 
-        $query = HomepageSettings::query()
-            ->where('is_active', 1);
-        if (!empty($include) && $include == 'all') {
-            $homepagesettings = $query->orderBy('name', 'asc')->get();
-            return HomepageSettingsResource::collection($homepagesettings);
-        } else {
-            if (!empty($search)) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('monthly_subscription', 'like', "%{$search}%");
-                });
+            if (!$siteId) {
+                return $this->error('Site ID is required.', 400);
             }
-        }
 
-        // Filter by date range
-        if (!empty($from) && !empty($to)) {
-            $query->whereBetween('created_at', [$from, $to]);
+            $homepageSettings = HomepageSettings::where('site_id', $siteId)
+                ->first();
+
+            if (!$homepageSettings) {
+                return $this->error(
+                    'Homepage settings do not exist for this site.',
+                    404
+                );
+            }
+
+            return new HomepageSettingsResource($homepageSettings);
+
+        } catch (AuthorizationException $ex) {
+            return $this->error(
+                'You are not authorized to view HomepageSettings.',
+                401
+            );
         }
-        
-        $homepagesettings = $query->orderBy('created_at', 'desc')->paginate($perPage);
-        return HomepageSettingsResource::collection($homepagesettings);
     }
 
     /**
@@ -77,78 +78,7 @@ class HomepageSettingsController extends ApiController
             );
         }
     }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $uuid)
-    {
-        try {
-            $homepagesettings = HomepageSettings::where('uuid', $uuid)->firstOrFail();
-            return new HomepageSettingsResource($homepagesettings);
-
-        } catch (ModelNotFoundException $ex) {
-            return $this->error('HomepageSettings does not exist.', 404);
-
-        } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to view a HomepageSettings.', 401);
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateHomepageSettingsRequest $request, string $uuid)
-    {
-        try {
-            // update policy
-            // $this->isAble('update', HomepageSettings::class);
-
-            $homepagesettings = HomepageSettings::where('uuid', $uuid)->firstOrFail();
-
-            // activate / deactivate
-            if (isset($request['isActive'])) {
-                $homepagesettings->update([
-                    'is_active' => 0
-                ]);
-            } else 
-                $affected = $homepagesettings->update($request->mappedAttributes());
-
-            return new HomepageSettingsResource($homepagesettings);
-
-        } catch (ModelNotFoundException $ex) {
-            return $this->error('HomepageSettings does not exist.', 404);
-
-        } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to update a HomepageSettings.', 401);
-        }
-    }
-
-    /**
-     * Replace the specified resource in storage.
-     */
-    public function replace(ReplaceHomepageSettingsRequest $request, string $uuid)
-    {
-        try {
-            // replace policy
-            // $this->isAble('replace', HomepageSettings::class);
-
-            $homepagesettings = HomepageSettings::where('uuid', $uuid)->firstOrFail();
-            $affected = $homepagesettings->update($request->mappedAttributes());
-
-            return new HomepageSettingsResource($homepagesettings);
-
-        } catch (ModelNotFoundException $ex) {
-            return $this->error('HomepageSettings does not exist.', 404);
-
-        } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to replace a HomepageSettings.', 401);
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
+    
     public function destroy(string $uuid)
     {
         try {

@@ -15,7 +15,7 @@ class HomePageSettingsResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'type' => 'internetplan',
+            'type' => 'homepagesetting',
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
@@ -37,7 +37,7 @@ class HomePageSettingsResource extends JsonResource
                 ),
             ],
             'links' => [
-                'internetplan' => route('homepagesettings.show', $this->id)
+                'homepagesetting' => route('homepagesettings.show', $this->id)
             ]
         ];
     }
