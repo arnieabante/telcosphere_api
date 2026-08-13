@@ -26,6 +26,7 @@ class HomePageSettingsResource extends JsonResource
                 'primaryButtonUrl' => $this->primary_button_url,
                 'textAlignment' => $this->text_alignment,
                 'overlayOpacity' => $this->overlay_opacity,
+                'backgroundImage' => $this->background_image,
                 $this->mergeWhen(
                     request()->routeIs('homepagesettings.show'), [
                         'siteId' => $this->site_id,

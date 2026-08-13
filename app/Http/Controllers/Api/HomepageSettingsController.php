@@ -12,6 +12,7 @@ use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use App\Services\ImageUploadService;
 
 class HomepageSettingsController extends ApiController
 {
@@ -20,6 +21,11 @@ class HomepageSettingsController extends ApiController
     /**
      * Display a listing of the resource.
      */
+
+    public function __construct(
+        protected ImageUploadService $imageUploadService
+    ) {}
+
     public function index(Request $request)
     {
         try {
@@ -58,13 +64,33 @@ class HomepageSettingsController extends ApiController
     public function store(StoreHomepageSettingsRequest $request)
     {
         try {
-            // $this->isAble('create', HomepageSettings::class);
-
             $attributes = $request->mappedAttributes();
 
+            // Get site ID
+            $siteId = $attributes['site_id']
+                ?? $request->get('siteId')
+                ?? $request->header('site_id')
+                ?? auth()->user()->site_id
+                ?? 1;
+
+            $attributes['site_id'] = $siteId;
+
+            /*
+            * Background Image
+            */
+            if ($request->hasFile('backgroundImage')) {
+                $attributes['background_image'] =
+                    $this->imageUploadService->upload(
+                        $request->file('backgroundImage')
+                    );
+            }
+
+            /*
+            * Create or update Homepage Settings
+            */
             $homepageSettings = HomepageSettings::updateOrCreate(
                 [
-                    'site_id' => $attributes['site_id']
+                    'site_id' => $siteId
                 ],
                 $attributes
             );
@@ -78,7 +104,7 @@ class HomepageSettingsController extends ApiController
             );
         }
     }
-    
+
     public function destroy(string $uuid)
     {
         try {
