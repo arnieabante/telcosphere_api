@@ -22,6 +22,13 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PesoWifiAreaController;
 use App\Http\Controllers\Api\PesoWifiClientController;
 use App\Http\Controllers\Api\PesoWifiHarvestController;
+use App\Http\Controllers\Api\HomepageSettingsController;
+use App\Http\Controllers\Api\AboutUsSettingsController;
+use App\Http\Controllers\Api\PricingSettingsController;
+use App\Http\Controllers\Api\CtaSettingsController;
+use App\Http\Controllers\Api\FooterSettingsController;
+use App\Http\Controllers\Api\SmsSettingsController;
+use App\Http\Controllers\Api\MikrotikController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('sites/url/{url}', [SiteController::class, 'showByUrl']);
@@ -117,5 +124,33 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('pesowifiharvests/{uuid}', [PesoWifiHarvestController::class, 'update']);
     Route::put('pesowifiharvests/{uuid}', [PesoWifiHarvestController::class, 'replace']);
     Route::get('pesowifi/dashboard', [PesoWifiHarvestController::class, 'dashboard']);
+
+    Route::apiResource('homepagesettings', HomepageSettingsController::class)->except(['update']);
+    Route::patch('homepagesettings/{uuid}', [HomepageSettingsController::class, 'update']);
+    Route::put('homepagesettings/{uuid}', [HomepageSettingsController::class, 'replace']);
+
+    Route::apiResource('aboutussettings', AboutUsSettingsController::class)->except(['update']);
+    Route::patch('aboutussettings/{uuid}', [AboutUsSettingsController::class, 'update']);
+    Route::put('aboutussettings/{uuid}', [AboutUsSettingsController::class, 'replace']);
+
+    Route::apiResource('pricingsettings', PricingSettingsController::class)->except(['update']);
+    Route::patch('pricingsettings/{uuid}', [PricingSettingsController::class, 'update']);
+    Route::put('pricingsettings/{uuid}', [PricingSettingsController::class, 'replace']);
+
+    Route::apiResource('ctasettings', CtaSettingsController::class)->except(['update']);
+    Route::patch('ctasettings/{uuid}', [CtaSettingsController::class, 'update']);
+    Route::put('ctasettings/{uuid}', [CtaSettingsController::class, 'replace']);
+
+    Route::apiResource('footersettings', FooterSettingsController::class)->except(['update']);
+    Route::patch('footersettings/{uuid}', [FooterSettingsController::class, 'update']);
+    Route::put('footersettings/{uuid}', [FooterSettingsController::class, 'replace']);
+
+    Route::apiResource('smssettings', SmsSettingsController::class)->except(['update']);
+    Route::patch('smssettings/{uuid}', [SmsSettingsController::class, 'update']);
+    Route::put('smssettings/{uuid}', [SmsSettingsController::class, 'replace']);
+
+    Route::apiResource('mikrotiks', MikrotikController::class)->except(['update']);
+    Route::patch('mikrotiks/{uuid}', [MikrotikController::class, 'update']);
+    Route::put('mikrotiks/{uuid}', [MikrotikController::class, 'replace']);
 
 });

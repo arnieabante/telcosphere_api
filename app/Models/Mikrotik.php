@@ -5,13 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Scopes\SiteScope;
 
-class Internetplan extends Model
+class Mikrotik extends Model
 {
     use HasFactory, HasUuids;
-    protected $table = 'internetplans';
 
+    protected $table = 'mikrotiks';
+    
     // default values
     protected $attributes = [
        'is_active' => 1
@@ -20,17 +22,14 @@ class Internetplan extends Model
     protected $fillable = [
         'site_id',
         'name',
-        'monthly_subscription',
-        'is_featured',
-        'features',
+        'ip_address',
+        'port',
+        'use_ssl',
+        'username',
+        'password',
+        'timeout',
+        'last_seen_at',
         'is_active'
-    ];
-
-    protected $casts = [
-        'is_active' => 'boolean',
-        'is_featured' => 'boolean',
-        'features' => 'array',
-        'monthly_subscription' => 'decimal:2',
     ];
 
     protected static function booted()
@@ -38,22 +37,22 @@ class Internetplan extends Model
         // Apply global site filter
         static::addGlobalScope(new SiteScope);
 
-        // Auto-assign site_id when creating a internetplan
-        static::creating(function ($internetplan) {
+        // Auto-assign site_id when creating a mikrotik
+        static::creating(function ($mikrotik) {
             // but only when site_id is not already set
-            if (empty($internetplan->site_id)) {
-                $internetplan->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            if (empty($mikrotik->site_id)) {
+                $mikrotik->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
             }
 
             if (auth()->check()) {
-                $internetplan->created_by = auth()->id();
-                $internetplan->updated_by = auth()->id();
+                $mikrotik->created_by = auth()->id();
+                $mikrotik->updated_by = auth()->id();
             }
         });
 
-        static::updating(function ($internetplan) {
+        static::updating(function ($mikrotik) {
             if (auth()->check()) {
-                $internetplan->updated_by = auth()->id();
+                $mikrotik->updated_by = auth()->id();
             }
         });
     }

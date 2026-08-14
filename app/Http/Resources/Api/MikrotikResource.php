@@ -5,7 +5,7 @@ namespace App\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PesoWifiClientResource extends JsonResource
+class MikrotikResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,21 +15,21 @@ class PesoWifiClientResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'type' => 'PesoWifiClient',
+            'type' => 'Mikrotik',
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
-                'areaId' => $this->area_id,
                 'name' => $this->name,
-                'harvestDay' => $this->harvest_day,
-                'resellerShare' => $this->reseller_share,
-                'deviceStatus' => $this->device_status,
-                'lastHarvestDate' => $this->last_harvest_date,
-                'nextHarvestDate' => $this->next_harvest_date,
-                'isHarvested' => $this->is_harvested,
+                'iPAddress' => $this->ip_address,
+                'port' => $this->port,
+                'useSsl' => $this->use_ssl,
+                'username' => $this->username,
+                'password' => $this->password,
+                'timeout' => $this->timeout,
+                'lastSeenAt' => $this->last_seen_at,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
-                    request()->routeIs('pesowificlients.show'), [
+                    request()->routeIs('mikrotiks.show'), [
                         'siteId' => $this->site_id,
                         'createdBy' => $this->created_by,
                         'updatedBy' => $this->updated_by,
@@ -38,11 +38,8 @@ class PesoWifiClientResource extends JsonResource
                     ]
                 ),
             ],
-            'relationships' => [
-                'pesoWifiArea' => new PesoWifiAreaResource($this->whenLoaded('pesoWifiArea'))
-            ],
             'links' => [
-                'pesowificlient' => route('pesowificlients.show', $this->id)
+                'mikrotiks' => route('mikrotiks.show', $this->id)
             ]
         ];
     }

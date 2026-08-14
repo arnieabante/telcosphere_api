@@ -146,14 +146,33 @@ class SiteController extends ApiController
     public function showByUrl(string $url)
     {
         try {
-            $site = Site::where('site_url', $url)->firstOrFail();
+
+            $site = Site::with([
+                'homepageSettings',
+                'aboutUsSettings',
+                'pricingSettings',
+                'ctaSettings',
+                'footerSettings',
+                'internetPlans'
+            ])
+            ->where('site_url', $url)
+            ->firstOrFail();
+
             return new SiteResource($site);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Site does not exist.', 404);
+
+            return $this->error(
+                'Site does not exist.',
+                404
+            );
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to view a Site.', 401);
+
+            return $this->error(
+                'You are not authorized to view this Site.',
+                401
+            );
         }
     }
 }
