@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\PricingSettingsController;
 use App\Http\Controllers\Api\CtaSettingsController;
 use App\Http\Controllers\Api\FooterSettingsController;
 use App\Http\Controllers\Api\SmsSettingsController;
+use App\Http\Controllers\Api\MikrotikController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('sites/url/{url}', [SiteController::class, 'showByUrl']);
@@ -147,5 +148,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('smssettings', SmsSettingsController::class)->except(['update']);
     Route::patch('smssettings/{uuid}', [SmsSettingsController::class, 'update']);
     Route::put('smssettings/{uuid}', [SmsSettingsController::class, 'replace']);
+
+    Route::apiResource('mikrotiks', MikrotikController::class)->except(['update']);
+    Route::patch('mikrotiks/{uuid}', [MikrotikController::class, 'update']);
+    Route::put('mikrotiks/{uuid}', [MikrotikController::class, 'replace']);
 
 });
