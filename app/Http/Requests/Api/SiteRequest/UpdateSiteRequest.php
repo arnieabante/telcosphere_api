@@ -30,6 +30,9 @@ class UpdateSiteRequest extends BaseSiteRequest
             'receiptIdPattern'        => 'nullable|string|max:8',
             'receiptIdYYLastCount'    => 'sometimes|required|integer',
             'paymentDetails'          => 'nullable|string',
+            'accountNumberPattern' => 'nullable|string|max:20',
+            'enableAccountNumberPattern' => 'nullable|boolean',
+            'accountNoLastCount'      => 'nullable|integer|min:0',
             'isActive'                => 'sometimes|required|boolean',
         ];
     }

@@ -21,6 +21,8 @@ class InternetplanResource extends JsonResource
                 'uuid' => $this->uuid,
                 'name' => $this->name,
                 'monthly_subscription' => $this->monthly_subscription,
+                'is_featured' => $this->is_featured,
+                'features' => $this->features,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('internetplans.show'), [

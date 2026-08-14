@@ -20,6 +20,9 @@ class BaseSiteRequest extends FormRequest
             'invoiceIdYYLastCount' => 'invoice_id_yy_last_count',
             'receiptIdPattern' => 'receipt_id_pattern',
             'receiptIdYYLastCount' => 'receipt_id_yy_last_count',
+            'accountNumberPattern' => 'account_number_pattern',
+            'enableAccountNumberPattern' => 'enable_account_number_pattern',
+            'accountNoLastCount' => 'account_no_last_count',
             'paymentDetails' => 'payment_details',
             'isActive' => 'is_active'
         ];
