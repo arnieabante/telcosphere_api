@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api\HomePageSettingsRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BaseHomePageSettingsRequest extends FormRequest
+class BaseHomepageSettingsRequest extends FormRequest
 {
     public function mappedAttributes(): array {
         $attributes = [

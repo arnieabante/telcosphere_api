@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Api\HomePageSettingsRequest;
 
-class ReplaceHomePageSettingsRequest extends BaseHomePageSettingsRequest
+class ReplaceHomepageSettingsRequest extends BaseHomepageSettingsRequest
 {
     public function authorize(): bool
     {

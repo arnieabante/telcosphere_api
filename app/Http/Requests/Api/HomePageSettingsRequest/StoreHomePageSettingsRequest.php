@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Api\HomePageSettingsRequest;
 
-class StoreHomePageSettingsRequest extends BaseHomePageSettingsRequest
+class StoreHomepageSettingsRequest extends BaseHomepageSettingsRequest
 {
     public function rules(): array
     {
