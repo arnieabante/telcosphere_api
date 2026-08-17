@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Api\HomePageSettingsRequest;
+namespace App\Http\Requests\Api\HomepageSettingsRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
 
