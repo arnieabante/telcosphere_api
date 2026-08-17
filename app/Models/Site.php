@@ -11,7 +11,7 @@ use App\Models\AboutUsSettings;
 use App\Models\PricingSettings;
 use App\Models\CtaSettings;
 use App\Models\FooterSettings;
-use App\Models\InternetPlan;
+use App\Models\Internetplan;
 
 class Site extends Model
 {
@@ -80,6 +80,6 @@ class Site extends Model
 
     public function internetPlans()
     {
-        return $this->hasMany(InternetPlan::class, 'site_id');
+        return $this->hasMany(Internetplan::class, 'site_id');
     }
 }
