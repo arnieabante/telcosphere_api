@@ -32,7 +32,7 @@ class InternetplanController extends ApiController
             ->where('is_active', 1);
         if (!empty($include) && $include == 'all') {
             $internetplan = $query->orderBy('name', 'asc')
-                ->orderBy('monthly_subscription', 'asc')->get();
+                ->orderByRaw('CAST(monthly_subscription AS DECIMAL(10,2)) ASC')->get();
             return InternetplanResource::collection($internetplan);
         } else {
             if (!empty($search)) {
