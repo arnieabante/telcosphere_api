@@ -31,7 +31,8 @@ class InternetplanController extends ApiController
         $query = Internetplan::query()
             ->where('is_active', 1);
         if (!empty($include) && $include == 'all') {
-            $internetplan = $query->orderBy('name', 'asc')->get();
+            $internetplan = $query->orderBy('name', 'asc')
+                ->orderBy('monthly_subscription', 'asc')->get();
             return InternetplanResource::collection($internetplan);
         } else {
             if (!empty($search)) {
