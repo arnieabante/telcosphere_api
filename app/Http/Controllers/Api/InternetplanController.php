@@ -29,10 +29,11 @@ class InternetplanController extends ApiController
         $to = $request->get('to');
 
         $query = Internetplan::query()
-            ->where('is_active', 1);
+            ->where('is_active', 1)
+            ->orderByRaw('CAST(monthly_subscription AS DECIMAL(10,2)) ASC');
+            
         if (!empty($include) && $include == 'all') {
-            $internetplan = $query->orderBy('name', 'asc')
-                ->orderByRaw('CAST(monthly_subscription AS DECIMAL(10,2)) ASC')->get();
+            $internetplan = $query->orderBy('name', 'asc')->get();
             return InternetplanResource::collection($internetplan);
         } else {
             if (!empty($search)) {
