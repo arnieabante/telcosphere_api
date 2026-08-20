@@ -31,7 +31,7 @@ class InternetplanController extends ApiController
         $query = Internetplan::query()
             ->where('is_active', 1)
             ->orderByRaw('CAST(monthly_subscription AS DECIMAL(10,2)) ASC');
-            
+
         if (!empty($include) && $include == 'all') {
             $internetplan = $query->orderBy('name', 'asc')->get();
             return InternetplanResource::collection($internetplan);
@@ -77,7 +77,9 @@ class InternetplanController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $internetplan = Internetplan::where('uuid', $uuid)->firstOrFail();
+            $internetplan = Internetplan::where('uuid', $uuid)
+                ->orderByRaw('CAST(monthly_subscription AS DECIMAL(10,2)) ASC')
+                ->firstOrFail();
             return new InternetplanResource($internetplan);
 
         } catch (ModelNotFoundException $ex) {
