@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('homepage_settings', function (Blueprint $table) {
-            //
+            $table->unsignedBigInteger('created_by')->nullable()->after('created_at');
+            $table->unsignedBigInteger('updated_by')->nullable()->after('updated_at');
         });
     }
 
@@ -22,8 +23,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('homepage_settings', function (Blueprint $table) {
-            $table->unsignedBigInteger('created_by')->nullable()->after('created_at');
-            $table->unsignedBigInteger('updated_by')->nullable()->after('updated_at');
+            $table->dropColumn([
+                'created_by',
+                'updated_by',
+            ]);
         });
     }
 };
