@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\TicketCategoryController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\BillingController;
+use App\Http\Controllers\Api\ClientsDashboardController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\SiteController;
 use App\Http\Controllers\Api\PaymentController;
@@ -99,7 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('expenseitems', ExpenseItemController::class)->except(['update']);
     Route::patch('expenseitems/{uuid}', [ExpenseItemController::class, 'update']);
     Route::put('expenseitems/{uuid}', [ExpenseItemController::class, 'replace']);
-    
+
     Route::apiResource('sites', SiteController::class)->except(['update']);
     Route::patch('sites/{uuid}', [SiteController::class, 'update']);
     Route::put('sites/{uuid}', [SiteController::class, 'replace']);
