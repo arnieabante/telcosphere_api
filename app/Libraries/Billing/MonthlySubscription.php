@@ -175,7 +175,8 @@ class MonthlySubscription implements BillingInterface
 
     protected function calculateProratedCurrent($client): float {
         $monthlyRate = $this->getSubscriptionRate($client->internet_plan_id); // 1499
-        $totalDaysOfMonth = date('t'); // 31
+        //$totalDaysOfMonth = date('t'); // 31
+        $totalDaysOfMonth = 30; // Change this to default 30 days - changed 8/24/2025 during testing with Janice
         $dailyRate = $monthlyRate / $totalDaysOfMonth; // 48.35484
     
         $cycle = $this->getBillingCycle($client->billing_category_id);
