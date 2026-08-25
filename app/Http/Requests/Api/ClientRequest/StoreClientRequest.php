@@ -22,6 +22,7 @@ class StoreClientRequest extends BaseClientRequest
     public function rules(): array
     {
         return [
+            'userId' => 'required|numeric',
             'firstName' => 'required|string|min:2',
             'middleName' => 'nullable|string|min:2',
             'lastName' => 'required|string|min:2',
@@ -30,7 +31,7 @@ class StoreClientRequest extends BaseClientRequest
             'houseNo' => 'string|min:5',
             'latitude' => 'nullable|string',
             'longitude' => 'nullable|string',
-            'accountNo' => 'required|string', 
+            'accountNo' => 'required|string',
             'installationDate' => 'required|string',
             'installationFee' => 'nullable|string',
             'balanceFromPrevBilling' => 'nullable|numeric',

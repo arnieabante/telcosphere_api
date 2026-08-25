@@ -65,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('internetplans/{uuid}', [InternetplanController::class, 'replace']);
 
     Route::get('clients/find', [ClientController::class, 'find']);
+    Route::get('/clients/{uuid}', [ClientController::class, 'show'])->name('clients.show');
     Route::apiResource('clients', ClientController::class)->except(['update']);
     Route::patch('clients/{uuid}', [ClientController::class, 'update']);
     Route::put('clients/{uuid}', [ClientController::class, 'replace']);

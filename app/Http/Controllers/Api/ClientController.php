@@ -117,7 +117,18 @@ class ClientController extends ApiController
     public function show(string $uuid)
     {
         try {
+            //$user = Auth::user();
             $client = Client::with(['internetPlan', 'billingCategory', 'server', 'billings'])->where('uuid', $uuid)->firstOrFail();
+
+            // if (strtolower($user->role?->name ?? '') === 'client' ) {
+            //     if ( !$user->client || $user->client->id !== $client->id) {
+            //         return $this->error(
+            //             'You are not authorized to view this Client.',
+            //             403
+            //         );
+            //     }
+            // }
+
             return new ClientResource($client);
 
 

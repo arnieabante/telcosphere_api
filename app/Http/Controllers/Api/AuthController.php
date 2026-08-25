@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LoginUserRequest;
-use App\Http\Requests\Api\UserRequest;
 use App\Models\User;
 use App\Permissions\Abilties;
 use App\Traits\ApiResponses;
@@ -15,67 +14,98 @@ class AuthController extends Controller
 {
     use ApiResponses;
 
-   public function login(LoginUserRequest $request)
+    public function login(LoginUserRequest $request)
     {
         $request->validated();
-        $siteId = $request->site_id;
 
-        if (!Auth::attempt($request->only('username', 'password'))) {
-            return $this->error('Invalid Credentials.', 400);
-        }
+        $siteId = $request->siteId;
 
-        $user = User::with('role.modules')
+        /*
+        |--------------------------------------------------------------------------
+        | Find user by username + site
+        |--------------------------------------------------------------------------
+        */
+        $user = User::withoutGlobalScopes()
+            ->with('role.modules')
             ->where('username', $request->username)
-            ->where('site_id', $request->siteId)
+            ->where('site_id', $siteId)
             ->first();
-        
-        // check if user exists
+
         if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid Credentials.'
-            ], 400);
+            return $this->error('Invalid Credentials.', 401);
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Check active status
+        |--------------------------------------------------------------------------
+        */
+        if (!$user->is_active) {
+            return $this->error('Your account is inactive.', 403);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check password
+        |--------------------------------------------------------------------------
+        */
+        if (!Auth::attempt([
+            'username' => $user->username,
+            'password' => $request->password,
+        ])) {
+            return $this->error('Invalid Credentials.', 401);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check role
+        |--------------------------------------------------------------------------
+        */
+        if (!$user->role) {
+            return $this->error('Your account does not have a role assigned.', 403);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create Sanctum token
+        |--------------------------------------------------------------------------
+        */
         $token = $user->createToken(
             'API Token for ' . $user->email,
             Abilties::getAbilities($user),
             now()->addDay()
         )->plainTextToken;
 
+        /*
+        |--------------------------------------------------------------------------
+        | First module
+        |--------------------------------------------------------------------------
+        */
+        $firstModule = $user->role->modules->first();
+
         return $this->ok('Authenticated.', [
             'token' => $token,
+
             'user' => [
-                'uuid'     => $user->uuid,
-                'fullname' => $user->fullname,
-                'roleUuid'     => $user->role->uuid ?? null,  
-                'role'     => $user->role->name ?? null,  
-                'firstModule' => $user->role->modules[0]->url
-            ]
+                'uuid'       => $user->uuid,
+                'fullname'   => $user->fullname,
+                'username'   => $user->username,
+                'email'      => $user->email,
+
+                'roleUuid'   => $user->role->uuid,
+                'role'       => $user->role->name,
+
+                'firstModule' => $firstModule?->url,
+
+                'clientUuid' => $user->client?->uuid,
+            ],
         ]);
     }
 
-
-    public function logout(Request $request) {
-        $request->user()->currentAccessToken()->delete();
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()?->delete();
 
         return $this->ok('Logged out.');
     }
-
-    /* User Register is moved to UserController.
-    * Only admin acct can create a user
-    public function register(UserRequest $request) {
-        $request->validated($request->all());
-
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password
-        ]);
-
-        return $this->ok('Registered.', [], 201);
-        // TODO: include "Location" header field in the response
-    }
-    */
-
 }

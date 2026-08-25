@@ -155,28 +155,28 @@ class ModuleFactory extends Factory
             [
                 'name' => 'Monthly Collection Report',
                 'icon' => 'fa fa-key',
-                'parent_id' => 16,
+                'parent_id' => 17,
                 'description' => 'Generation of Monthly Collection Report',
                 'url' => 'montlycollectionreport'
             ],
             [
                 'name' => 'Monthly Expenses Report',
                 'icon' => 'fa fa-key',
-                'parent_id' => 16,
+                'parent_id' => 17,
                 'description' => 'Generation of Monthly Expenses Report',
                 'url' => 'montlyexpensesreport'
             ],
             [
                 'name' => 'Statement of Account',
                 'icon' => 'fa fa-key',
-                'parent_id' => 16,
+                'parent_id' => 17,
                 'description' => 'Generation of Statemement of Account',
                 'url' => 'soa'
             ],
             [
                 'name' => 'Account History',
                 'icon' => 'fa fa-key',
-                'parent_id' => 16,
+                'parent_id' => 17,
                 'description' => 'Generation of Account History',
                 'url' => 'accounthistory'
             ],
