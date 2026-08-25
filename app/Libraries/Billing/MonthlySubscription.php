@@ -210,7 +210,8 @@ class MonthlySubscription implements BillingInterface
 
     protected function calculatePrice($client): float {
         $monthlyRate = $this->getSubscriptionRate($client->internet_plan_id);
-        $totalDaysOfMonth = date('t');
+        //$totalDaysOfMonth = date('t');
+        $totalDaysOfMonth = 30; // change this to 30 by default 8/25/2026.
         $dailyRate = $monthlyRate / $totalDaysOfMonth;
 
         $cycle = $this->getBillingCycle($client->billing_category_id);
