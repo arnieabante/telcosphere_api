@@ -8,6 +8,7 @@ class BaseClientRequest extends FormRequest
 {
     public function mappedAttributes(): array {
         $attributes = [
+            'userId' => 'user_id',
             'firstName' => 'first_name',
             'middleName' => 'middle_name',
             'lastName' => 'last_name',

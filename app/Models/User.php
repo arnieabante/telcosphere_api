@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Scopes\SiteScope;
+use App\Models\Client;
 
 class User extends Authenticatable
 {
@@ -110,5 +111,10 @@ class User extends Authenticatable
 
     public function role(): BelongsTo {
         return $this->belongsTo(Role::class);
+    }
+
+    public function client()
+    {
+        return $this->hasOne(Client::class, 'user_id','id');
     }
 }

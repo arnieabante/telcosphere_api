@@ -22,6 +22,7 @@ class UpdateClientRequest extends BaseClientRequest
     public function rules(): array
     {
          return [
+            'userId' => 'sometimes|required|numeric',
             'firstName' => 'sometimes|required|string|min:2',
             'middleName' => 'sometimes|nullable|string|min:2',
             'lastName' => 'sometimes|required|string|min:2',
@@ -30,7 +31,7 @@ class UpdateClientRequest extends BaseClientRequest
             'houseNo' => 'sometimes|string|min:5',
             'latitude' => 'sometimes|nullable|string',
             'longitude' => 'sometimes|nullable|string',
-            'accountNo' => 'sometimes|required|string', 
+            'accountNo' => 'sometimes|required|string',
             'installationDate' => 'sometimes|required|string',
             'installationFee' => 'sometimes|nullable|string',
             'balanceFromPrevBilling' => 'sometimes|nullable|numeric',

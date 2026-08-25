@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\TicketCategoryController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\BillingController;
+use App\Http\Controllers\Api\ClientsDashboardController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\SiteController;
 use App\Http\Controllers\Api\PaymentController;
@@ -64,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('internetplans/{uuid}', [InternetplanController::class, 'replace']);
 
     Route::get('clients/find', [ClientController::class, 'find']);
+    Route::get('/clients/{uuid}', [ClientController::class, 'show'])->name('clients.show');
     Route::apiResource('clients', ClientController::class)->except(['update']);
     Route::patch('clients/{uuid}', [ClientController::class, 'update']);
     Route::put('clients/{uuid}', [ClientController::class, 'replace']);
