@@ -215,13 +215,18 @@ class MonthlySubscription implements BillingInterface
         $dailyRate = $monthlyRate / $totalDaysOfMonth;
 
         $cycle = $this->getBillingCycle($client->billing_category_id);
+
+        // Check if installation is within the current month AND current year
+        $isCurrentMonth = date('m', strtotime($client->installation_date)) === date('m')
+            && date('Y', strtotime($client->installation_date)) === date('Y');
+
         switch ($cycle) {
             case '30':
                 $endDate = new DateTime(date('Y-m-t'));
                 break;
             
             default:
-                if (date('m', strtotime($client->installation_date)) === date('m')) {
+                if ($isCurrentMonth) {
                     $endDate = new DateTime(date('Y-m-' . $cycle));
                 } else {
                     $endDate = new DateTime(date('Y-m-' . $cycle, 
@@ -235,7 +240,8 @@ class MonthlySubscription implements BillingInterface
         $interval = $startDate->diff($endDate);
         $price = $dailyRate * (int) $interval->days;
 
-        if ($interval->days < 30)
+        // Only prorate clients installed in the current month/year
+        if ($isCurrentMonth && $interval->days < 30)
             return round($price, 2);
         else 
             return $monthlyRate;
