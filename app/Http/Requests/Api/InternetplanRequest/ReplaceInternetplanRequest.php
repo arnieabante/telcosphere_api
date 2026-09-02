@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\InternetplanRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ReplaceInternetplanRequest extends BaseInternetplanRequest
 {
@@ -16,16 +17,51 @@ class ReplaceInternetplanRequest extends BaseInternetplanRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
+        $siteId = auth()->user()->site_id
+            ?? session('site_id')
+            ?? request()->header('site_id')
+            ?? 1;
+
         return [
-            'name' => 'required|string|min:5|unique:internetplans',
-            'monthly_subscription' => 'required|decimal:2',
-            'isActive' => 'required|boolean'
+            'name' => [
+                'required',
+                'string',
+                'min:5',
+                Rule::unique('internetplans')
+                    ->where(fn ($query) => $query
+                        ->where('site_id', $siteId)
+                        ->where('is_active', 1)
+                    ),
+            ],
+
+            'monthly_subscription' => [
+                'required',
+                'decimal:2',
+            ],
+
+            'is_featured' => [
+                'required',
+                'boolean',
+            ],
+
+            'features' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+
+            'features.*' => [
+                'required',
+                'string',
+            ],
+
+            'isActive' => [
+                'required',
+                'boolean',
+            ],
         ];
-        // TODO: improve to accommodate i.e. data.attributes.username
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+//use App\Models\Scopes\SiteScope;
 
 class Module extends Model
 {
@@ -13,11 +14,9 @@ class Module extends Model
 
     // default values
     protected $attributes = [
-       'site_id' => 1,
+       //'site_id' => 1,
        'parent_id' =>1,
-       'is_active' => 1,
-       'created_by' => 1,
-       'updated_by' => 1
+       'is_active' => 1
     ];
 
     protected $fillable = [
@@ -25,6 +24,14 @@ class Module extends Model
         'description',
         'is_active'
     ];
+
+    /*
+    protected static function booted()
+    {
+        // Apply global site filter
+        static::addGlobalScope(new SiteScope);
+    }
+    */
 
     public function getRouteKeyName(): string {
         // use uuid instead of id in model binding

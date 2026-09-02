@@ -21,7 +21,6 @@ class User extends Authenticatable
 
     // default values
     protected $attributes = [
-       'site_id' => 1,
        'is_active' => 1,
        'created_by' => 1, // TODO
        'updated_by' => 1 // TODO
@@ -33,6 +32,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'site_id',
         'fullname',
         'username',
         'email',
@@ -48,11 +48,21 @@ class User extends Authenticatable
 
         // Auto-assign site_id when creating a user
         static::creating(function ($user) {
-            $user->site_id = $user->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            // but only when site_id is not already set
+            if (empty($user->site_id)) {
+                $user->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
+            if (auth()->check()) {
+                $user->created_by = auth()->id();
+                $user->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($user) {
+            if (auth()->check()) {
+                $user->updated_by = auth()->id();
+            }
         });
     }
 

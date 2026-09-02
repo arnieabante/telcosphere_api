@@ -23,9 +23,9 @@ class ReplacePaymentRequest extends BasePaymentRequest
     {
         return [
             'receiptNo' => 'required|string',
-            'clientId' => 'required|decimal:2',
+            'clientId' => 'required|int',
             'collectionDate' => 'nullable|string',
-            'collectedBy' => 'nullable|string', 
+            'collectedBy' => 'nullable|string',
             'paymentMethod' => 'required|string|max:50',
             'reference' => 'string|nullable',
             'subtotal' => 'required|decimal:2',

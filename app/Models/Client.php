@@ -17,16 +17,14 @@ class Client extends Model
      * Default attribute values
      */
     protected $attributes = [
-        'site_id' => 1,
-        'is_active' => 1,
-        'created_by' => 1,
-        'updated_by' => 1,
+        'is_active' => 1
     ];
 
     /**
      * Mass assignable attributes
      */
     protected $fillable = [
+        'site_id',
         'first_name',
         'middle_name',
         'last_name',
@@ -39,6 +37,7 @@ class Client extends Model
         'installation_date',
         'installation_fee',
         'balance_from_prev_billing',
+        'balance_from_prev_billing_status',
         'current_balance',
         'prorate_fee',
         'prorate_start_date',
@@ -52,7 +51,10 @@ class Client extends Model
         'billing_category_id',
         'server_id',
         'internet_plan_id',
+        'prev_internet_plan_id',
         'last_auto_billing_date',
+        'pppoe_username',
+        'pppoe_password',
         'is_active',
     ];
 
@@ -63,11 +65,21 @@ class Client extends Model
 
         // Auto-assign site_id when creating a client
         static::creating(function ($client) {
-            $client->site_id = $client->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            // but only when site_id is not already set
+            if (empty($client->site_id)) {
+                $client->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
+            if (auth()->check()) {
+                $client->created_by = auth()->id();
+                $client->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($client) {
+            if (auth()->check()) {
+                $client->updated_by = auth()->id();
+            }
         });
     }
 
@@ -115,6 +127,22 @@ class Client extends Model
         $from = $filters['from'] ?? null;
         $to   = $filters['to'] ?? null;
 
+        // GET PREVIOUS BALANCE (BEFORE DATE RANGE)
+        $previousBilling = DB::table('billings')
+            ->where('client_id', $this->id);
+
+        $previousPayments = DB::table('payments')
+            ->where('client_id', $this->id);
+
+        if ($from) {
+            $previousBilling->whereDate('billing_date', '<', $from);
+            $previousPayments->whereDate('collection_date', '<', $from);
+        }
+
+        $prevDebit  = $previousBilling->sum('billing_total');
+        $prevCredit = $previousPayments->sum('amount_paid');
+        $previousBalance = $prevDebit - $prevCredit;
+
         $billings = DB::table('billings')
             ->select([
                 DB::raw("billings.invoice_number AS id"),
@@ -149,13 +177,18 @@ class Client extends Model
                 ->whereDate('payments.collection_date', '<=', $to);
         }
 
-        return $billings
+        $transactions = $billings
             ->unionAll($payments)
             ->orderBy('created_at')
             ->orderBy('soa_date')
             ->get();
+
+        return [
+            'previous_balance' => $previousBalance,
+            'transactions' => $transactions
+        ];
     }
-    
+
     public function getAccountHistory(array $filters = [])
     {
         $from = $filters['from'] ?? null;
