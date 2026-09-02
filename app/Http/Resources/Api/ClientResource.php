@@ -54,6 +54,8 @@ class ClientResource extends JsonResource
                 'serverId' => $this->server_id,
                 'billingCategoryId' => $this->billing_category_id,
                 'isActive' => $this->is_active,
+                'latestDueDate'=> $this->latest_due_date,
+                'latestDisconnectionDate' => $this->latest_disconnection_date,
                 $this->mergeWhen(
                     request()->routeIs('clients.show'),
                     [

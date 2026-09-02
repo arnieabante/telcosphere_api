@@ -32,6 +32,7 @@ class BillingResource extends JsonResource
                 'balanceFromPrevBilling' => $this->balance_from_prev_billing,
                 'billingCutoff' => $this->billing_cutoff,
                 'billingDisconnectionDate' => $this->disconnection_date,
+                'billingDueDate' => $this->due_date,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('billing.show'), [
