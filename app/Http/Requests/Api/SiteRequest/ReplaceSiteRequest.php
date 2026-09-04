@@ -29,6 +29,9 @@ class ReplaceSiteRequest extends BaseSiteRequest
             'invoiceIdYYLastCount' => 'sometimes|required|integer',
             'receiptIdPattern'       => 'nullable|string|max:8',
             'receiptIdYYLastCount' => 'sometimes|required|integer',
+            'accountNumberPattern' => 'nullable|string|max:20',
+            'enableAccountNumberPattern' => 'nullable|boolean',
+            'accountNoLastCount' => 'sometimes|integer|min:0',
             'paymentDetails'          => 'nullable|string',
             'isActive'                => 'sometimes|required|boolean',
         ];

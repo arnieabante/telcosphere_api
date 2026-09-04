@@ -20,6 +20,9 @@ class StoreSiteRequest extends BaseSiteRequest
             'companyTelephone'        => 'nullable|string|max:50',
             'invoiceIdPattern'       => 'nullable|string|max:8',
             'receiptIdPattern'       => 'nullable|string|max:8',
+            'accountNumberPattern'    => 'nullable|string|max:20',
+            'enableAccountNumberPattern' => 'nullable|boolean',
+            'accountNoLastCount' => 'sometimes|integer|min:0',
             'paymentDetails'          => 'nullable|string',
         ];
     }

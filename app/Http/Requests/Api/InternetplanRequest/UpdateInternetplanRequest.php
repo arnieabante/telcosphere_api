@@ -17,21 +17,58 @@ class UpdateInternetplanRequest extends BaseInternetplanRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
-        $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
+        $siteId = auth()->user()->site_id
+            ?? session('site_id')
+            ?? request()->header('site_id')
+            ?? 1;
+
         return [
-            'name' => ['sometimes','required','string','min:5', Rule::unique('internetplans')
-                ->ignore($this->uuid, 'uuid')
-                ->where(fn ($query) => $query
-                    ->where('site_id', $siteId)
-                    ->where('is_active', 1)
-            )],
-            'monthly_subscription' => 'sometimes|required|decimal:2'
+            'name' => [
+                'sometimes',
+                'required',
+                'string',
+                'min:5',
+
+                Rule::unique('internetplans')
+                    ->ignore($this->uuid, 'uuid')
+                    ->where(fn ($query) => $query
+                        ->where('site_id', $siteId)
+                        ->where('is_active', 1)
+                    ),
+            ],
+
+            'monthly_subscription' => [
+                'sometimes',
+                'required',
+                'decimal:2',
+            ],
+
+            'is_featured' => [
+                'sometimes',
+                'required',
+                'boolean',
+            ],
+
+            'features' => [
+                'sometimes',
+                'required',
+                'array',
+                'min:1',
+            ],
+
+            'features.*' => [
+                'required',
+                'string',
+            ],
+
+            'isActive' => [
+                'sometimes',
+                'required',
+                'boolean',
+            ],
         ];
-        // TODO: improve to accommodate i.e. data.attributes.username
     }
 }

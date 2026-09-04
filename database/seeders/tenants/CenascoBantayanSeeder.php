@@ -16,12 +16,12 @@ class CenascoBantayanSeeder extends Seeder
     {
         // 1. Create site (or find existing)
         $site = Site::firstOrCreate([
-            'company_name' => 'Cenasco Bantayan',
-            'company_address' => 'Sangi, Bantayan, City',
+            'company_name' => 'Cenasco Daan-Bantayan',
+            'company_address' => 'Daan-Bantayan, Cebu',
         ], [
             'uuid' => fake()->uuid(),
-            'site_url' => 'cenascobantayan.telcosphere.co',
-            'company_email' => 'admin.cenascobantayan@telcosphere.co',
+            'site_url' => 'cenascodaanbantayan.telcosphere.co',
+            'company_email' => 'admin.cenascodaanbantayan@telcosphere.co',
             'is_active' => 1,
             'created_by' => 1,
             'updated_by' => 1
@@ -63,13 +63,13 @@ class CenascoBantayanSeeder extends Seeder
 
         // 5. Create default admin user
         User::firstOrCreate([
-            'username' => 'cenascobantayan.admin',
+            'username' => 'cenascodaanbantayan.admin',
             'site_id' => $site->id
         ], [
             'uuid' => fake()->uuid(),
             'fullname' => 'Administrator',
-            'email' => 'cenascobantayan.admin@telcosphere.co',
-            'password' => Hash::make('C3nascoBantayan@password'),
+            'email' => 'cenascodaanbantayan.admin@telcosphere.co',
+            'password' => Hash::make('C3nascoDaanBantayan@password'),
             'role_id' => $adminRole->id,
             'is_active' => 1,
             'created_by' => 1,

@@ -30,6 +30,7 @@ class PesoWifiHarvestController extends ApiController
         $search = $request->get('search');
         $from = $request->get('from');
         $to = $request->get('to');
+        $include = $request->get('include');
 
         $query = PesoWifiHarvest::with(['pesoWifiClient.pesoWifiArea', 'collectedBy'])
             ->where('is_active', 1);
@@ -67,6 +68,20 @@ class PesoWifiHarvestController extends ApiController
         }
 
         $totalPesoWifiHarvest = PesoWifiHarvest::where('is_active', 1)->count();
+
+        // Return ALL records for reporting
+        if ($include === 'all') {
+            $pesowifiharvests = $query
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return PesoWifiHarvestResource::collection($pesowifiharvests)
+                ->additional([
+                    'meta' => [
+                        'pesowifiharvests_total' => $totalPesoWifiHarvest
+                    ]
+                ]);
+        }
 
         $pesowifiharvests = $query->orderBy('created_at', 'desc')
             ->paginate($perPage);

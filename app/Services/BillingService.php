@@ -8,6 +8,7 @@ use Exception;
 use App\Http\Resources\Api\BillingResource;
 use App\Models\BillingCategory;
 use App\Models\Client;
+use Carbon\Carbon;
 
 class BillingService
 {
@@ -59,6 +60,7 @@ class BillingService
                 'billing_status' => self::STATUS_PENDING,
                 'billing_cutoff' => $data['billingCutoff'] ?? NULL,
                 'disconnection_date' => $data['disconnectionDate'] ?? NULL,
+                'due_date' => $data['billingCutoff'] ?? NULL,
                 'balance_from_prev_billing' => floatVal($prevBalance)
             ]);
 
@@ -94,10 +96,20 @@ class BillingService
                 ->where('is_active', 1)
                 ->sum('billing_balance');
 
+            $latestDueDate = NULL;
+
+            if ($client->billingCategory && $client->billingCategory->days_to_due_date !== null) {
+                $latestDueDate = Carbon::parse($billing->billing_date)
+                    ->addDays((int) $client->billingCategory->days_to_due_date)
+                    ->toDateString();
+            }
+
             $billing->client()->update([
                 'current_balance' => $currentClientBalance,
                 'prorate_fee_status' => self::STATUS_BILLED,
-                'last_auto_billing_date' => date('Y-m-d H:i:s'), // current date
+                'last_auto_billing_date' => $billing->billing_date,
+                'latest_due_date' => $latestDueDate,
+                'latest_disconnection_date' => $billing->disconnection_date,
             ]);
         }
     }
@@ -202,7 +214,7 @@ class BillingService
 
     public function runAutomatedBilling(BillingInterface $billingType)
     {
-        $categories = BillingCategory::select(['id', 'name'])
+        $categories = BillingCategory::select(['id', 'name', 'days_to_due_date'])
             ->where('date_cycle', date('d'))
             ->where('site_id', auth()->user()->site_id)
             ->get();

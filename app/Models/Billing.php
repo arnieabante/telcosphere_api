@@ -35,7 +35,8 @@ class Billing extends Model
         'billing_status',
         'balance_from_prev_billing',
         'billing_cutoff',
-        'disconnection_date'
+        'disconnection_date',
+        'due_date'
     ];
 
     protected static function booted()

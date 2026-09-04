@@ -13,7 +13,7 @@ class PesoWifiMenuSeeder extends Seeder
         $parentId = DB::table('modules')->insertGetId([
             'uuid' => (string) Str::uuid(), // ✅ ADD THIS
             'name' => 'Peso Wifi Sections',
-            'icon' => 'fa fa-globe',
+            'icon' => 'fa fa-wifi',
             'parent_id' => 0,
             'description' => 'Peso Wifi Sections',
             'url' => '',
