@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\SiteController;
+use App\Http\Controllers\Api\SiteBankAccountController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PesoWifiAreaController;
 use App\Http\Controllers\Api\PesoWifiClientController;
@@ -111,6 +112,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('sites', SiteController::class)->except(['update']);
     Route::patch('sites/{uuid}', [SiteController::class, 'update']);
     Route::put('sites/{uuid}', [SiteController::class, 'replace']);
+
+    Route::apiResource('bank_account', SiteBankAccountController::class)->except(['update']);
+    Route::patch('bank_account/{uuid}', [SiteBankAccountController::class, 'update']);
+    Route::put('bank_account/{uuid}', [SiteBankAccountController::class, 'replace']);
+    Route::get('bank_account/site/{siteUuid}', [SiteBankAccountController::class, 'getBankAccount']);
 
     Route::apiResource('pesowifiareas', PesoWifiAreaController::class)->except(['update']);
     Route::patch('pesowifiareas/{uuid}', [PesoWifiAreaController::class, 'update']);
