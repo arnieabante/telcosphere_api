@@ -63,21 +63,21 @@ class SiteController extends ApiController
     /**
      * Update the specified resource in storage.
      */
-   public function update(UpdateSiteRequest $request, string $uuid)
+    public function update(UpdateSiteRequest $request, string $uuid)
     {
-        try { 
+        try {
             // fetch the site
             $site = Site::where('uuid', $uuid)->firstOrFail();
 
             // update using the validated/mapped attributes
             $attr = $request->mappedAttributes();
-            
+
             if ($request->hasFile('companyLogo')) {
                 // access/store the image file separeately
                 $imgUpload = $_FILES['companyLogo'];
                 $tmpPath = $imgUpload['tmp_name'];
                 $newImgName = uniqid() . '.' . pathinfo($imgUpload['name'], PATHINFO_EXTENSION);
-                
+
                 move_uploaded_file(
                     $tmpPath,
                     storage_path('app/public/' . $newImgName)
@@ -85,7 +85,7 @@ class SiteController extends ApiController
 
                 $attr['company_logo'] = $newImgName;
             }
-            
+
             // update site
             $site->update($attr);
 
@@ -107,10 +107,10 @@ class SiteController extends ApiController
         try {
             // replace policy
             // $this->isAble('replace', Site::class);
-            
+
             $site = Site::where('uuid', $uuid)->firstOrFail();
             $affected = $site->update($request->mappedAttributes());
-            
+
             return new SiteResource($site);
 
         } catch (ModelNotFoundException $ex) {
