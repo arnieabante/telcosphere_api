@@ -63,15 +63,33 @@ class SiteController extends ApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSiteRequest $request, string $uuid)
+   public function update(UpdateSiteRequest $request, string $uuid)
     {
         try { 
-            // update policy
-            // $this->isAble('update', Site::class);
-
+            // fetch the site
             $site = Site::where('uuid', $uuid)->firstOrFail();
-            $affected = $site->update($request->mappedAttributes());
+
+            // update using the validated/mapped attributes
+            $attr = $request->mappedAttributes();
             
+            if ($request->hasFile('companyLogo')) {
+                // access/store the image file separeately
+                $imgUpload = $_FILES['companyLogo'];
+                $tmpPath = $imgUpload['tmp_name'];
+                $newImgName = uniqid() . '.' . pathinfo($imgUpload['name'], PATHINFO_EXTENSION);
+                
+                move_uploaded_file(
+                    $tmpPath,
+                    storage_path('app/public/' . $newImgName)
+                );
+
+                $attr['company_logo'] = $newImgName;
+            }
+            
+            // update site
+            $site->update($attr);
+
+            // return the updated site resource
             return new SiteResource($site);
 
         } catch (ModelNotFoundException $ex) {
@@ -81,7 +99,6 @@ class SiteController extends ApiController
             return $this->error('You are not authorized to update a Site.', 401);
         }
     }
-
     /**
      * Replace the specified resource in storage.
      */
@@ -129,14 +146,33 @@ class SiteController extends ApiController
     public function showByUrl(string $url)
     {
         try {
-            $site = Site::where('site_url', $url)->firstOrFail();
+
+            $site = Site::with([
+                'homepageSettings',
+                'aboutUsSettings',
+                'pricingSettings',
+                'ctaSettings',
+                'footerSettings',
+                'internetPlans'
+            ])
+            ->where('site_url', $url)
+            ->firstOrFail();
+
             return new SiteResource($site);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Site does not exist.', 404);
+
+            return $this->error(
+                'Site does not exist.',
+                404
+            );
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to view a Site.', 401);
+
+            return $this->error(
+                'You are not authorized to view this Site.',
+                401
+            );
         }
     }
 }

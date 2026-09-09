@@ -14,13 +14,11 @@ class Expense extends Model
 
     // default values
     protected $attributes = [
-       'site_id' => 1,
-       'is_active' => 1,
-       'created_by' => 1,
-       'updated_by' => 1
+       'is_active' => 1
     ];
 
     protected $fillable = [
+        'site_id',
         'expense_date',
         'staff_name',
         'total',
@@ -32,13 +30,23 @@ class Expense extends Model
         // Apply global site filter
         static::addGlobalScope(new SiteScope);
 
-        // Auto-assign site_id when creating a expensecategory
+        // Auto-assign site_id when creating a expenses
         static::creating(function ($expenses) {
-            $expenses->site_id = $expenses->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            // but only when site_id is not already set
+            if (empty($expenses->site_id)) {
+                $expenses->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
+            if (auth()->check()) {
+                $expenses->created_by = auth()->id();
+                $expenses->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($expenses) {
+            if (auth()->check()) {
+                $expenses->updated_by = auth()->id();
+            }
         });
     }
 

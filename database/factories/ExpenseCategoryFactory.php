@@ -24,7 +24,7 @@ class ExpenseCategoryFactory extends Factory
 
         return [
             'uuid' => fake()->uuid(),
-            'site_id' => 1,
+            'site_id' => 2,
             'name' => $expense['name'],
             'description' => $expense['description'],
             'is_active' => 1,

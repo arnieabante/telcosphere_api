@@ -16,21 +16,38 @@ class Role extends Model
 
     // default values
     protected $attributes = [
-       'site_id' => 1,
-       'is_active' => 1,
-       'created_by' => 1, // TODO
-       'updated_by' => 1 // TODO
+       'is_active' => 1
     ];
 
     protected $fillable = [
+        'site_id',
         'name',
         'description',
         'is_active'
     ];
-    
+
     protected static function booted()
     {
+        // Apply global site filter
         static::addGlobalScope(new SiteScope);
+
+        // Auto-assign site_id when creating a role
+        static::creating(function ($role) {
+            // but only when site_id is not already set
+            if (empty($role->site_id)) {
+                $role->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
+            if (auth()->check()) {
+                $role->created_by = auth()->id();
+                $role->updated_by = auth()->id();
+            }
+        });
+        static::updating(function ($role) {
+            if (auth()->check()) {
+                $role->updated_by = auth()->id();
+            }
+        });
     }
 
     public function getRouteKeyName(): string {
@@ -41,7 +58,7 @@ class Role extends Model
     public function uniqueIds(): array {
         return ['uuid'];
     }
-    
+
     /**
      * Mutator to capitalize the first letter of name attribute.
      */

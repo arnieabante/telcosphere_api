@@ -22,12 +22,13 @@ class UpdateBillingCategoryRequest extends BaseBillingCategoryRequest
      */
     public function rules(): array
     {
+        $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => ['sometimes', 'required', 'string', 'min:3', Rule::unique('billing_categories')->ignore($this->uuid, 'uuid')],
+           'name' => ['sometimes', 'required','string','min:3', Rule::unique('billing_categories')->where(fn ($query) => $query->where('site_id', $siteId))->ignore($this->uuid, 'uuid')],
             'description' => 'sometimes|required|string|max:100',
-            'dateCycle' => 'required|integer',
-            'daysToDueDate' => 'required|integer',
-            'daysToDisconnectionDate' => 'required|integer',
+            'dateCycle' => 'sometimes|required|integer',
+            'daysToDueDate' => 'sometimes|required|integer',
+            'daysToDisconnectionDate' => 'sometimes|required|integer',
             'isActive' => 'sometimes|required|boolean'
         ];
         // TODO: improve to accommodate i.e. data.attributes.username

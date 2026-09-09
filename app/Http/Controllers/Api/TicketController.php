@@ -29,8 +29,12 @@ class TicketController extends ApiController
         $search = $request->get('search');
         $statusFilter = $request->get('status');
         $clientUuid = $request->get('client_id');
+        $from = $request->get('from');
+        $to = $request->get('to');
 
-        $query = Ticket::with(['client', 'ticketCategory', 'assignedTo'])
+        $today = Carbon::today();
+
+        $query = Ticket::with(['client', 'ticketCategory', 'assignedTo', 'createdBy'])
             ->where('is_active', 1);
 
         if(!empty($clientUuid) || $clientUuid != ''){
@@ -42,34 +46,60 @@ class TicketController extends ApiController
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                 ->orWhere('status', 'like', "%{$search}%")
+                ->orWhere('requestor_name', 'like', "%{$search}%")
+                ->orWhere('requestor_location', 'like', "%{$search}%")
+                ->orWhere('requested_date', 'like', "%{$search}%")
+                ->orWhere('due_date', 'like', "%{$search}%")
                 ->orWhereHas('client', function ($clientQuery) use ($search) {
-                    $clientQuery->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%");
+                    $clientQuery->where('account_no', 'like', "%{$search}%");
                 })
                 ->orWhereHas('ticketCategory', function ($ticketCategoryQuery) use ($search) {
                     $ticketCategoryQuery->where('name', 'like', "%{$search}%");
                 })
                 ->orWhereHas('assignedTo', function ($userQuery) use ($search) {
                     $userQuery->where('fullname', 'like', "%{$search}%");
+                })
+               ->orWhereHas('createdBy', function ($userQuery) use ($search) {
+                    $userQuery->where('fullname', 'like', "%{$search}%");
                 });
             });
         }
 
-        if (!empty($statusFilter) && $statusFilter != 'due') {
-            $statusMap = [
-                'new'     => ['new'],
-                'ongoing' => ['assigned', 'ongoing'],
-                'done'    => ['done'],
-                'hold'    => ['hold'],
-            ];
-
-            if (isset($statusMap[$statusFilter])) {
-                $query->whereIn('status', $statusMap[$statusFilter]);
-            }
+        // Filter by date range
+        if (!empty($from) && !empty($to)) {
+            $query->whereBetween('requested_date', [$from, $to]);
         }
 
-        if (!empty($statusFilter) && $statusFilter == 'due') {
-            $query->whereDate('due_date', '<=', Carbon::today());
+        if (!empty($statusFilter)) {
+            switch ($statusFilter) {
+                case 'new':
+                    $query->where('status', 'new')
+                        ->whereNull('due_date');
+                    break;
+
+                case 'ongoing':
+                    $query->whereIn('status', ['assigned', 'ongoing'])
+                        ->whereDate('due_date', '>', $today);
+                    break;
+
+                case 'done':
+                    $query->where('status', 'done');
+                    break;
+
+                case 'hold':
+                    $query->where('status', 'hold');
+                    break;
+
+                case 'due':
+                    $query->where('status', '!=', 'done')
+                        ->whereDate('due_date', '<=', $today);
+                    break;
+
+                case 'total':
+                default:
+                    // no filter
+                    break;
+            }
         }
 
         $tickets = $query->orderBy('created_at', 'desc')
@@ -86,13 +116,16 @@ class TicketController extends ApiController
                 'tickets_growth' => $totalGrowth,
                 'status' => [
                     'total'   => Ticket::where('is_active', 1)->count(),
-                    'new' => Ticket::where('status', 'new')->where('is_active', 1)->count(),
-                    'ongoing' => Ticket::whereIn('status', ['assigned', 'ongoing'])->where('is_active', 1)->count(),
+                    'new' => Ticket::where('status', 'new')->whereNull('due_date')->where('is_active', 1)->count(),
+                    'ongoing' => Ticket::whereIn('status', ['assigned', 'ongoing'])
+                            ->whereDate('due_date', '>', Carbon::today())
+                            ->where('is_active', 1)->count(),
                     'done' => Ticket::where('status', 'done')->where('is_active', 1)->count(),
                     'hold' => Ticket::where('status', 'hold')->where('is_active', 1)->count(),
                     'due' => Ticket::where('is_active', 1)
-                            ->whereDate('due_date', '<=', Carbon::today())
-                            ->count(),
+                        ->where('status', '!=', 'done')
+                        ->whereDate('due_date', '<=', $today)
+                        ->count(),
                 ]
             ]
         ]);

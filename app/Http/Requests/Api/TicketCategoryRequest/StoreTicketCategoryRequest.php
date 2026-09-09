@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\TicketCategoryRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreTicketCategoryRequest extends BaseTicketCategoryRequest
 {
@@ -21,10 +22,11 @@ class StoreTicketCategoryRequest extends BaseTicketCategoryRequest
      */
     public function rules(): array
     {
+        $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => 'required|string|min:3|unique:ticket_categories',
-            'isActive' => 'sometimes|required|boolean',
-            'description' => 'nullable|string|min:3'
+            'name' => ['required','string','min:5', Rule::unique('ticket_categories')->where(fn ($query) => $query->where('site_id', $siteId))],
+            'description' => 'string|min:3',
+            'isActive' => 'required|boolean'
         ];
     }
 }

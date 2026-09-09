@@ -41,17 +41,7 @@ class SiteFactory extends Factory
                 'site_url' => "app.telcosphere.co",
                 'company_name' => 'TelcoSpere ERP Solutions',
                 'company_address' => 'Cebu, City',
-                'company_email' => 'app@telcosphere.co',
-                'company_phone' => '',
-                'company_telephone' => ''
-            ],
-            [
-                'company_logo' => null,
-                'company_banner' => null,
-                'site_url' => "redjacobjaden.telcosphere.co",
-                'company_name' => 'RedJacobJaden Internet Services',
-                'company_address' => 'Cantinlo, Liptong, Santander, Cebu',
-                'company_email' => 'redjacobjaden@telcosphere.co',
+                'company_email' => 'abantesoft@telcosphere.co',
                 'company_phone' => '',
                 'company_telephone' => ''
             ]

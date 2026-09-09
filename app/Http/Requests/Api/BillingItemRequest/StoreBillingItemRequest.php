@@ -22,14 +22,25 @@ class StoreBillingItemRequest extends BaseBillingItemRequest
     public function rules(): array
     {
         return [
-            'billingItemName' => 'required|string|min:5',
-            'billingItemParticulars' => 'required|string|min:5',
-            'billingItemQuantity' => 'required|numeric',
-            'billingItemRemark' => 'required|string|min:5',
-            'billingItemAmount' => 'required|digits_between:1,8|decimal:0,2',
-            'billingItemOffset' => 'required|digits_between:1,8|decimal:0,2',
-            'billingItemBalance' => 'required|digits_between:1,8|decimal:0,2',
-            'isActive' => 'required|boolean'
+            'billing.billingItems' => 'required|array|min:1',
+            'billing.billingItems.*.billingItemName' => 'required_if:billing.billingType,2,3,4|string|min:5|max:100',
+            'billing.billingItems.*.billingItemParticulars' => 'required_if:billing.billingType,2,3,4|string|min:5|max:100',
+            'billing.billingItems.*.billingItemPrice' => 'required_if:billing.billingType,2,3,4|numeric|min:1|decimal:0,2',
+            'billing.billingItems.*.billingItemQuantity' => 'required|numeric|min:1|max:999',
+            'billing.billingItems.*.billingItemRemark' => 'string|min:5|nullable',
+        ];
+    }
+
+    public function messages(): array 
+    {
+        return [
+            'billing.billingItems.*.billingItemName.required_if' => 'Category or Item Name is required.',
+            'billing.billingItems.*.billingItemName.*' => 'Category or Item Name is too short or too long.',
+            'billing.billingItems.*.billingItemParticulars.required_if' => 'Particulars is required.',
+            'billing.billingItems.*.billingItemParticulars.*' => 'Particulars is too short or too long.',
+            'billing.billingItems.*.billingItemPrice.decimal' => 'Price should have 2 decimal places only.',
+            'billing.billingItems.*.billingItemPrice.*' => 'Price should be between the range of 1.00 to 999,999.99',
+            'billing.billingItems.*.billingItemQuantity.*' => 'Quantity should be between the range of 1 and 999.'
         ];
     }
 }

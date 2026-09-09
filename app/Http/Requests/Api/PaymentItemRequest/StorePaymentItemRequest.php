@@ -22,12 +22,12 @@ class StorePaymentRequest extends BasePaymentRequest
     public function rules(): array
     {
         return [
-            'billing_id' => 'required|number',
-            'billingItemId' => 'required|number',
+            'billing_id' => 'required|integer',
+            'billingItemId' => 'required|integer',
             'particulars' => 'required|string',
-            'amount' => 'required|number',
-            'amountPaid' => 'required|number',
-            'amountBalance' => 'required|number',
+            'amount' => 'required|integer',
+            'amountPaid' => 'required|integer',
+            'amountBalance' => 'required|integer',
             'isActive' => 'required|string'
         ];
     }

@@ -1,0 +1,40 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('peso_wifi_clients', function (Blueprint $table) {
+            $table->id();
+            $table->uuid('uuid');
+            $table->integer('site_id');
+            $table->string('name')->unique();
+            $table->integer('area_id');
+            $table->integer('harvest_day');
+            $table->integer('reseller_share');
+            $table->string('device_status');
+            $table->string('last_harvest_date')->nullable();
+            $table->string('next_harvest_date')->nullable();
+            $table->boolean('is_harvested')->default(false);
+            $table->boolean('is_active');
+            $table->integer('created_by');
+            $table->integer('updated_by');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('peso_wifi_clients');
+    }
+};

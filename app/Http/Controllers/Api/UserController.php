@@ -28,7 +28,10 @@ class UserController extends ApiController
         $search = $request->get('search');
         $include = $request->get('include');
         $filter = $request->get('filter'); // e.g. "role"
-        $value = $request->get('value');   // e.g. "Technician"
+        $value = $request->get('value');   // e.g. "Technician"        
+        $from = $request->get('from');
+        $to = $request->get('to');
+
 
         $query = User::query()->with('role');
             if (!empty($filter) && !empty($value)) {
@@ -57,6 +60,12 @@ class UserController extends ApiController
                 });
             }
         }
+        
+        // Filter by date range
+        if (!empty($from) && !empty($to)) {
+            $query->whereBetween('created_at', [$from, $to]);
+        }
+        
 
         $users = $query->orderBy('created_at', 'desc')->paginate($perPage);
         return UserResource::collection($users);

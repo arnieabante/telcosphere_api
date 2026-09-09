@@ -15,7 +15,7 @@ class ModuleFactory extends Factory
 
         return [
             'uuid' => fake()->uuid(),
-            'site_id' => 1,
+            //'site_id' => 1,
             'parent_id' => $item['parent_id'],   // static
             'icon' => $item['icon'],             // static
             'name' => $item['name'],             // static
@@ -146,6 +146,20 @@ class ModuleFactory extends Factory
                 'url' => ''
             ],
             [
+                'name' => 'Monthly Collection Report',
+                'icon' => 'fa fa-key',
+                'parent_id' => 16,
+                'description' => 'Generation of Monthly Collection Report',
+                'url' => 'montlycollectionreport'
+            ],
+            [
+                'name' => 'Monthly Expenses Report',
+                'icon' => 'fa fa-key',
+                'parent_id' => 16,
+                'description' => 'Generation of Monthly Expenses Report',
+                'url' => 'montlyexpensesreport'
+            ],
+            [
                 'name' => 'Statement of Account',
                 'icon' => 'fa fa-key',
                 'parent_id' => 16,
@@ -159,6 +173,13 @@ class ModuleFactory extends Factory
                 'description' => 'Generation of Account History',
                 'url' => 'accounthistory'
             ],
+            [
+                'name' => 'Site Settings',
+                'icon' => 'fa fa-sliders',
+                'parent_id' => 0,
+                'description' => 'Site Settings',
+                'url' => 'sitesettings'
+            ]
         ];
 
         return array_shift($modules);

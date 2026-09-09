@@ -24,10 +24,18 @@ class AuthController extends Controller
             return $this->error('Invalid Credentials.', 400);
         }
 
-        $user = User::with('role')
+        $user = User::with('role.modules')
             ->where('username', $request->username)
             ->where('site_id', $request->siteId)
             ->first();
+        
+        // check if user exists
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid Credentials.'
+            ], 400);
+        }
 
         $token = $user->createToken(
             'API Token for ' . $user->email,
@@ -42,6 +50,7 @@ class AuthController extends Controller
                 'fullname' => $user->fullname,
                 'roleUuid'     => $user->role->uuid ?? null,  
                 'role'     => $user->role->name ?? null,  
+                'firstModule' => $user->role->modules[0]->url
             ]
         ]);
     }

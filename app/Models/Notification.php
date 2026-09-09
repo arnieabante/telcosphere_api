@@ -13,13 +13,11 @@ class Notification extends Model
 
     // default values
     protected $attributes = [
-       'site_id' => 1,
-       'is_active' => 1,
-       'created_by' => 1,
-       'updated_by' => 1
+       'is_active' => 1
     ];
 
     protected $fillable = [
+        'site_id',
         'user_id',
         'ticket_id',
         'type',
@@ -35,11 +33,21 @@ class Notification extends Model
 
         // Auto-assign site_id when creating a notification
         static::creating(function ($notification) {
-            $notification->site_id = $notification->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            // but only when site_id is not already set
+            if (empty($notification->site_id)) {
+                $notification->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
+             if (auth()->check()) {
+                $notification->created_by = auth()->id();
+                $notification->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($notification) {
+            if (auth()->check()) {
+                $notification->updated_by = auth()->id();
+            }
         });
     }
 
