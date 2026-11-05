@@ -12,6 +12,7 @@ use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdvancePaymentsController extends ApiController
 {
@@ -29,18 +30,21 @@ class AdvancePaymentsController extends ApiController
         $from = $request->get('from');
         $to = $request->get('to');
 
-        $query = AdvancePayments::query()
-            ->where('is_active', 1);
+        $query = AdvancePayments::query()->with('client');
 
         if (!empty($include) && $include == 'all') {
-            $expensecategories = $query->orderBy('name', 'asc')->get();
-            return AdvancePaymentsResource::collection($expensecategories);
+            $advancepayments = $query->orderBy('created_at', 'desc')->get();
+            return AdvancePaymentsResource::collection($advancepayments);
 
         } else {
             if (!empty($search)) {
                 $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+                    $q->where('amount', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($clientQuery) use ($search) {
+                        $clientQuery->where('first_name', 'like', "%{$search}%")
+                                    ->orWhere('last_name', 'like', "%{$search}%")
+                                    ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                    });
                 });
             }
         }
@@ -49,32 +53,37 @@ class AdvancePaymentsController extends ApiController
             $query->whereBetween('created_at', [$from, $to]);
         }
 
-        $expensecategories = $query->orderBy('created_at', 'desc')->paginate($perPage);
-        return AdvancePaymentsResource::collection($expensecategories);
+        $advancepayments = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        return AdvancePaymentsResource::collection($advancepayments);
     }
 
     /**
      * Store a newly created resource in storage.
-    */
+     */
     public function store(StoreAdvancePaymentsRequest $request)
     {
         try {
-            $attributes = $request->mappedAttributes();
+            // a client has a single advance payment record, new deposits add to it
+            return DB::transaction(function () use ($request) {
+                $attributes = $request->mappedAttributes();
 
-            $advancePayment = AdvancePayments::where('client_id', $attributes['client_id'])
-                ->first();
+                $advancepayments = AdvancePayments::where('client_id', $attributes['client_id'])
+                    ->lockForUpdate()
+                    ->first();
 
-            if ($advancePayment) {
-                $advancePayment->amount += $attributes['amount'];
-                $advancePayment->save();
-            } else {
-                $advancePayment = AdvancePayments::create($attributes);
-            }
+                if ($advancepayments) {
+                    $advancepayments->update([
+                        'amount' => round($advancepayments->amount + $attributes['amount'], 2)
+                    ]);
+                } else {
+                    $advancepayments = AdvancePayments::create($attributes);
+                }
 
-            return new AdvancePaymentsResource($advancePayment);
+                return new AdvancePaymentsResource($advancepayments);
+            });
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to create an Expense Category.', 401);
+            return $this->error('You are not authorized to create an Advance Payment.', 401);
         }
     }
 
@@ -88,9 +97,9 @@ class AdvancePaymentsController extends ApiController
             return new AdvancePaymentsResource($advancepayments);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Expense Category does not exist.', 404);
+            return $this->error('Advance Payment does not exist.', 404);
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to view a Expense Category.', 401);
+            return $this->error('You are not authorized to view an Advance Payment.', 401);
         }
     }
 
@@ -109,10 +118,10 @@ class AdvancePaymentsController extends ApiController
             return new AdvancePaymentsResource($advancepayments);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Expense Category does not exist.', 404);
+            return $this->error('Advance Payment does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to update a Expense Category.', 401);
+            return $this->error('You are not authorized to update an Advance Payment.', 401);
         }
     }
 
@@ -131,10 +140,10 @@ class AdvancePaymentsController extends ApiController
             return new AdvancePaymentsResource($advancepayments);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Expense Category does not exist.', 404);
+            return $this->error('Advance Payment does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to replace a Expense Category.', 401);
+            return $this->error('You are not authorized to replace an Advance Payment.', 401);
         }
     }
 
@@ -150,10 +159,10 @@ class AdvancePaymentsController extends ApiController
             return $this->ok("Deleted $affected record.", []);
 
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Expense Category does not exist.', 404);
+            return $this->error('Advance Payment does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to delete a Expense Category.', 401);
+            return $this->error('You are not authorized to delete an Advance Payment.', 401);
         }
     }
 }

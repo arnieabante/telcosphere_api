@@ -24,8 +24,12 @@ class StoreAdvancePaymentsRequest extends BaseAdvancePaymentsRequest
     {
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'clientId' => ['required'],
-            'amount' => 'nullable|max:100'
+            'clientId' => [
+                'required',
+                'integer',
+                Rule::exists('clients', 'id')->where(fn ($query) => $query->where('site_id', $siteId)->where('is_active', 1))
+            ],
+            'amount' => 'required|numeric|decimal:0,2|min:0.01|max:999999.99'
         ];
     }
 }

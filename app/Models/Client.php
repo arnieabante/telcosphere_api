@@ -141,7 +141,7 @@ class Client extends Model
             $previousPayments->whereDate('collection_date', '<', $from);
         }
 
-        $prevDebit  = $previousBilling->sum('billing_total');
+        $prevDebit  = $previousBilling->sum(DB::raw('billing_total - COALESCE(advance_payment, 0)'));
         $prevCredit = $previousPayments->sum('amount_paid');
         $previousBalance = $prevDebit - $prevCredit;
 
@@ -150,7 +150,7 @@ class Client extends Model
                 DB::raw("billings.invoice_number AS id"),
                 DB::raw("DATE_FORMAT(billings.billing_date, '%Y-%m-%d') AS soa_date"),
                 DB::raw("CONCAT(billings.billing_description, ' - Invoice # ', billings.invoice_number) AS particulars"),
-                'billings.billing_total AS debit',
+                DB::raw('billings.billing_total - COALESCE(billings.advance_payment, 0) AS debit'),
                 DB::raw('0 AS credit'),
                 'billings.created_at AS created_at',
             ])
@@ -204,7 +204,7 @@ class Client extends Model
                 DB::raw("billings.invoice_number AS id"),
                 DB::raw("DATE_FORMAT(billings.billing_date, '%Y-%m-%d') AS soa_date"),
                 DB::raw("CONCAT(billings.billing_description, ' - Invoice # ', billings.invoice_number) AS particulars"),
-                'billings.billing_total AS debit',
+                DB::raw('billings.billing_total - COALESCE(billings.advance_payment, 0) AS debit'),
                 DB::raw('0 AS credit'),
                 'billings.created_at AS created_at',
             ])

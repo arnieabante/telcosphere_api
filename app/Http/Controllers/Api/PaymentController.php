@@ -162,7 +162,8 @@ class PaymentController extends ApiController
                             ->sum('billing_item_balance');
 
                         $billing->update([
-                            'billing_offset' => $totalOffset,
+                            // item offsets include the advance payment, billing offset is collections only
+                            'billing_offset' => round($totalOffset - $billing->advance_payment, 2),
                             'billing_balance' => $totalBalance,
                             'billing_status' => $totalBalance > 0 ? 'Partial' : 'Paid',
                         ]);
