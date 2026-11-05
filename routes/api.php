@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\CtaSettingsController;
 use App\Http\Controllers\Api\FooterSettingsController;
 use App\Http\Controllers\Api\SmsSettingsController;
 use App\Http\Controllers\Api\MikrotikController;
+use App\Http\Controllers\Api\AdvancePaymentsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('sites/url/{url}', [SiteController::class, 'showByUrl']);
@@ -152,5 +153,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('mikrotiks', MikrotikController::class)->except(['update']);
     Route::patch('mikrotiks/{uuid}', [MikrotikController::class, 'update']);
     Route::put('mikrotiks/{uuid}', [MikrotikController::class, 'replace']);
+    
+    Route::apiResource('advancepayments', AdvancePaymentsController::class)->except(['update']);
+    Route::patch('advancepayments/{uuid}', [AdvancePaymentsController::class, 'update']);
+    Route::put('advancepayments/{uuid}', [AdvancePaymentsController::class, 'replace']);
 
 });

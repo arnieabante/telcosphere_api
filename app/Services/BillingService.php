@@ -8,6 +8,7 @@ use Exception;
 use App\Http\Resources\Api\BillingResource;
 use App\Models\BillingCategory;
 use App\Models\Client;
+use App\Models\AdvancePayments;
 use Carbon\Carbon;
 
 class BillingService
@@ -46,6 +47,11 @@ class BillingService
                 $prevBalance += $clientPrevBalance[0]['current_balance'];
             }
 
+            //get advance payments for clients
+            $advancePayment = AdvancePayments::where('client_id', $client->id)
+                ->where('amount', '>', 0)->first();    
+            $advancePaymentAmount = $advancePayment ? floatVal($advancePayment->amount) : 0;
+
             // create new Billing
             $billing = Billing::create([
                 'client_id' => $client->id,
@@ -54,6 +60,7 @@ class BillingService
                 'billing_date' => date('Y-m-d H:i:s'), // current date
                 'billing_description' => NULL, // auto-populate after generating billing items
                 'billing_remarks' => $data['billingRemarks'] ?? NULL,
+                'advance_payment'=> $advancePaymentAmount,
                 'billing_total' => 0.00, // update base on total amt in BillingItems
                 'billing_offset' => 0.00,
                 'billing_balance' => 0.00, // update base on total amt in BillingItems
@@ -83,7 +90,10 @@ class BillingService
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->where('is_active', 1)
                 ->sum('billing_item_balance');
-
+            
+            //Less Advance payment
+            $latestBillingTotal = $latestBillingTotal - $advancePaymentAmount;
+            $latestBillingBalance = $latestBillingBalance - $advancePaymentAmount;
             $billing->update([
                 'billing_total' => $latestBillingTotal,
                 'billing_balance' => $latestBillingBalance,
@@ -142,6 +152,14 @@ class BillingService
             ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
             ->where('is_active', 1)
             ->sum('billing_item_balance');
+        
+        // Create new latest billing total due to advance payemnts
+        $advancePayment = $billing->advance_payment;
+        $advancePaymentAmount = $advancePayment ? floatVal($advancePayment->amount) : 0;
+
+        //Less Advance payment
+        $latestBillingTotal = $latestBillingTotal - $advancePaymentAmount;
+        $latestBillingBalance = $latestBillingBalance - $advancePaymentAmount;
 
         $billing->update([
             'billing_total' => $latestBillingTotal,
@@ -191,6 +209,14 @@ class BillingService
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->where('is_active', 1)
                 ->sum('billing_item_balance');
+   
+            // Create new latest billing total due to advance payemnts
+            $advancePayment = $billing->advance_payment;
+            $advancePaymentAmount = $advancePayment ? floatVal($advancePayment->amount) : 0;
+
+            //Less Advance payment
+            $latestBillingTotal = $latestBillingTotal - $advancePaymentAmount;
+            $latestBillingBalance = $latestBillingBalance - $advancePaymentAmount;
 
             $billing->update([
                 'billing_total' => $latestBillingTotal,
