@@ -117,6 +117,11 @@ class Client extends Model
         return $this->belongsTo(\App\Models\Server::class, 'server_id')->where('is_active', 1);
     }
 
+    public function advancePayment()
+    {
+        return $this->hasOne(\App\Models\AdvancePayments::class, 'client_id', 'id');
+    }
+
     public function billings()
     {
         return $this->hasMany(\App\Models\Billing::class, 'client_id', 'id')->where('is_active', 1);
@@ -132,8 +137,10 @@ class Client extends Model
             ->where('client_id', $this->id)
             ->where('is_active', 1);
 
+        // bills are charged net of the advance payment, the deposit is not a second credit
         $previousPayments = DB::table('payments')
             ->where('client_id', $this->id)
+            ->where('is_advance_payment', 0)
             ->where('is_active', 1);
 
         if ($from) {
@@ -174,6 +181,7 @@ class Client extends Model
                 'payments.created_at AS created_at',
             ])
             ->where('payments.client_id', $this->id)
+            ->where('payments.is_advance_payment', 0)
             ->where('payments.is_active', 1);
 
         if ($from && $to) {
@@ -227,6 +235,7 @@ class Client extends Model
                 'payments.created_at AS created_at',
             ])
             ->where('payments.client_id', $this->id)
+            ->where('payments.is_advance_payment', 0)
             ->where('payments.is_active', 1);
 
         if ($from && $to) {

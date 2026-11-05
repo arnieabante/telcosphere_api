@@ -29,7 +29,12 @@ class StoreAdvancePaymentsRequest extends BaseAdvancePaymentsRequest
                 'integer',
                 Rule::exists('clients', 'id')->where(fn ($query) => $query->where('site_id', $siteId)->where('is_active', 1))
             ],
-            'amount' => 'required|numeric|decimal:0,2|min:0.01|max:999999.99'
+            'amount' => 'required|numeric|decimal:0,2|min:0.01|max:999999.99',
+            // when given, the deposit is also recorded as a collection
+            'paymentMethod' => 'nullable|string|max:50',
+            'reference' => 'nullable|string',
+            'collectionDate' => 'nullable|date',
+            'collectedBy' => 'nullable|string'
         ];
     }
 }

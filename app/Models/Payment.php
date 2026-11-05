@@ -37,7 +37,8 @@ class Payment extends Model
         'amount_paid',
         'discount_reason',
         'balance',
-        'is_active'
+        'is_active',
+        'is_advance_payment'
     ];
 
 

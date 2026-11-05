@@ -39,6 +39,7 @@ class ClientResource extends JsonResource
                 'balanceFromPrevBilling' => $this->balance_from_prev_billing,
                 'balanceFromPrevBillingStatus' => $this->balance_from_prev_billing_status,
                 'currentBalance' => $this->current_balance,
+                'advancePaymentBalance' => $this->whenLoaded('advancePayment', fn () => $this->advancePayment->amount),
                 'prorateFee' => $this->prorate_fee,
                 'prorateStartDate' => $this->prorate_start_date,
                 'prorateEndDate' => $this->prorate_end_date,

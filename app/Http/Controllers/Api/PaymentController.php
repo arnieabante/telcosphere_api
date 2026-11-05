@@ -7,6 +7,7 @@ use App\Http\Requests\Api\PaymentRequest\ReplacePaymentRequest;
 use App\Http\Requests\Api\PaymentRequest\StorePaymentRequest;
 use App\Http\Requests\Api\PaymentRequest\UpdatePaymentRequest;
 use App\Http\Resources\Api\PaymentResource;
+use App\Models\AdvancePayments;
 use App\Models\Payment;
 use App\Models\PaymentItem;
 use App\Models\Billing;
@@ -223,6 +224,18 @@ class PaymentController extends ApiController
                 $payment = Payment::with('paymentItems')
                     ->where('uuid', $uuid)
                     ->firstOrFail();
+
+                if ($payment->is_advance_payment) {
+                    if ($request->has('isActive') && intval($request->isActive) === 0) {
+                        $reversalError = $payment->is_active ? $this->reverseAdvanceCollection($payment) : null;
+
+                        if ($reversalError) {
+                            return $this->error($reversalError, 400);
+                        }
+                    } elseif ($request->hasAny(['subtotal', 'discount', 'total', 'amountReceived', 'amountChange', 'amountPaid', 'balance', 'clientId', 'collectionItems'])) {
+                        return $this->error('An Advance Payment collection cannot be edited. Delete it and record it again.', 400);
+                    }
+                }
 
                 $payment->update($request->mappedAttributes());
 
@@ -503,10 +516,21 @@ class PaymentController extends ApiController
     public function destroy(string $uuid)
     {
         try {
-            $payment = Payment::where('uuid', $uuid)->firstOrFail();
-            $affected = $payment->delete();
+            return DB::transaction(function () use ($uuid) {
+                $payment = Payment::where('uuid', $uuid)->firstOrFail();
 
-            return $this->ok("Deleted $affected record.", []);
+                if ($payment->is_advance_payment && $payment->is_active) {
+                    $reversalError = $this->reverseAdvanceCollection($payment);
+
+                    if ($reversalError) {
+                        return $this->error($reversalError, 400);
+                    }
+                }
+
+                $affected = $payment->delete();
+
+                return $this->ok("Deleted $affected record.", []);
+            });
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Payment does not exist.', 404);
@@ -514,5 +538,26 @@ class PaymentController extends ApiController
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to delete a Payment.', 401);
         }
+    }
+
+    /**
+     * Take a deleted Advance Payment collection back out of the client's credit.
+     * Returns an error message when part of it was already used by a billing.
+     */
+    private function reverseAdvanceCollection(Payment $payment): ?string
+    {
+        $advancePayment = AdvancePayments::where('client_id', $payment->client_id)
+            ->lockForUpdate()
+            ->first();
+
+        if (!$advancePayment || floatval($advancePayment->amount) < floatval($payment->amount_paid)) {
+            return 'Cannot delete this Advance Payment, it has already been applied to a billing.';
+        }
+
+        $advancePayment->update([
+            'amount' => round($advancePayment->amount - $payment->amount_paid, 2)
+        ]);
+
+        return null;
     }
 }
