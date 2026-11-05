@@ -24,9 +24,14 @@ class UpdateAdvancePaymentsRequest extends BaseAdvancePaymentsRequest
     {
         $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'clientId' => ['sometimes|required'],
-            'amount' => 'nullable|max:100'
+            'clientId' => [
+                'sometimes',
+                'required',
+                'integer',
+                Rule::exists('clients', 'id')->where(fn ($query) => $query->where('site_id', $siteId)->where('is_active', 1)),
+                Rule::unique('advance_payments', 'client_id')->ignore($this->uuid, 'uuid')
+            ],
+            'amount' => 'sometimes|required|numeric|decimal:0,2|min:0|max:999999.99'
         ];
-        // TODO: improve to accommodate i.e. data.attributes.username
     }
 }

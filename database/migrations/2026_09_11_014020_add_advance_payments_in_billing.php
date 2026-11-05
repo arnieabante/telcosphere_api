@@ -25,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('billings', function (Blueprint $table) {
-            $table->decimal('advance_payment', 8, 2)->nullable()->default(0)->change();
+            $table->dropColumn('advance_payment');
         });
     }
 };

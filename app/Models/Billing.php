@@ -29,6 +29,7 @@ class Billing extends Model
         'billing_date',
         'billing_description',
         'billing_remarks',
+        'advance_payment',
         'billing_total',
         'billing_offset',
         'billing_balance',
