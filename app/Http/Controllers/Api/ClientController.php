@@ -32,7 +32,7 @@ class ClientController extends ApiController
         $from = $request->get('from');
         $to = $request->get('to');
 
-        $query = Client::with(['internetPlan', 'billingCategory', 'server', 'billings'])
+        $query = Client::with(['internetPlan', 'billingCategory', 'server', 'billings', 'advancePayment'])
             ->where('is_active', 1);
 
         // Filter by date range
@@ -351,7 +351,7 @@ class ClientController extends ApiController
     public function find(Request $request)
     {
         try {
-            $client = Client::with(['internetPlan', 'billingCategory', 'server', 'billings']);
+            $client = Client::with(['internetPlan', 'billingCategory', 'server', 'billings', 'advancePayment']);
 
             // STATUS FILTER
             $status = $request->input('status');

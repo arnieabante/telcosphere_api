@@ -34,6 +34,7 @@ class PaymentResource extends JsonResource
                 'collectionDate' => $this->collection_date,
                 'collectedBy' => $this->collected_by,
                 'isActive' => $this->is_active,
+                'isAdvancePayment' => (bool) $this->is_advance_payment,
                 $this->mergeWhen(
                     request()->routeIs('payments.show'),
                     [

@@ -175,7 +175,8 @@ class MonthlySubscription implements BillingInterface
 
     protected function calculateProratedCurrent($client): float {
         $monthlyRate = $this->getSubscriptionRate($client->internet_plan_id); // 1499
-        $totalDaysOfMonth = date('t'); // 31
+        //$totalDaysOfMonth = date('t'); // 31
+        $totalDaysOfMonth = 30; // Change this to default 30 days - changed 8/24/2025 during testing with Janice
         $dailyRate = $monthlyRate / $totalDaysOfMonth; // 48.35484
     
         $cycle = $this->getBillingCycle($client->billing_category_id);
@@ -209,17 +210,23 @@ class MonthlySubscription implements BillingInterface
 
     protected function calculatePrice($client): float {
         $monthlyRate = $this->getSubscriptionRate($client->internet_plan_id);
-        $totalDaysOfMonth = date('t');
+        //$totalDaysOfMonth = date('t');
+        $totalDaysOfMonth = 30; // change this to 30 by default 8/25/2026.
         $dailyRate = $monthlyRate / $totalDaysOfMonth;
 
         $cycle = $this->getBillingCycle($client->billing_category_id);
+
+        // Check if installation is within the current month AND current year
+        $isCurrentMonth = date('m', strtotime($client->installation_date)) === date('m')
+            && date('Y', strtotime($client->installation_date)) === date('Y');
+
         switch ($cycle) {
             case '30':
                 $endDate = new DateTime(date('Y-m-t'));
                 break;
             
             default:
-                if (date('m', strtotime($client->installation_date)) === date('m')) {
+                if ($isCurrentMonth) {
                     $endDate = new DateTime(date('Y-m-' . $cycle));
                 } else {
                     $endDate = new DateTime(date('Y-m-' . $cycle, 
@@ -233,7 +240,8 @@ class MonthlySubscription implements BillingInterface
         $interval = $startDate->diff($endDate);
         $price = $dailyRate * (int) $interval->days;
 
-        if ($interval->days < 30)
+        // Only prorate clients installed in the current month/year
+        if ($isCurrentMonth && $interval->days < 30)
             return round($price, 2);
         else 
             return $monthlyRate;

@@ -29,13 +29,15 @@ class Billing extends Model
         'billing_date',
         'billing_description',
         'billing_remarks',
+        'advance_payment',
         'billing_total',
         'billing_offset',
         'billing_balance',
         'billing_status',
         'balance_from_prev_billing',
         'billing_cutoff',
-        'disconnection_date'
+        'disconnection_date',
+        'due_date'
     ];
 
     protected static function booted()

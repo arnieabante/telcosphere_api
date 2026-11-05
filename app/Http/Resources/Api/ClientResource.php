@@ -41,6 +41,7 @@ class ClientResource extends JsonResource
                 'balanceFromPrevBilling' => $this->balance_from_prev_billing,
                 'balanceFromPrevBillingStatus' => $this->balance_from_prev_billing_status,
                 'currentBalance' => $this->current_balance,
+                'advancePaymentBalance' => $this->whenLoaded('advancePayment', fn () => $this->advancePayment->amount),
                 'prorateFee' => $this->prorate_fee,
                 'prorateStartDate' => $this->prorate_start_date,
                 'prorateEndDate' => $this->prorate_end_date,
@@ -56,6 +57,8 @@ class ClientResource extends JsonResource
                 'serverId' => $this->server_id,
                 'billingCategoryId' => $this->billing_category_id,
                 'isActive' => $this->is_active,
+                'latestDueDate'=> $this->latest_due_date,
+                'latestDisconnectionDate' => $this->latest_disconnection_date,
                 $this->mergeWhen(
                     request()->routeIs('clients.show'),
                     [

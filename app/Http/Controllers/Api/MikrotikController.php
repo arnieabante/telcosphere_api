@@ -68,6 +68,7 @@ class MikrotikController extends ApiController
     {
         try {
             $data = $request->mappedAttributes();
+            return $data;
             return new MikrotikResource(
                 Mikrotik::create($data)
             );

@@ -8,6 +8,9 @@ use Exception;
 use App\Http\Resources\Api\BillingResource;
 use App\Models\BillingCategory;
 use App\Models\Client;
+use App\Models\AdvancePayments;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class BillingService
 {
@@ -15,6 +18,7 @@ class BillingService
     const STATUS_PARTIAL = 'Partial';
     const STATUS_BILLED = 'Billed';
     const STATUS_PAID = 'Paid';
+    const BILLING_TYPE_ADJUSTMENT = 5;
 
     protected $invoice;
 
@@ -59,6 +63,7 @@ class BillingService
                 'billing_status' => self::STATUS_PENDING,
                 'billing_cutoff' => $data['billingCutoff'] ?? NULL,
                 'disconnection_date' => $data['disconnectionDate'] ?? NULL,
+                'due_date' => $data['billingCutoff'] ?? NULL,
                 'balance_from_prev_billing' => floatVal($prevBalance)
             ]);
 
@@ -81,12 +86,24 @@ class BillingService
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->where('is_active', 1)
                 ->sum('billing_item_balance');
+            
+            // less advance payment from the balance and consume it from the client's credit
+            DB::transaction(function () use ($billing, $billingType, $data, $latestBillingTotal, $latestBillingBalance) {
+                $advancePaymentAmount = (int) $data['billingType'] !== self::BILLING_TYPE_ADJUSTMENT
+                    ? $this->applyAdvancePayment($billing, $latestBillingBalance)
+                    : 0;
+                $billingBalance = round($latestBillingBalance - $advancePaymentAmount, 2);
 
-            $billing->update([
-                'billing_total' => $latestBillingTotal,
-                'billing_balance' => $latestBillingBalance,
-                'billing_description' => $billingType->getName()
-            ]);
+                $billing->update([
+                    'advance_payment' => $advancePaymentAmount,
+                    'billing_total' => $latestBillingTotal,
+                    'billing_balance' => $billingBalance,
+                    'billing_status' => $advancePaymentAmount > 0 && $billingBalance <= 0
+                        ? self::STATUS_PAID
+                        : self::STATUS_PENDING,
+                    'billing_description' => $billingType->getName()
+                ]);
+            });
 
             // update Client Balance
             $currentClientBalance = Billing::where('client_id', $client->id)
@@ -94,107 +111,161 @@ class BillingService
                 ->where('is_active', 1)
                 ->sum('billing_balance');
 
+            $latestDueDate = NULL;
+
+            if ($client->billingCategory && $client->billingCategory->days_to_due_date !== null) {
+                $latestDueDate = Carbon::parse($billing->billing_date)
+                    ->addDays((int) $client->billingCategory->days_to_due_date)
+                    ->toDateString();
+            }
+
             $billing->client()->update([
                 'current_balance' => $currentClientBalance,
                 'prorate_fee_status' => self::STATUS_BILLED,
-                'last_auto_billing_date' => date('Y-m-d H:i:s'), // current date
+                'last_auto_billing_date' => $billing->billing_date,
+                'latest_due_date' => $latestDueDate,
+                'latest_disconnection_date' => $billing->disconnection_date,
             ]);
         }
     }
 
     public function updateBilling($uuid, $data)
     {
-        $billing = Billing::where('uuid', $uuid)->firstOrFail();
+        return DB::transaction(function () use ($uuid, $data) {
+            $billing = Billing::where('uuid', $uuid)->firstOrFail();
+            $appliedAdvancePayment = floatVal($billing->advance_payment);
 
-        // update Billing Items
-        foreach ($data['billingItems'] as $item) {
-            $billingItem = $billing->billingItems()->firstOrNew(['uuid' => $item['uuid']]);
-            $billingItemBalance = $item['amount'] - ($billingItem->billing_item_offset ?? 0);
-            $billingItem->fill([
-                'billing_item_name' => $item['category'],
-                'billing_item_particulars' => $item['particulars'],
-                'billing_item_quantity' => $item['qty'],
-                'billing_item_price' => $item['price'],
-                'billing_item_amount' => $item['amount'],
-                'billing_item_balance' => $billingItemBalance,
-                'billing_status' => self::STATUS_PENDING
-            ])->save();
-        }
+            // the applied advance payment belongs to the billed client
+            if ($appliedAdvancePayment > 0 && (int) $data['clientId'] !== (int) $billing->client_id)
+                throw new Exception('Cannot change the client of a billing with an applied advance payment.');
 
-        // update Billing Total/Balance and Billing Details
-        $latestBillingTotal = $billing->billingItems()
-            ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
-            ->where('is_active', 1)
-            ->sum('billing_item_amount');
-        $latestBillingBalance = $billing->billingItems()
-            ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
-            ->where('is_active', 1)
-            ->sum('billing_item_balance');
+            $advancePaymentAmount = $appliedAdvancePayment;
 
-        $billing->update([
-            'billing_total' => $latestBillingTotal,
-            'billing_balance' => $latestBillingBalance,
-            'billing_type' => $data['billingType'],
-            'billing_remarks' => $data['billingRemarks'],
-            'client_id' => $data['clientId']
-        ]);
+            // update Billing Items
+            foreach ($data['billingItems'] as $item) {
+                $billingItem = $billing->billingItems()->firstOrNew(['uuid' => $item['uuid']]);
+                $billingItemOffset = floatVal($billingItem->billing_item_offset ?? 0);
 
-        // update Client Balance and Client Details
-        $currentClientBalance = $billing->where('client_id', $data['clientId'])
-            ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
-            ->where('is_active', 1)
-            ->sum('billing_balance');
+                // amount lowered below what was offset, release the excess advance payment
+                $advancePaymentRelease = min(max($billingItemOffset - $item['amount'], 0), $advancePaymentAmount);
+                $billingItemOffset = round($billingItemOffset - $advancePaymentRelease, 2);
+                $advancePaymentAmount = round($advancePaymentAmount - $advancePaymentRelease, 2);
 
-        $billing->client()->update([
-            'current_balance' => $currentClientBalance,
-            'house_no' => $data['billingDescription']
-        ]);
+                $billingItem->fill([
+                    'billing_item_name' => $item['category'],
+                    'billing_item_particulars' => $item['particulars'],
+                    'billing_item_quantity' => $item['qty'],
+                    'billing_item_price' => $item['price'],
+                    'billing_item_amount' => $item['amount'],
+                    'billing_item_offset' => $billingItemOffset,
+                    'billing_item_balance' => $item['amount'] - $billingItemOffset,
+                    'billing_status' => self::STATUS_PENDING
+                ])->save();
+            }
 
-        return new BillingResource($billing);
-    }
+            $this->restoreAdvancePayment($billing, round($appliedAdvancePayment - $advancePaymentAmount, 2));
 
-    public function deactivateBilling($uuid, $data)
-    {
-        // only PENDING billing can be de-activated
-        $billing = Billing::where('uuid', $uuid)
-            ->where('billing_status', self::STATUS_PENDING)
-            ->where('is_active', 1)
-            ->first();
-
-        if ($billing) {
-            // deactive billing
-            $billing->update(['is_active' => 0]);
-
-            // deactivate Billing Items
-            $billing->billingItems()->update([
-                'is_active' => 0
-            ]);
-
-            // re-calculate Billing Total/Balance and Billing Details
+            // update Billing Total/Balance and Billing Details
             $latestBillingTotal = $billing->billingItems()
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->where('is_active', 1)
                 ->sum('billing_item_amount');
+            // item balances are already net of the advance payment
             $latestBillingBalance = $billing->billingItems()
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->where('is_active', 1)
                 ->sum('billing_item_balance');
 
-            $billing->update([
+            $billingAttributes = [
+                'advance_payment' => $advancePaymentAmount,
                 'billing_total' => $latestBillingTotal,
                 'billing_balance' => $latestBillingBalance,
-            ]);
+                'billing_type' => $data['billingType'],
+                'billing_remarks' => $data['billingRemarks'],
+                'client_id' => $data['clientId']
+            ];
 
-            // re-calculate Client Balance and Client Details
-            $currentClientBalance = $billing->where('client_id', $billing->client_id)
+            if ($appliedAdvancePayment > 0) {
+                if ($latestBillingBalance <= 0)
+                    $billingAttributes['billing_status'] = self::STATUS_PAID;
+                else
+                    $billingAttributes['billing_status'] = floatVal($billing->billing_offset) > 0
+                        ? self::STATUS_PARTIAL
+                        : self::STATUS_PENDING;
+            }
+
+            $billing->update($billingAttributes);
+
+            // update Client Balance and Client Details
+            $currentClientBalance = $billing->where('client_id', $data['clientId'])
                 ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
                 ->where('is_active', 1)
                 ->sum('billing_balance');
 
             $billing->client()->update([
-                'current_balance' => $currentClientBalance
+                'current_balance' => $currentClientBalance,
+                'house_no' => $data['billingDescription']
             ]);
-        } else 
+
+            return new BillingResource($billing);
+        });
+    }
+
+    public function deactivateBilling($uuid, $data)
+    {
+        // only PENDING billing, or PAID purely by advance payment (no collection), can be de-activated
+        $billing = Billing::where('uuid', $uuid)
+            ->where(function ($query) {
+                $query->where('billing_status', self::STATUS_PENDING)
+                    ->orWhere(function ($query) {
+                        $query->where('billing_status', self::STATUS_PAID)
+                            ->where('billing_offset', 0)
+                            ->where('advance_payment', '>', 0);
+                    });
+            })
+            ->where('is_active', 1)
+            ->first();
+
+        if ($billing) {
+            DB::transaction(function () use ($billing) {
+                // deactive billing
+                $billing->update(['is_active' => 0]);
+
+                // deactivate Billing Items
+                $billing->billingItems()->update([
+                    'is_active' => 0
+                ]);
+
+                // give back the advance payment used by this billing
+                $this->restoreAdvancePayment($billing, floatVal($billing->advance_payment));
+
+                // re-calculate Billing Total/Balance and Billing Details
+                $latestBillingTotal = $billing->billingItems()
+                    ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                    ->where('is_active', 1)
+                    ->sum('billing_item_amount');
+                $latestBillingBalance = $billing->billingItems()
+                    ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                    ->where('is_active', 1)
+                    ->sum('billing_item_balance');
+
+                $billing->update([
+                    'advance_payment' => 0,
+                    'billing_total' => $latestBillingTotal,
+                    'billing_balance' => $latestBillingBalance,
+                ]);
+
+                // re-calculate Client Balance and Client Details
+                $currentClientBalance = $billing->where('client_id', $billing->client_id)
+                    ->whereIn('billing_status', [self::STATUS_PENDING, self::STATUS_PARTIAL])
+                    ->where('is_active', 1)
+                    ->sum('billing_balance');
+
+                $billing->client()->update([
+                    'current_balance' => $currentClientBalance
+                ]);
+            });
+        } else
             throw new Exception('Cannot delete Partial or Paid billing.');
 
         return new BillingResource($billing);
@@ -202,7 +273,7 @@ class BillingService
 
     public function runAutomatedBilling(BillingInterface $billingType)
     {
-        $categories = BillingCategory::select(['id', 'name'])
+        $categories = BillingCategory::select(['id', 'name', 'days_to_due_date'])
             ->where('date_cycle', date('d'))
             ->where('site_id', auth()->user()->site_id)
             ->get();
@@ -225,6 +296,77 @@ class BillingService
             ];
 
             $this->generateBilling($billingType, $billingData);
+        }
+    }
+
+    /**
+     * Consume the client's advance payment against the billing items, first item first.
+     * Must run inside a transaction. Returns the amount applied, never more than the sub-total.
+     */
+    protected function applyAdvancePayment(Billing $billing, $subTotal): float
+    {
+        $advancePayment = AdvancePayments::where('client_id', $billing->client_id)
+            ->where('amount', '>', 0)
+            ->lockForUpdate()
+            ->first();
+
+        if (!$advancePayment)
+            return 0;
+
+        $appliedAmount = round(min(floatVal($advancePayment->amount), floatVal($subTotal)), 2);
+
+        if ($appliedAmount <= 0)
+            return 0;
+
+        $remaining = $appliedAmount;
+        $billingItems = $billing->billingItems()->where('is_active', 1)->orderBy('id')->get();
+
+        foreach ($billingItems as $billingItem) {
+            $itemApplied = min($remaining, floatVal($billingItem->billing_item_balance));
+
+            if ($itemApplied <= 0)
+                continue;
+
+            $itemBalance = round($billingItem->billing_item_balance - $itemApplied, 2);
+
+            $billingItem->update([
+                'billing_item_offset' => round($billingItem->billing_item_offset + $itemApplied, 2),
+                'billing_item_balance' => $itemBalance,
+                'billing_status' => $itemBalance > 0 ? self::STATUS_PARTIAL : self::STATUS_PAID
+            ]);
+
+            $remaining = round($remaining - $itemApplied, 2);
+        }
+
+        $advancePayment->update([
+            'amount' => round($advancePayment->amount - $appliedAmount, 2)
+        ]);
+
+        return $appliedAmount;
+    }
+
+    /**
+     * Return an applied advance payment to the client's credit. Must run inside a transaction.
+     */
+    protected function restoreAdvancePayment(Billing $billing, float $amount): void
+    {
+        if ($amount <= 0)
+            return;
+
+        $advancePayment = AdvancePayments::where('client_id', $billing->client_id)
+            ->lockForUpdate()
+            ->first();
+
+        if ($advancePayment) {
+            $advancePayment->update([
+                'amount' => round($advancePayment->amount + $amount, 2)
+            ]);
+        } else {
+            AdvancePayments::create([
+                'site_id' => $billing->site_id,
+                'client_id' => $billing->client_id,
+                'amount' => $amount
+            ]);
         }
     }
 }
