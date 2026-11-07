@@ -38,6 +38,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'must_change_password',
         'role_id',
         'is_active'
     ];
@@ -86,6 +87,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
         ];
     }
 
@@ -116,5 +118,10 @@ class User extends Authenticatable
     public function client()
     {
         return $this->hasOne(Client::class, 'user_id','id');
+    }
+
+    public function isClient(): bool
+    {
+        return strtolower($this->role?->name ?? '') === 'client';
     }
 }

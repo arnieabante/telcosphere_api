@@ -21,6 +21,7 @@ class ClientResource extends JsonResource
                 'uuid' => $this->uuid,
                 'userId' => $this->user_id,
                 'userUuid' => $this->user?->uuid,
+                'portalUsername' => $this->user?->username,
                 'firstName' => $this->first_name,
                 'middleName' => $this->middle_name,
                 'lastName' => $this->last_name,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ChangePasswordRequest;
 use App\Http\Requests\Api\LoginUserRequest;
 use App\Models\User;
 use App\Permissions\Abilties;
@@ -50,6 +51,7 @@ class AuthController extends Controller
         |--------------------------------------------------------------------------
         */
         if (!Auth::attempt([
+            'site_id' => $user->site_id,
             'username' => $user->username,
             'password' => $request->password,
         ])) {
@@ -63,6 +65,14 @@ class AuthController extends Controller
         */
         if (!$user->role) {
             return $this->error('Your account does not have a role assigned.', 403);
+        }
+
+        if ($user->isClient() && !$user->client) {
+            return $this->error('Your account is not linked to a client.', 403);
+        }
+
+        if ($user->isClient() && !$user->client->is_active) {
+            return $this->error('Your account is inactive.', 403);
         }
 
         /*
@@ -98,8 +108,27 @@ class AuthController extends Controller
                 'firstModule' => $firstModule?->url,
 
                 'clientUuid' => $user->client?->uuid,
+
+                'mustChangePassword' => $user->must_change_password,
             ],
         ]);
+    }
+
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        $user = $request->user();
+
+        $user->update([
+            'password' => $request->input('password'),
+            'must_change_password' => false,
+        ]);
+
+        // anyone else logged in with the old password is signed out
+        $user->tokens()
+            ->where('id', '!=', $user->currentAccessToken()->id ?? 0)
+            ->delete();
+
+        return $this->ok('Password changed.');
     }
 
     public function logout(Request $request)

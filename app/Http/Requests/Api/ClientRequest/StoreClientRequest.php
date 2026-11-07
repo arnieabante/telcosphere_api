@@ -22,7 +22,6 @@ class StoreClientRequest extends BaseClientRequest
     public function rules(): array
     {
         return [
-            'userId' => 'required|numeric',
             'firstName' => 'required|string|min:2',
             'middleName' => 'nullable|string|min:2',
             'lastName' => 'required|string|min:2',

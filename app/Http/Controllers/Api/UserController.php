@@ -49,7 +49,10 @@ class UserController extends ApiController
         }
 
         if (!empty($include) && $include == 'all') {
-            $users = $query->orderBy('fullname', 'asc')->get();
+            // this feeds the staff dropdowns i.e. Technician, client logins don't belong there
+            $users = $query->whereDoesntHave('role', fn ($q) => $q->where('name', 'Client'))
+                ->orderBy('fullname', 'asc')
+                ->get();
             return UserResource::collection($users);
         } else {
             if (!empty($search)) {
@@ -129,6 +132,7 @@ class UserController extends ApiController
                 }
             })->firstOrFail();
             $user->update($request->mappedAttributes());
+            $this->requireChangeAfterPasswordReset($request, $user);
 
             return new UserResource($user);
 
@@ -150,6 +154,7 @@ class UserController extends ApiController
             // $this->isAble('replace', User::class);
             $user = User::where('uuid', $uuid)->firstOrFail();
             $affected = $user->update($request->mappedAttributes());
+            $this->requireChangeAfterPasswordReset($request, $user);
 
             return new UserResource($user);
 
@@ -158,6 +163,16 @@ class UserController extends ApiController
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to update a User.', 401);
+        }
+    }
+
+    /**
+     * When staff set a client's password, staff know it, so the client must replace it.
+     */
+    private function requireChangeAfterPasswordReset(Request $request, User $user): void
+    {
+        if ($request->filled('password') && $user->isClient()) {
+            $user->update(['must_change_password' => true]);
         }
     }
 

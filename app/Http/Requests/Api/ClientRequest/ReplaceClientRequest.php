@@ -22,7 +22,6 @@ class ReplaceClientRequest extends BaseClientRequest
     public function rules(): array
     {
         return [
-            'userId' => 'sometimes|required|numeric',
             'firstName' => 'sometimes|required|string|min:2',
             'middleName' => 'sometimes|nullable|string|min:2',
             'lastName' => 'sometimes|required|string|min:2',
