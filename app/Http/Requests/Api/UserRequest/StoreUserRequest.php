@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\UserRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends BaseUserRequest
 {
@@ -21,13 +22,13 @@ class StoreUserRequest extends BaseUserRequest
      */
     public function rules(): array
     {
+        $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
             'fullname' => 'required|string|min:2',
-            'username' => 'required|string|min:2',
-            'email' => 'required|string|email|unique:users',
+            'username' => ['required','string','min:3', Rule::unique('users')->where(fn ($query) => $query->where('site_id', $siteId))],
+            'email' => ['required','string','min:3', Rule::unique('users')->where(fn ($query) => $query->where('site_id', $siteId))],
             'password' => 'required|string|min:8',
             'roleId' => 'required|string'
         ];
-        // TODO: improve to accommodate i.e. data.attributes.username
     }
 }

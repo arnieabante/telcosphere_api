@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\ServerRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreServerRequest extends BaseServerRequest
 {
@@ -21,8 +22,9 @@ class StoreServerRequest extends BaseServerRequest
      */
     public function rules(): array
     {
+       $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
         return [
-            'name' => 'required|string|min:5|unique:servers'
+            'name' => ['required','string','min:3', Rule::unique('servers')->where(fn ($query) => $query->where('site_id', $siteId))],
         ];
     }
 }

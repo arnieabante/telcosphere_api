@@ -2,17 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\Api\BillingItemRequest\StoreBillingItemRequest;
+use App\Http\Requests\Api\BillingItemRequest\UpdateBillingItemRequest;
 use App\Http\Requests\Api\BillingRequest\ReplaceBillingRequest;
+use App\Http\Requests\Api\BillingRequest\StoreBillingRequest;
 use App\Http\Requests\Api\BillingRequest\UpdateBillingRequest;
 use App\Http\Resources\Api\BillingResource;
 use App\Libraries\Billing\Installation;
 use App\Libraries\Billing\MonthlySubscription;
 use App\Libraries\Billing\OtherServices;
 use App\Libraries\Billing\Repair;
+use App\Libraries\Billing\BillingAdjustment;
 use App\Models\Billing;
 use App\Services\BillingService;
 use App\Services\DashboardService;
 use App\Traits\ApiResponses;
+use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -28,21 +33,35 @@ class BillingController extends ApiController
      */
     public function index(Request $request, DashboardService $service)
     {
-        $perPage = $request->get('per_page', 10);
-        $search = $request->get('search');
+            $perPage = $request->get('per_page', 10);
+            $search = $request->get('search');
+            $from = $request->get('from');
+            $to = $request->get('to');
 
-        $query = Billing::query()
-            ->with('client')
-            ->where('is_active', '=', '1');
+            $query = Billing::query()
+                ->with('client')
+                ->with('billingItems')
+                ->where('is_active', '=', '1');
 
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('billing_date', 'like', "%{$search}%")
-                    ->orWhere('billing_remarks', 'like', "%{$search}%")
-                    ->orWhere('billing_total', 'like', "%{$search}%")
-                    ->orWhere('billing_status', 'like', "%{$search}%");
-            });
-        }
+            // Filter by date range
+            if (!empty($from) && !empty($to)) {
+                $query->whereBetween('created_at', [$from, $to]);
+            }
+
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('billing_date', 'like', "%{$search}%")
+                        ->orWhere('billing_remarks', 'like', "%{$search}%")
+                        ->orWhere('billing_total', 'like', "%{$search}%")
+                        ->orWhere('billing_description', 'like', "%{$search}%")
+                        ->orWhere('billing_status', 'like', "%{$search}%")
+                        ->orWhereHas('client', function ($clientQuery) use ($search) {
+                        $clientQuery->where('first_name', 'like', "%{$search}%")
+                                    ->orWhere('last_name', 'like', "%{$search}%")
+                                    ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                    });
+                });
+            }
 
         $totalBilling = $service->getTotalPendingBilling();
         $totalGrowth = $service->getBillingGrowth();
@@ -73,23 +92,35 @@ class BillingController extends ApiController
      */
     public function store(Request $request, BillingService $service)
     {
-        $attributes = $request->input('billing');
-        switch ($attributes['billingType']) {
-            case '1':
-                $billingType = new MonthlySubscription();
-                break;
-            case '2':
-                $billingType = new Installation();
-                break;
-            case '3':
-                $billingType = new Repair();
-                break;
-            case '4':
-                $billingType = new OtherServices();
-                break;
-        }
-
         try {
+            // validate billing
+            $billingRequest = app(StoreBillingRequest::class);
+
+            if ($billingRequest->validateResolved()) {
+                // validate billing items
+                $billingItemsRequest = app(StoreBillingItemRequest::class);
+                $billingItemsRequest->validateResolved();
+            }
+
+            $attributes = $request->input('billing');
+            switch ($attributes['billingType']) {
+                case '1':
+                    $billingType = new MonthlySubscription();
+                    break;
+                case '2':
+                    $billingType = new Installation();
+                    break;
+                case '3':
+                    $billingType = new Repair();
+                    break;
+                case '4':
+                    $billingType = new OtherServices();
+                    break;
+                case '5':
+                    $billingType = new BillingAdjustment();
+                    break;
+            }
+
             $service->generateBilling($billingType, $attributes);
 
         } catch (ValidationException $ex) {
@@ -98,9 +129,8 @@ class BillingController extends ApiController
         } catch (QueryException $ex) {
             return $this->error($ex->getMessage(), 400);
 
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return $this->error($ex->getMessage(), 400);
-
         }
 
         return $this->ok('Billing is successfully created for client/s.');
@@ -134,15 +164,34 @@ class BillingController extends ApiController
     public function update(Request $request, BillingService $service, string $uuid)
     {
         try {
+            // validate billing
+            $billingRequest = app(UpdateBillingRequest::class);
+            $billingRequest->validateResolved();
+
             $attributes = $request->input('billing');
-            $billing = $service->updateBilling($uuid, $attributes);
+            if ($attributes['isActive'] == 0) {
+                // de-activate billing
+                $billing = $service->deactivateBilling($uuid, $attributes);
+            } else {
+                // validate billing items
+                $billingItemsRequest = app(UpdateBillingItemRequest::class);
+                $billingItemsRequest->validateResolved();
+                $billing = $service->updateBilling($uuid, $attributes);
+            }
+
             return $billing;
+
+        } catch (ValidationException $ex) {
+            return $this->error($ex->getMessage(), 400);
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Billing does not exist.', 404);
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to update a Billing.', 401);
+
+        } catch (Exception $ex) {
+            return $this->error($ex->getMessage(), 400);
         }
     }
 
@@ -178,6 +227,68 @@ class BillingController extends ApiController
 
         } catch (ModelNotFoundException $ex) {
             return $this->error('Billing does not exist.', 404);
+
+        } catch (AuthorizationException $ex) {
+            return $this->error('You are not authorized to delete a Billing.', 401);
+        }
+    }
+
+    public function find(Request $request)
+    {
+        try {
+            $billing = Billing::with(['client', 'billingItems'])
+                ->where('is_active', 1);
+
+            // STATUS FILTER
+            $status = $request->input('status', $request->input('status[]'));
+
+            if (!empty($status)) {
+                $billing->whereIn('billing_status', (array) $status);
+            }
+
+            // CATEGORY & SERVER
+            if ($request->filled('category') || $request->filled('server')) {
+                $billing->whereHas('client', function ($query) use ($request) {
+                    if ($request->filled('category')) {
+                        $query->where('billing_category_id', $request->input('category'));
+                    }
+                    if ($request->filled('server')) {
+                        $query->where('server_id', $request->input('server'));
+                    }
+                });
+            }
+
+            // SEARCH
+            if ($request->filled('search')) {
+                $search = $request->input('search');
+
+                $billing->where(function ($q) use ($search) {
+                    $q->where('billing_date', 'like', "%{$search}%")
+                    ->orWhere('billing_remarks', 'like', "%{$search}%")
+                    ->orWhere('billing_total', 'like', "%{$search}%")
+                    ->orWhere('billing_description', 'like', "%{$search}%")
+                    ->orWhere('billing_status', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($clientQuery) use ($search) {
+                        $clientQuery->where('first_name', 'like', "%{$search}%")
+                                    ->orWhere('last_name', 'like', "%{$search}%")
+                                    ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
+                    });
+                });
+            }
+
+            // DATE RANGE
+            if ($request->filled('from') && $request->filled('to')) {
+                $billing->whereBetween('created_at', [$request->from, $request->to]);
+            }
+
+            $perPage = $request->input('per_page', 10);
+
+            $rslt = $billing->orderBy('billing_status', 'asc')->paginate($perPage);
+
+            return BillingResource::collection($rslt);
+
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('Billing record not found.', 404);
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to delete a Billing.', 401);

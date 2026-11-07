@@ -20,6 +20,7 @@ class BaseClientRequest extends FormRequest
             'installationDate' => 'installation_date',
             'installationFee' => 'installation_fee',
             'balanceFromPrevBilling' => 'balance_from_prev_billing',
+            'balanceFromPrevBillingStatus' => 'balance_from_prev_billing_status',
             'currentBalance' => 'current_balance',
             'prorateFee' => 'prorate_fee',
             'prorateStartDate' => 'prorate_start_date',
@@ -28,11 +29,14 @@ class BaseClientRequest extends FormRequest
             'prorateFeeStatus' => 'prorate_fee_status',
             'inactiveDate' => 'inactive_date',
             'notes' => 'notes',
-            'facebookProfileUrl' => 'facebook_profile_url',
+            'facebookProfileURL' => 'facebook_profile_url',
             'billingCategoryId' => 'billing_category_id',
             'serverId' => 'server_id',
             'internetPlanId' => 'internet_plan_id',
+            'prevInternetPlanId' => 'prev_internet_plan_id',
             'lastAutoBillingDate' => 'last_auto_billing_date',
+            'PPPOEUsername' => 'pppoe_username',
+            'PPPOEPassword' => 'pppoe_password',
             'isActive' => 'is_active'
         ];
 

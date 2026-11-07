@@ -14,13 +14,11 @@ class ExpenseCategory extends Model
 
     // default values
     protected $attributes = [
-       'site_id' => 1,
-       'is_active' => 1,
-       'created_by' => 1,
-       'updated_by' => 1
+       'is_active' => 1
     ];
 
     protected $fillable = [
+        'site_id',
         'name',
         'description',
         'is_active'
@@ -33,11 +31,21 @@ class ExpenseCategory extends Model
 
         // Auto-assign site_id when creating a expensecategory
         static::creating(function ($expensecategory) {
-            $expensecategory->site_id = $expensecategory->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            // but only when site_id is not already set
+            if (empty($expensecategory->site_id)) {
+                $expensecategory->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
+             if (auth()->check()) {
+                $expensecategory->created_by = auth()->id();
+                $expensecategory->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($expensecategory) {
+            if (auth()->check()) {
+                $expensecategory->updated_by = auth()->id();
+            }
         });
     }
 

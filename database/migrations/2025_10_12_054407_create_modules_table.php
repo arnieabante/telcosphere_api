@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('modules', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
-            $table->integer('site_id');
+            //$table->integer('site_id');
             $table->integer('parent_id');
             $table->string('name')->unique();
             $table->text('description');

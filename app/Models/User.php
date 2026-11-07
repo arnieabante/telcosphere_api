@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Scopes\SiteScope;
+use App\Models\Client;
 
 class User extends Authenticatable
 {
@@ -21,7 +22,6 @@ class User extends Authenticatable
 
     // default values
     protected $attributes = [
-       'site_id' => 1,
        'is_active' => 1,
        'created_by' => 1, // TODO
        'updated_by' => 1 // TODO
@@ -33,10 +33,12 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'site_id',
         'fullname',
         'username',
         'email',
         'password',
+        'must_change_password',
         'role_id',
         'is_active'
     ];
@@ -48,11 +50,21 @@ class User extends Authenticatable
 
         // Auto-assign site_id when creating a user
         static::creating(function ($user) {
-            $user->site_id = $user->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            // but only when site_id is not already set
+            if (empty($user->site_id)) {
+                $user->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
+            if (auth()->check()) {
+                $user->created_by = auth()->id();
+                $user->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($user) {
+            if (auth()->check()) {
+                $user->updated_by = auth()->id();
+            }
         });
     }
 
@@ -75,6 +87,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
         ];
     }
 
@@ -100,5 +113,15 @@ class User extends Authenticatable
 
     public function role(): BelongsTo {
         return $this->belongsTo(Role::class);
+    }
+
+    public function client()
+    {
+        return $this->hasOne(Client::class, 'user_id','id');
+    }
+
+    public function isClient(): bool
+    {
+        return strtolower($this->role?->name ?? '') === 'client';
     }
 }
