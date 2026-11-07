@@ -15,10 +15,15 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\AccountNoService;
+use App\Services\ClientUserService;
 
 class ClientController extends ApiController
 {
     use ApiResponses;
+
+    public function __construct(private ClientUserService $clientUsers)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -32,7 +37,7 @@ class ClientController extends ApiController
         $from = $request->get('from');
         $to = $request->get('to');
 
-        $query = Client::with(['internetPlan', 'billingCategory', 'server', 'billings'])
+        $query = Client::with(['user', 'internetPlan', 'billingCategory', 'server', 'billings', 'advancePayment'])
             ->where('is_active', 1);
 
         // Filter by date range
@@ -86,13 +91,23 @@ class ClientController extends ApiController
 
             $attributes = $request->mappedAttributes();
 
-            if (isset($attributes['account_no']) && $attributes['account_no'] === 'auto') {
-                $attributes['account_no'] = $accountNoService->generateAccountNo();
-            }
+            // a client and their login are created together or not at all
+            $client = DB::transaction(function () use ($attributes, $accountNoService) {
+                if (isset($attributes['account_no']) && $attributes['account_no'] === 'auto') {
+                    $attributes['account_no'] = $accountNoService->generateAccountNo();
+                }
 
-            return new ClientResource(
-                Client::create($attributes)
-            );
+                $siteId = auth()->user()->site_id;
+                $user = $this->clientUsers->createForClient($attributes, $siteId);
+
+                return Client::create([
+                    ...$attributes,
+                    'site_id' => $siteId,
+                    'user_id' => $user->id,
+                ]);
+            });
+
+            return new ClientResource($client);
 
         } catch (AuthorizationException $ex) {
 
@@ -117,7 +132,8 @@ class ClientController extends ApiController
     public function show(string $uuid)
     {
         try {
-            $client = Client::with(['internetPlan', 'billingCategory', 'server', 'billings'])->where('uuid', $uuid)->firstOrFail();
+            $client = Client::with(['user', 'internetPlan', 'billingCategory', 'server', 'billings'])->where('uuid', $uuid)->firstOrFail();
+
             return new ClientResource($client);
 
 
@@ -139,7 +155,8 @@ class ClientController extends ApiController
             // $this->isAble('update', Client::class);
 
             $client = Client::where('uuid', $uuid)->firstOrFail();
-            $affected = $client->update($request->mappedAttributes());
+            $client->update($request->mappedAttributes());
+            $this->clientUsers->syncFromClient($client);
 
             return new ClientResource($client);
 
@@ -161,7 +178,8 @@ class ClientController extends ApiController
             // $this->isAble('replace', Client::class);
 
             $client = Client::where('uuid', $uuid)->firstOrFail();
-            $affected = $client->update($request->mappedAttributes());
+            $client->update($request->mappedAttributes());
+            $this->clientUsers->syncFromClient($client);
 
             return new ClientResource($client);
 
@@ -180,7 +198,14 @@ class ClientController extends ApiController
     {
         try {
             $client = Client::where('uuid', $uuid)->firstOrFail();
-            $affected = $client->delete();
+            $user = $client->user;
+
+            $affected = DB::transaction(function () use ($client, $user) {
+                $deleted = $client->delete();
+                $this->clientUsers->deleteUser($user);
+
+                return $deleted;
+            });
 
             return $this->ok("Deleted $affected record.", []);
 
@@ -340,7 +365,7 @@ class ClientController extends ApiController
     public function find(Request $request)
     {
         try {
-            $client = Client::with(['internetPlan', 'billingCategory', 'server', 'billings']);
+            $client = Client::with(['user', 'internetPlan', 'billingCategory', 'server', 'billings', 'advancePayment']);
 
             // STATUS FILTER
             $status = $request->input('status');
