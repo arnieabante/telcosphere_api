@@ -48,6 +48,13 @@ class ModuleFactory extends Factory
                 'url' => 'clients'
             ],
             [
+                'name' => 'Client Overview',
+                'icon' => 'fa fa-tachometer',
+                'parent_id' => 0,
+                'description' => 'Manage clients dashboard',
+                'url' => 'clientsdashboard'
+            ],
+            [
                 'name' => 'Billing',
                 'icon' => '<svg xmlns="http://www.w3.org/2000/svg" className="side-menu__icon" width="24" height="24"  viewBox="0 0 24 24"><path d="M15 16.69V13H16.5V15.82L18.94 17.23L18.19 18.53L15 16.69M10.87 20.76L9 22L6 20L3 22V3H21V11.1C22.24 12.36 23 14.09 23 16C23 19.87 19.87 23 16 23C13.97 23 12.14 22.14 10.87 20.76M9.73 19.11C9.26 18.17 9 17.12 9 16C9 12.13 12.13 9 16 9C17.07 9 18.09 9.24 19 9.67V5H5V18.26L6 17.6L9 19.6L9.73 19.11M16 21C18.76 21 21 18.76 21 16C21 13.24 18.76 11 16 11C13.24 11 11 13.24 11 16C11 18.76 13.24 21 16 21Z" /></svg>',
                 'parent_id' => 0,
@@ -85,56 +92,56 @@ class ModuleFactory extends Factory
             [
                 'name' => 'Internet Plans',
                 'icon' => 'fa fa-globe',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'Internet bandwidth plans',
                 'url' => 'internetplans'
             ],
             [
                 'name' => 'Servers',
                 'icon' => 'fa fa-server',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'List of hosted servers',
                 'url' => 'servers'
             ],
             [
                 'name' => 'Expense Categories',
                 'icon' => 'fa fa-money',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'List of Expense Categories',
                 'url' => 'expensecategories'
             ],
             [
                 'name' => 'SR Categories',
                 'icon' => 'fa fa-server',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'List of SR Categories',
                 'url' => 'ticketcategories'
             ],
             [
                 'name' => 'Billing Categories',
                 'icon' => 'fa fa-server',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'List of billing categories',
                 'url' => 'billingcategories'
             ],
             [
                 'name' => 'Employees',
                 'icon' => 'fa fa-id-badge',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'Employee management',
                 'url' => 'employees'
             ],
             [
                 'name' => 'Roles',
                 'icon' => 'fa fa-lock',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'Role-based access control',
                 'url' => 'roles'
             ],
             [
                 'name' => 'Users',
                 'icon' => 'fa fa-user',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'System user accounts',
                 'url' => 'users'
             ],
@@ -148,28 +155,28 @@ class ModuleFactory extends Factory
             [
                 'name' => 'Monthly Collection Report',
                 'icon' => 'fa fa-key',
-                'parent_id' => 16,
+                'parent_id' => 17,
                 'description' => 'Generation of Monthly Collection Report',
                 'url' => 'montlycollectionreport'
             ],
             [
                 'name' => 'Monthly Expenses Report',
                 'icon' => 'fa fa-key',
-                'parent_id' => 16,
+                'parent_id' => 17,
                 'description' => 'Generation of Monthly Expenses Report',
                 'url' => 'montlyexpensesreport'
             ],
             [
                 'name' => 'Statement of Account',
                 'icon' => 'fa fa-key',
-                'parent_id' => 16,
+                'parent_id' => 17,
                 'description' => 'Generation of Statemement of Account',
                 'url' => 'soa'
             ],
             [
                 'name' => 'Account History',
                 'icon' => 'fa fa-key',
-                'parent_id' => 16,
+                'parent_id' => 17,
                 'description' => 'Generation of Account History',
                 'url' => 'accounthistory'
             ],
@@ -179,6 +186,20 @@ class ModuleFactory extends Factory
                 'parent_id' => 0,
                 'description' => 'Site Settings',
                 'url' => 'sitesettings'
+            ],
+            [
+                'name' => 'Create Service Request',
+                'icon' => 'fa fa-key',
+                'parent_id' => 3,
+                'description' => 'Client Create of Service Request',
+                'url' => 'clientsticket'
+            ],
+            [
+                'name' => 'Pay using Gcash',
+                'icon' => 'fa fa-key',
+                'parent_id' => 3,
+                'description' => 'Pay online using the Gcash',
+                'url' => 'payonline'
             ]
         ];
 

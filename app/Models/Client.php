@@ -25,6 +25,7 @@ class Client extends Model
      */
     protected $fillable = [
         'site_id',
+        'user_id',
         'first_name',
         'middle_name',
         'last_name',
@@ -125,6 +126,11 @@ class Client extends Model
     public function billings()
     {
         return $this->hasMany(\App\Models\Billing::class, 'client_id', 'id')->where('is_active', 1);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id', 'id');
     }
 
     public function getSOA(array $filters = [])

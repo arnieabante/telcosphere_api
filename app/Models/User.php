@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Scopes\SiteScope;
+use App\Models\Client;
 
 class User extends Authenticatable
 {
@@ -37,6 +38,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'must_change_password',
         'role_id',
         'is_active'
     ];
@@ -85,6 +87,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
         ];
     }
 
@@ -110,5 +113,15 @@ class User extends Authenticatable
 
     public function role(): BelongsTo {
         return $this->belongsTo(Role::class);
+    }
+
+    public function client()
+    {
+        return $this->hasOne(Client::class, 'user_id','id');
+    }
+
+    public function isClient(): bool
+    {
+        return strtolower($this->role?->name ?? '') === 'client';
     }
 }
