@@ -281,6 +281,11 @@ class BillingController extends ApiController
                 $billing->whereBetween('created_at', [$request->from, $request->to]);
             }
 
+            // LATEST PER CLIENT: a billing already carries older unpaid amounts as its previous balance
+            if ($request->boolean('latest_per_client')) {
+                $billing->whereIn('billings.id', (clone $billing)->selectRaw('MAX(billings.id)')->groupBy('client_id'));
+            }
+
             $perPage = $request->input('per_page', 10);
 
             $rslt = $billing->orderBy('billing_status', 'asc')->paginate($perPage);
