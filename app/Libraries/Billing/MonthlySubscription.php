@@ -6,6 +6,7 @@ use App\Interfaces\BillingInterface;
 use App\Models\BillingCategory;
 use App\Models\Client;
 use App\Models\Internetplan;
+use Carbon\Carbon;
 use DateTime;
 use Exception;
 
@@ -17,6 +18,8 @@ class MonthlySubscription implements BillingInterface
     const ITEM_NAME_PRORATED_CUR = 'Pro-rated Current Plan Internet Fee';
     const ITEM_NAME_BALANCE_FROM_PREV_BILLING = 'Balance from Previous Billing';
     const ITEM_STATUS_DEFAULT = 'Pending';
+    // cut-offs this close belong to one cycle; consecutive monthly cut-offs are at least ~4 weeks apart
+    const SAME_CYCLE_WINDOW_DAYS = 14;
 
     protected $name;
 
@@ -29,16 +32,22 @@ class MonthlySubscription implements BillingInterface
     }
 
     public function getClients($data): object {
+        $cutoff = Carbon::parse($data['billingCutoff'] ?? now());
+
         // get clients with the same billing category/cycle
         return Client::where('billing_category_id', $data['billingCategory'])
             ->where('is_active', 1)
             ->where('site_id', auth()->user()->site_id)
-            // only return clients with no billed subscription for the month yet
-            ->whereDoesntHave('billings', function ($query) {
-            $query->where('billing_type', 1)
-                ->where('is_active', 1)
-                ->whereIn('billing_status', ['Partial', 'Pending'])
-                ->whereRaw('billing_date BETWEEN DATE_SUB(billing_cutoff, INTERVAL 1 MONTH) AND billing_cutoff');
+            // only return clients not yet billed for this cycle, whatever the billing's payment status.
+            // unpaid billings of earlier cycles must not block this one, they carry over as previous balance.
+            ->whereDoesntHave('billings', function ($query) use ($cutoff) {
+                $query->where('billing_type', 1)
+                    ->where('is_active', 1)
+                    // automated billings have no cut-off, so fall back to the billing date
+                    ->whereRaw('COALESCE(billing_cutoff, billing_date) BETWEEN ? AND ?', [
+                        $cutoff->copy()->subDays(self::SAME_CYCLE_WINDOW_DAYS)->startOfDay()->toDateTimeString(),
+                        $cutoff->copy()->addDays(self::SAME_CYCLE_WINDOW_DAYS)->endOfDay()->toDateTimeString(),
+                    ]);
             })
             ->get([
                 'id', 
