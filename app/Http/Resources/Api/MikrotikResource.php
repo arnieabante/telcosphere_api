@@ -8,7 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class MikrotikResource extends JsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transform the resource into an array. The router password never leaves the API.
      *
      * @return array<string, mixed>
      */
@@ -20,13 +20,15 @@ class MikrotikResource extends JsonResource
             'attributes' => [
                 'uuid' => $this->uuid,
                 'name' => $this->name,
+                'serverId' => $this->server_id,
                 'iPAddress' => $this->ip_address,
                 'port' => $this->port,
                 'useSsl' => $this->use_ssl,
                 'username' => $this->username,
-                'password' => $this->password,
                 'timeout' => $this->timeout,
                 'lastSeenAt' => $this->last_seen_at,
+                'lastCheckedAt' => $this->last_checked_at,
+                'lastError' => $this->last_error,
                 'isActive' => $this->is_active,
                 $this->mergeWhen(
                     request()->routeIs('mikrotiks.show'), [

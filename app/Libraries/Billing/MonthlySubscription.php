@@ -32,16 +32,22 @@ class MonthlySubscription implements BillingInterface
         // get clients with the same billing category/cycle
         return Client::where('billing_category_id', $data['billingCategory'])
             ->where('is_active', 1)
-            ->where('site_id', auth()->user()->site_id)
+            ->where('site_id', $data['siteId'] ?? auth()->user()->site_id)
             // only return clients with no billed subscription for the month yet
-            ->whereDoesntHave('billings', function ($query) {
-            $query->where('billing_type', 1)
-                ->where('is_active', 1)
-                ->whereIn('billing_status', ['Partial', 'Pending'])
-                ->whereRaw('billing_date BETWEEN DATE_SUB(billing_cutoff, INTERVAL 1 MONTH) AND billing_cutoff');
+            ->whereDoesntHave('billings', function ($query) use ($data) {
+                $query->where('billing_type', 1)->where('is_active', 1);
+
+                if ($data['automated'] ?? false) {
+                    // staff also bill by hand, and a bill already paid this month still counts
+                    $query->where('billing_date', '>=', now()->startOfMonth());
+                } else {
+                    $query->whereIn('billing_status', ['Partial', 'Pending'])
+                        ->whereRaw('billing_date BETWEEN DATE_SUB(billing_cutoff, INTERVAL 1 MONTH) AND billing_cutoff');
+                }
             })
             ->get([
                 'id', 
+                'site_id',
                 'billing_category_id', 
                 'internet_plan_id', 
                 'prorate_fee', 
@@ -108,7 +114,6 @@ class MonthlySubscription implements BillingInterface
     protected function getSubscriptionRate(string $planId): float {
         $plan = Internetplan::select(['monthly_subscription'])
             ->where('id', $planId)
-            ->where('site_id', auth()->user()->site_id)
             ->first();
 
         return round($plan->monthly_subscription, 2);
@@ -117,7 +122,6 @@ class MonthlySubscription implements BillingInterface
     protected function getSubscriptionName(string $planId): string {
         $plan = Internetplan::select(['name'])
             ->where('id', $planId)
-            ->where('site_id', auth()->user()->site_id)
             ->first();
 
         return $plan->name;
@@ -126,7 +130,6 @@ class MonthlySubscription implements BillingInterface
     protected function getBillingCycle($categoryId): string {
         $cycle = BillingCategory::select(['date_cycle'])
             ->where('id', $categoryId)
-            ->where('site_id', auth()->user()->site_id)
             ->first();
         
         return $cycle->date_cycle;

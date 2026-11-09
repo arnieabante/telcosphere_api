@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class BaseClientRequest extends FormRequest
 {
+    use ValidatesNetworkFields;
+
     public function mappedAttributes(): array {
         $attributes = [
             'firstName' => 'first_name',
@@ -37,6 +39,8 @@ class BaseClientRequest extends FormRequest
             'lastAutoBillingDate' => 'last_auto_billing_date',
             'PPPOEUsername' => 'pppoe_username',
             'PPPOEPassword' => 'pppoe_password',
+            'mikrotikId' => 'mikrotik_id',
+            'suspensionExemptUntil' => 'suspension_exempt_until',
             'isActive' => 'is_active'
         ];
 
@@ -46,6 +50,11 @@ class BaseClientRequest extends FormRequest
             if ($this->has($key)) {
                 $attributesToUpdate[$attribute] = $this->input($key);
             }
+        }
+
+        // the password is never sent to the browser, so blank means "keep it"
+        if (blank($attributesToUpdate['pppoe_password'] ?? null)) {
+            unset($attributesToUpdate['pppoe_password']);
         }
 
         return $attributesToUpdate;

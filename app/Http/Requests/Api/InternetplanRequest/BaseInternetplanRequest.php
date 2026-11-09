@@ -10,6 +10,7 @@ class BaseInternetplanRequest extends FormRequest
     {
         $attributes = [
             'name' => 'name',
+            'mikrotikProfile' => 'mikrotik_profile',
             'monthly_subscription' => 'monthly_subscription',
             'is_featured' => 'is_featured',
             'features' => 'features',

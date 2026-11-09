@@ -26,6 +26,8 @@ class UpdateInternetplanRequest extends BaseInternetplanRequest
             ?? 1;
 
         return [
+            'mikrotikProfile' => ['sometimes', 'nullable', 'string', 'max:64'],
+
             'name' => [
                 'sometimes',
                 'required',

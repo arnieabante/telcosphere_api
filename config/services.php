@@ -28,6 +28,15 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    'billing' => [
+        // issues real invoices, and staff may already be billing by hand
+        'automated_enabled' => env('AUTOMATED_BILLING_ENABLED', false),
+    ],
+
+    'mikrotik' => [
+        'scheduler_runs_queue' => env('MIKROTIK_SCHEDULER_RUNS_QUEUE', true),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

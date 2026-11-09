@@ -9,6 +9,8 @@ use App\Http\Resources\Api\BillingResource;
 use App\Models\BillingCategory;
 use App\Models\Client;
 use App\Models\AdvancePayments;
+use App\Services\Mikrotik\NetworkEvents;
+use App\Services\Mikrotik\SyncOptions;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -19,6 +21,7 @@ class BillingService
     const STATUS_BILLED = 'Billed';
     const STATUS_PAID = 'Paid';
     const BILLING_TYPE_ADJUSTMENT = 5;
+    const NO_CLIENT_FOUND = 'No Client found.';
 
     protected $invoice;
 
@@ -32,7 +35,7 @@ class BillingService
         $clients = $billingType->getClients($data);
 
         if (count($clients) < 1)
-            throw new Exception('No Client found.');
+            throw new Exception(self::NO_CLIENT_FOUND);
 
         foreach ($clients as $client) {
             // gather balance if any of pending/partial billing status
@@ -51,8 +54,9 @@ class BillingService
 
             // create new Billing
             $billing = Billing::create([
+                'site_id' => $client->site_id,
                 'client_id' => $client->id,
-                'invoice_number' => $this->invoice->generateInvoice()->invoice_number,
+                'invoice_number' => $this->invoice->generateInvoice($client->site_id)->invoice_number,
                 'billing_type' => $data['billingType'],
                 'billing_date' => date('Y-m-d H:i:s'), // current date
                 'billing_description' => NULL, // auto-populate after generating billing items
@@ -68,7 +72,10 @@ class BillingService
             ]);
 
             // create Billing Items by Billing Type
-            $billingItems = $billingType->generateBillingItems($billing, $data['billingItems']);
+            $billingItems = array_map(
+                fn ($item) => [...$item, 'site_id' => $billing->site_id],
+                $billingType->generateBillingItems($billing, $data['billingItems'])
+            );
 
             if (count($billingItems) > 1)
                 $billing->billingItems()->createMany($billingItems);
@@ -207,6 +214,8 @@ class BillingService
                 'house_no' => $data['billingDescription']
             ]);
 
+            NetworkEvents::requestSync((int) $data['clientId'], SyncOptions::TRIGGER_BILLING);
+
             return new BillingResource($billing);
         });
     }
@@ -264,6 +273,8 @@ class BillingService
                 $billing->client()->update([
                     'current_balance' => $currentClientBalance
                 ]);
+
+                NetworkEvents::requestSync($billing->client_id, SyncOptions::TRIGGER_BILLING);
             });
         } else
             throw new Exception('Cannot delete Partial or Paid billing.');
@@ -271,22 +282,38 @@ class BillingService
         return new BillingResource($billing);
     }
 
-    public function runAutomatedBilling(BillingInterface $billingType)
+    /**
+     * Runs from the scheduler with nobody logged in, so each category's site is explicit.
+     *
+     * @return array<string, string> failures, keyed by category name
+     */
+    public function runAutomatedBilling(BillingInterface $billingType): array
     {
-        $categories = BillingCategory::select(['id', 'name', 'days_to_due_date'])
-            ->where('date_cycle', date('d'))
-            ->where('site_id', auth()->user()->site_id)
+        $now = Carbon::now();
+
+        // a cycle day of 29-31 still bills in months that are too short to have it
+        $cycles = $now->isLastOfMonth() ? range($now->day, 31) : [$now->day];
+
+        $categories = BillingCategory::withoutGlobalScopes()
+            ->select(['id', 'site_id', 'name', 'days_to_due_date', 'days_to_disconnection_date'])
+            ->whereIn('date_cycle', $cycles)
+            ->where('is_active', 1)
             ->get();
 
-        if (count($categories) < 1)
-            throw new Exception('No Category found.');
+        $failures = [];
 
         foreach ($categories as $category) {
             $remark = "Automated Subscription Billing ({$category['name']})";
+            $dueDate = $now->copy()->addDays((int) $category['days_to_due_date']);
+
             $billingData = [
+                'siteId' => $category['site_id'],
+                'automated' => true,
                 'billingCategory' => $category['id'],
                 'billingType' => 1,
                 'billingRemarks' => $remark,
+                'billingCutoff' => $dueDate->toDateString(),
+                'disconnectionDate' => $dueDate->copy()->addDays((int) $category['days_to_disconnection_date'])->toDateString(),
                 'billingItems' => [
                     [
                         'billingItemQuantity' => 1,
@@ -295,8 +322,17 @@ class BillingService
                 ]
             ];
 
-            $this->generateBilling($billingType, $billingData);
+            try {
+                $this->generateBilling($billingType, $billingData);
+            } catch (Exception $ex) {
+                // one category failing must not stop the others
+                if ($ex->getMessage() !== self::NO_CLIENT_FOUND) {
+                    $failures[$category['name']] = $ex->getMessage();
+                }
+            }
         }
+
+        return $failures;
     }
 
     /**

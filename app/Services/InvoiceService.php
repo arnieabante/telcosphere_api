@@ -15,10 +15,10 @@ class InvoiceService
             '';
     }
 
-    private function getSuffix($count): String 
+    private function getSuffix($count, $siteId): String 
     {
         // if new year, reset count
-        $maxDate = Invoice::max('created_at');
+        $maxDate = Invoice::where('site_id', $siteId)->max('created_at');
         if ($maxDate && 
             (int) date('y') > (int) date('y', strtotime($maxDate))
         ) {
@@ -28,18 +28,18 @@ class InvoiceService
         }
     }
 
-    public function generateInvoice(): Invoice
+    public function generateInvoice(?int $siteId = null): Invoice
     {
         $site = Site::select([
                 'id',
                 'invoice_id_pattern',
                 'invoice_id_yy_last_count'
             ])
-            ->where('id', auth()->user()->site_id)
+            ->where('id', $siteId ?? auth()->user()->site_id)
             ->first();
 
         $prefix = $this->getPrefix($site['invoice_id_pattern']);
-        $suffix = $this->getSuffix($site['invoice_id_yy_last_count']);
+        $suffix = $this->getSuffix($site['invoice_id_yy_last_count'], $site['id']);
         
         $invoice = new Invoice();
         $invoiceNumber = $invoice->formatInvoiceNumber($prefix, $suffix);

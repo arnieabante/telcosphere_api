@@ -27,11 +27,18 @@ class RunAutomatedBilling extends Command
      */
     public function handle()
     {
-        try {
-            app(BillingService::class)->runAutomatedBilling(new MonthlySubscription);
-            $this->info('Automated billing generated successfully on ' . date('Y-m-d H:i:s'));
-        } catch (\Exception $ex) {
-            $this->info('No billing generated on ' . date('Y-m-d H:i:s') . ': ' . $ex);
+        $failures = app(BillingService::class)->runAutomatedBilling(new MonthlySubscription);
+
+        foreach ($failures as $category => $message) {
+            $this->error(date('Y-m-d H:i:s') . " {$category}: {$message}");
         }
+
+        if ($failures !== []) {
+            return self::FAILURE;
+        }
+
+        $this->info('Automated billing finished on ' . date('Y-m-d H:i:s'));
+
+        return self::SUCCESS;
     }
 }

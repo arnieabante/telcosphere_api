@@ -16,6 +16,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\AccountNoService;
 use App\Services\ClientUserService;
+use App\Services\Mikrotik\NetworkEvents;
+use App\Services\Mikrotik\SyncOptions;
 
 class ClientController extends ApiController
 {
@@ -107,6 +109,8 @@ class ClientController extends ApiController
                 ]);
             });
 
+            NetworkEvents::clientSaved($client);
+
             return new ClientResource($client);
 
         } catch (AuthorizationException $ex) {
@@ -155,8 +159,10 @@ class ClientController extends ApiController
             // $this->isAble('update', Client::class);
 
             $client = Client::where('uuid', $uuid)->firstOrFail();
+            $before = NetworkEvents::snapshot($client);
             $client->update($request->mappedAttributes());
             $this->clientUsers->syncFromClient($client);
+            NetworkEvents::clientSaved($client, $before);
 
             return new ClientResource($client);
 
@@ -178,8 +184,10 @@ class ClientController extends ApiController
             // $this->isAble('replace', Client::class);
 
             $client = Client::where('uuid', $uuid)->firstOrFail();
+            $before = NetworkEvents::snapshot($client);
             $client->update($request->mappedAttributes());
             $this->clientUsers->syncFromClient($client);
+            NetworkEvents::clientSaved($client, $before);
 
             return new ClientResource($client);
 
@@ -199,6 +207,7 @@ class ClientController extends ApiController
         try {
             $client = Client::where('uuid', $uuid)->firstOrFail();
             $user = $client->user;
+            $network = NetworkEvents::snapshot($client);
 
             $affected = DB::transaction(function () use ($client, $user) {
                 $deleted = $client->delete();
@@ -207,6 +216,8 @@ class ClientController extends ApiController
                 return $deleted;
             });
 
+            NetworkEvents::clientDeleted($client->id, (int) $client->site_id, $network);
+
             return $this->ok("Deleted $affected record.", []);
 
         } catch (ModelNotFoundException $ex) {
@@ -214,6 +225,22 @@ class ClientController extends ApiController
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to delete a Client.', 401);
+        }
+    }
+
+    /**
+     * Re-check this client against their router now instead of waiting for the sweep.
+     */
+    public function networkSync(string $uuid)
+    {
+        try {
+            $client = Client::where('uuid', $uuid)->firstOrFail();
+            NetworkEvents::requestSync($client->id, SyncOptions::TRIGGER_MANUAL);
+
+            return $this->ok('Router sync queued.', []);
+
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('Client does not exist.', 404);
         }
     }
 

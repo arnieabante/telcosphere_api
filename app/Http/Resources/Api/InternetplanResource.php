@@ -20,6 +20,7 @@ class InternetplanResource extends JsonResource
             'attributes' => [
                 'uuid' => $this->uuid,
                 'name' => $this->name,
+                'mikrotikProfile' => $this->mikrotik_profile,
                 'monthly_subscription' => $this->monthly_subscription,
                 'is_featured' => $this->is_featured,
                 'features' => $this->features,

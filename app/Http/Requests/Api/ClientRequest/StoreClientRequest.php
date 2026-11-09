@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\ClientRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreClientRequest extends BaseClientRequest
 {
@@ -26,7 +27,7 @@ class StoreClientRequest extends BaseClientRequest
             'middleName' => 'nullable|string|min:2',
             'lastName' => 'required|string|min:2',
             'mobileNo' => 'string|min:11',
-            'email' => 'nullable|string|email|unique:clients',
+            'email' => ['nullable', 'string', 'email', Rule::unique('clients')->where(fn ($query) => $query->where('site_id', auth()->user()->site_id))],
             'houseNo' => 'string|min:5',
             'latitude' => 'nullable|string',
             'longitude' => 'nullable|string',
@@ -49,9 +50,7 @@ class StoreClientRequest extends BaseClientRequest
             'internetPlanId' => 'required|int',
             'prevInternetPlanId' => 'nullable|int',
             'lastAutoBillingDate' => 'nullable|string',
-            'pppoe_username' => 'nullable|string',
-            'pppoe_password' => 'nullable|string',
             'isActive' => 'required|string'
-        ];
+        ] + $this->networkRules();
     }
 }

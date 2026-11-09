@@ -17,7 +17,8 @@ class Client extends Model
      * Default attribute values
      */
     protected $attributes = [
-        'is_active' => 1
+        'is_active' => 1,
+        'network_status' => 'unmanaged',
     ];
 
     /**
@@ -56,7 +57,17 @@ class Client extends Model
         'last_auto_billing_date',
         'pppoe_username',
         'pppoe_password',
+        'mikrotik_id',
+        'suspension_exempt_until',
         'is_active',
+    ];
+
+    protected $hidden = ['pppoe_password'];
+
+    protected $casts = [
+        // the router needs the original value, so this is encrypted rather than hashed
+        'pppoe_password' => 'encrypted',
+        'network_synced_at' => 'datetime',
     ];
 
     protected static function booted()
@@ -74,6 +85,18 @@ class Client extends Model
             if (auth()->check()) {
                 $client->created_by = auth()->id();
                 $client->updated_by = auth()->id();
+            }
+        });
+
+        static::saving(function ($client) {
+            if (! $client->mikrotik_id || trim((string) $client->pppoe_username) === '') {
+                $client->network_status = 'unmanaged';
+                $client->network_synced_at = null;
+                $client->network_error = null;
+            } elseif ($client->isDirty('mikrotik_id') || $client->network_status === 'unmanaged') {
+                $client->network_status = 'pending';
+                $client->network_synced_at = null;
+                $client->network_error = null;
             }
         });
 
@@ -116,6 +139,11 @@ class Client extends Model
     public function server()
     {
         return $this->belongsTo(\App\Models\Server::class, 'server_id')->where('is_active', 1);
+    }
+
+    public function mikrotik()
+    {
+        return $this->belongsTo(\App\Models\Mikrotik::class, 'mikrotik_id');
     }
 
     public function advancePayment()

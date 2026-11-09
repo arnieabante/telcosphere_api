@@ -19,6 +19,8 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Services\Mikrotik\NetworkEvents;
+use App\Services\Mikrotik\SyncOptions;
 use App\Services\ReceiptService;
 use Illuminate\Support\Facades\DB;
 
@@ -185,6 +187,8 @@ class PaymentController extends ApiController
                             'GREATEST(current_balance - ' . $amountPaid . ', 0)'
                         )
                     ]);
+
+                    NetworkEvents::requestSync($client->id, SyncOptions::TRIGGER_PAYMENT);
                 }
 
                 return new PaymentResource($payment);
@@ -340,6 +344,8 @@ class PaymentController extends ApiController
                     $payment->is_active = 0;
                     $payment->save();
 
+                    NetworkEvents::requestSync($payment->client_id, SyncOptions::TRIGGER_PAYMENT);
+
                     return new PaymentResource($payment->fresh());
                 }
 
@@ -474,6 +480,8 @@ class PaymentController extends ApiController
 
                         $client->save();
                     }
+
+                    NetworkEvents::requestSync($payment->client_id, SyncOptions::TRIGGER_PAYMENT);
                 }
 
                 return new PaymentResource($payment->fresh());
@@ -528,6 +536,8 @@ class PaymentController extends ApiController
                 }
 
                 $affected = $payment->delete();
+
+                NetworkEvents::requestSync($payment->client_id, SyncOptions::TRIGGER_PAYMENT);
 
                 return $this->ok("Deleted $affected record.", []);
             });

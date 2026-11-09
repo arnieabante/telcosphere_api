@@ -2,159 +2,156 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\MikrotikRequest\ReplaceMikrotikRequest;
 use App\Http\Requests\Api\MikrotikRequest\StoreMikrotikRequest;
 use App\Http\Requests\Api\MikrotikRequest\UpdateMikrotikRequest;
 use App\Http\Resources\Api\MikrotikResource;
-use App\Models\Mikrotik; 
+use App\Models\Client;
+use App\Models\Mikrotik;
+use App\Services\Mikrotik\RouterClientFactory;
+use App\Services\Mikrotik\RouterException;
 use App\Traits\ApiResponses;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class MikrotikController extends ApiController
 {
     use ApiResponses;
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
         $search = $request->get('search');
-        $include = $request->get('include');
         $from = $request->get('from');
         $to = $request->get('to');
-        $forHarvest = $request->get('for_harvest'); 
 
         $query = Mikrotik::where('is_active', 1);
 
-        // FOR HARVEST FILTER
-        if (!empty($forHarvest) && $forHarvest == 1) {
-            $query->where(function ($q) {
-                $q->where('next_harvest_date', '<=', now()->addDays(5))
-                ->orWhereNull('last_harvest_date');
+        if ($request->get('include') === 'all') {
+            return MikrotikResource::collection($query->orderBy('name', 'asc')->get());
+        }
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('ip_address', 'like', "%{$search}%");
             });
         }
 
-        if (!empty($include) && $include == 'all') {
-            $mikrotik = $query->orderBy('name', 'asc')->get();
-            return MikrotikResource::collection($mikrotik);
-        } else {
-            if (!empty($search)) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('harvest_day', 'like', "%{$search}%");
-                });
-            }
-        }
-
-        // Filter by date range
         if (!empty($from) && !empty($to)) {
             $query->whereBetween('created_at', [$from, $to]);
         }
-        
-        $mikrotik = $query->orderBy('created_at', 'desc')->paginate($perPage);
-        return MikrotikResource::collection($mikrotik);
+
+        return MikrotikResource::collection($query->orderBy('created_at', 'desc')->paginate($perPage));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreMikrotikRequest $request)
     {
-        try {
-            $data = $request->mappedAttributes();
-            return $data;
-            return new MikrotikResource(
-                Mikrotik::create($data)
-            );
-
-        } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to create a Peso Wifi Client.', 401);
-        }
+        return new MikrotikResource(Mikrotik::create([
+            ...$request->mappedAttributes(),
+            'site_id' => auth()->user()->site_id,
+        ]));
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $uuid)
     {
         try {
-            $mikrotik = Mikrotik::where('uuid', $uuid)->firstOrFail();
-            return new MikrotikResource($mikrotik);
-
+            return new MikrotikResource(Mikrotik::where('uuid', $uuid)->firstOrFail());
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Peso Wifi Client does not exist.', 404);
-
-        } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to view a Peso Wifi Client.', 401);
+            return $this->error('MikroTik router does not exist.', 404);
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateMikrotikRequest $request, string $uuid)
     {
-        try {
-            // update policy
-            // $this->isAble('update', Mikrotik::class);
-
-            $mikrotik = Mikrotik::where('uuid', $uuid)->firstOrFail();
-            $affected = $mikrotik->update($request->mappedAttributes());
-
-            return new MikrotikResource($mikrotik);
-
-        } catch (ModelNotFoundException $ex) {
-            return $this->error('Peso Wifi Client does not exist.', 404);
-
-        } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to update a Peso Wifi Client.', 401);
-        }
+        return $this->save($request->mappedAttributes(), $uuid);
     }
 
-    /**
-     * Replace the specified resource in storage.
-     */
     public function replace(ReplaceMikrotikRequest $request, string $uuid)
     {
-        try {
-            // replace policy
-            // $this->isAble('replace', Mikrotik::class);
-
-            $mikrotik = Mikrotik::where('uuid', $uuid)->firstOrFail();
-            $affected = $mikrotik->update($request->mappedAttributes());
-
-            return new MikrotikResource($mikrotik);
-
-        } catch (ModelNotFoundException $ex) {
-            return $this->error('Peso Wifi Client does not exist.', 404);
-
-        } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to replace a Peso Wifi Client.', 401);
-        }
+        return $this->save($request->mappedAttributes(), $uuid);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $uuid)
     {
         try {
             $mikrotik = Mikrotik::where('uuid', $uuid)->firstOrFail();
-            $affected = $mikrotik->delete();
 
-            return $this->ok("Deleted $affected record.", []);
+            if ($this->hasClients($mikrotik)) {
+                return $this->error('Move this router\'s clients to another router before deleting it.', 409);
+            }
 
+            return $this->ok('Deleted '.$mikrotik->delete().' record.', []);
         } catch (ModelNotFoundException $ex) {
-            return $this->error('Peso Wifi Client does not exist.', 404);
-
-        } catch (AuthorizationException $ex) {
-            return $this->error('You are not authorized to delete a Peso Wifi Client.', 401);
+            return $this->error('MikroTik router does not exist.', 404);
         }
+    }
+
+    /**
+     * Try a login without saving anything. A saved router's password is reused
+     * when the form leaves the password blank.
+     */
+    public function testConnection(Request $request, RouterClientFactory $factory)
+    {
+        $data = $request->validate([
+            'uuid' => 'nullable|string',
+            'ipAddress' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z0-9.:\-]+$/'],
+            'port' => 'nullable|integer|between:1,65535',
+            'useSsl' => 'nullable|boolean',
+            'username' => 'required|string|max:100',
+            'password' => 'nullable|string|max:255',
+            'timeout' => 'nullable|integer|between:1,30',
+        ]);
+
+        $password = $data['password'] ?? null;
+
+        if (blank($password) && !empty($data['uuid'])) {
+            $password = Mikrotik::where('uuid', $data['uuid'])->first()?->password;
+        }
+
+        if (blank($password)) {
+            return $this->error('Enter the router password to test the connection.', 422);
+        }
+
+        $useSsl = (bool) ($data['useSsl'] ?? false);
+
+        try {
+            $api = $factory->connect(
+                $data['ipAddress'],
+                (int) ($data['port'] ?? ($useSsl ? 8729 : 8728)),
+                $useSsl,
+                $data['username'],
+                $password,
+                (int) ($data['timeout'] ?? 5)
+            );
+            $info = $api->info();
+            $api->close();
+        } catch (RouterException $ex) {
+            return $this->error($ex->getMessage(), 422);
+        }
+
+        return $this->ok("Connected to {$info['identity']} (RouterOS {$info['version']}).", $info);
+    }
+
+    private function save(array $attributes, string $uuid)
+    {
+        try {
+            $mikrotik = Mikrotik::where('uuid', $uuid)->firstOrFail();
+
+            if (array_key_exists('is_active', $attributes) && !$attributes['is_active'] && $this->hasClients($mikrotik)) {
+                return $this->error('Move this router\'s clients to another router before deleting it.', 409);
+            }
+
+            $mikrotik->update($attributes);
+
+            return new MikrotikResource($mikrotik);
+        } catch (ModelNotFoundException $ex) {
+            return $this->error('MikroTik router does not exist.', 404);
+        }
+    }
+
+    private function hasClients(Mikrotik $mikrotik): bool
+    {
+        return Client::where('mikrotik_id', $mikrotik->id)->where('is_active', 1)->exists();
     }
 }

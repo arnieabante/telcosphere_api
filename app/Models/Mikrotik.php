@@ -21,6 +21,7 @@ class Mikrotik extends Model
 
     protected $fillable = [
         'site_id',
+        'server_id',
         'name',
         'ip_address',
         'port',
@@ -32,6 +33,16 @@ class Mikrotik extends Model
         'is_active'
     ];
 
+    protected $hidden = ['password'];
+
+    protected $casts = [
+        'password' => 'encrypted',
+        'use_ssl' => 'boolean',
+        'is_active' => 'boolean',
+        'last_seen_at' => 'datetime',
+        'last_checked_at' => 'datetime',
+    ];
+
     protected static function booted()
     {
         // Apply global site filter
@@ -41,7 +52,8 @@ class Mikrotik extends Model
         static::creating(function ($mikrotik) {
             // but only when site_id is not already set
             if (empty($mikrotik->site_id)) {
-                $mikrotik->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+                // the login decides the tenant: the site_id header is client-supplied
+                $mikrotik->site_id = auth()->user()?->site_id ?? request()->header('site_id') ?? 1;
             }
 
             if (auth()->check()) {
@@ -55,6 +67,11 @@ class Mikrotik extends Model
                 $mikrotik->updated_by = auth()->id();
             }
         });
+    }
+
+    public function server()
+    {
+        return $this->belongsTo(Server::class, 'server_id');
     }
 
     public function getRouteKeyName(): string {

@@ -229,8 +229,10 @@ class DashboardService implements DashboardInterface
 
         return Billing::with('client')
             ->where('is_active', 1)
-            ->whereIn('billing_status', ['overdue', 'due'])
+            ->whereIn('billing_status', ['Pending', 'Partial'])
+            ->where('billing_balance', '>', 0)
             ->whereNotNull('disconnection_date')
+            ->whereDate('disconnection_date', '<=', $today)
             ->orderBy('disconnection_date', 'asc')
             ->take(5)
             ->get()

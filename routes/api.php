@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\CtaSettingsController;
 use App\Http\Controllers\Api\FooterSettingsController;
 use App\Http\Controllers\Api\SmsSettingsController;
 use App\Http\Controllers\Api\MikrotikController;
+use App\Http\Controllers\Api\MikrotikSettingController;
 use App\Http\Controllers\Api\AdvancePaymentsController;
 use Illuminate\Support\Facades\Route;
 
@@ -83,6 +84,7 @@ Route::middleware(['auth:sanctum', 'not.client'])->group(function () {
     Route::apiResource('clients', ClientController::class)->except(['update']);
     Route::patch('clients/{uuid}', [ClientController::class, 'update']);
     Route::put('clients/{uuid}', [ClientController::class, 'replace']);
+    Route::post('clients/{uuid}/network-sync', [ClientController::class, 'networkSync']);
     Route::get('clients/{uuid}/billings', [ClientController::class, 'billings']);
     Route::get('clients/{uuid}/soa', [ClientController::class, 'fetchClientSOA']);
     Route::get('clients/{uuid}/accounthistory', [ClientController::class, 'fetchAccountHistory']);
@@ -168,6 +170,10 @@ Route::middleware(['auth:sanctum', 'not.client'])->group(function () {
     Route::patch('smssettings/{uuid}', [SmsSettingsController::class, 'update']);
     Route::put('smssettings/{uuid}', [SmsSettingsController::class, 'replace']);
 
+    Route::get('mikrotik-settings', [MikrotikSettingController::class, 'show']);
+    Route::put('mikrotik-settings', [MikrotikSettingController::class, 'update']);
+    Route::get('mikrotik-logs', [MikrotikSettingController::class, 'logs']);
+    Route::post('mikrotiks/test-connection', [MikrotikController::class, 'testConnection']);
     Route::apiResource('mikrotiks', MikrotikController::class)->except(['update']);
     Route::patch('mikrotiks/{uuid}', [MikrotikController::class, 'update']);
     Route::put('mikrotiks/{uuid}', [MikrotikController::class, 'replace']);

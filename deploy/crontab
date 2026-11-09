@@ -1,0 +1,2 @@
+# Replace /var/www/telcosphere_api and /usr/bin/php with your own paths.
+* * * * * cd /var/www/telcosphere_api && /usr/bin/php artisan schedule:run >> /dev/null 2>&1

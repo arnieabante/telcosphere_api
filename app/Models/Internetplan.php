@@ -20,6 +20,7 @@ class Internetplan extends Model
     protected $fillable = [
         'site_id',
         'name',
+        'mikrotik_profile',
         'monthly_subscription',
         'is_featured',
         'features',

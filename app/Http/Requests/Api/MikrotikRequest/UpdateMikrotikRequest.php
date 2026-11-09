@@ -2,39 +2,32 @@
 
 namespace App\Http\Requests\Api\MikrotikRequest;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateMikrotikRequest extends BaseMikrotikRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
-        $siteId = auth()->user()->site_id ?? session('site_id') ?? request()->header('site_id')?? 1;
+        $siteId = auth()->user()->site_id;
+
         return [
-            'name' => ['required','string','min:3', Rule::unique('mikrotiks')->where(fn ($query) => $query->where('site_id', $siteId))],
-            'ipAddress' => 'sometimes|required|string',
-            'resellerShare' => 'nullable|int',
-            'port' => 'nullable|int',
+            'name' => ['sometimes', 'required', 'string', 'min:3', 'max:100', Rule::unique('mikrotiks')->where(fn ($query) => $query->where('site_id', $siteId)->where('is_active', 1))->ignore($this->route('uuid'), 'uuid')],
+            'serverId' => ['sometimes', 'nullable', 'integer', Rule::exists('servers', 'id')->where('site_id', $siteId)],
+            'ipAddress' => ['sometimes', 'required', 'string', 'max:255', 'regex:/^[A-Za-z0-9.:\-]+$/'],
+            'port' => 'nullable|integer|between:1,65535',
             'useSsl' => 'nullable|boolean',
-            'username' => 'nullable|string',
-            'password' => 'nullable|string',
-            'timeout' => 'nullable|int',
-            'lastSeenAt' => 'nullable|string',
-            'isActive' => 'required|boolean'
+            'username' => 'sometimes|required|string|max:100',
+            'password' => 'nullable|string|max:255',
+            'timeout' => 'nullable|integer|between:1,30',
+            'isActive' => 'sometimes|boolean',
         ];
-        // TODO: improve to accommodate i.e. data.attributes.username
     }
 }

@@ -26,6 +26,8 @@ class ReplaceInternetplanRequest extends BaseInternetplanRequest
             ?? 1;
 
         return [
+            'mikrotikProfile' => ['sometimes', 'nullable', 'string', 'max:64'],
+
             'name' => [
                 'required',
                 'string',

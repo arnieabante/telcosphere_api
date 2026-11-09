@@ -9,13 +9,13 @@ class BaseMikrotikRequest extends FormRequest
     public function mappedAttributes(): array {
         $attributes = [
             'name' => 'name',
+            'serverId' => 'server_id',
             'ipAddress' => 'ip_address',
             'port' => 'port',
             'useSsl' => 'use_ssl',
             'username' => 'username',
             'password' => 'password',
             'timeout' => 'timeout',
-            'lastSeenAt' => 'last_seen_at',
             'isActive' => 'is_active'
         ];
 
@@ -24,6 +24,13 @@ class BaseMikrotikRequest extends FormRequest
         foreach ($attributes as $key => $attribute) {
             if ($this->has($key)) {
                 $attributesToUpdate[$attribute] = $this->input($key);
+            }
+        }
+
+        // these columns are NOT NULL, and a blank password on edit means "keep it"
+        foreach (['port', 'use_ssl', 'timeout', 'password'] as $attribute) {
+            if (array_key_exists($attribute, $attributesToUpdate) && blank($attributesToUpdate[$attribute])) {
+                unset($attributesToUpdate[$attribute]);
             }
         }
 
