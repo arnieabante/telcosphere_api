@@ -35,7 +35,7 @@ class UserFactory extends Factory
             'email' => $user['email'],
             'password' => static::$password ??= Hash::make('password'),
             'is_active' => 1,
-            'role_id' => null,
+            'role_id' => 1,
             'created_by' => 1,
             'updated_by' => 1
         ];

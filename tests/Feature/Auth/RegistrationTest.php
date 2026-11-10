@@ -18,4 +18,4 @@ test('new users can register', function () {
 
     $this->assertAuthenticated();
     $response->assertRedirect(route('dashboard', absolute: false));
-});
+})->skip('Self-registration is not a supported flow: accounts need a site, username and role, set by staff.');

@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Notification;
 
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
+beforeEach(fn () => $this->markTestSkipped('Email verification is not enabled: Fortify feature off, no email_verified_at column.'));
+
 test('sends verification notification', function () {
     Notification::fake();
 

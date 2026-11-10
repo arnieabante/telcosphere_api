@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\URL;
 
 uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
 
+beforeEach(fn () => $this->markTestSkipped('Email verification is not enabled: Fortify feature off, no email_verified_at column.'));
+
 test('email verification screen can be rendered', function () {
     $user = User::factory()->unverified()->create();
 
