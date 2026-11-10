@@ -16,9 +16,23 @@ use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\TicketCategoryController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\BillingController;
+use App\Http\Controllers\Api\ClientsDashboardController;
 use App\Http\Controllers\Api\EmployeeController;
+use App\Http\Controllers\Api\SiteBankAccountController;
 use App\Http\Controllers\Api\SiteController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\PesoWifiAreaController;
+use App\Http\Controllers\Api\PesoWifiClientController;
+use App\Http\Controllers\Api\PesoWifiHarvestController;
+use App\Http\Controllers\Api\HomepageSettingsController;
+use App\Http\Controllers\Api\AboutUsSettingsController;
+use App\Http\Controllers\Api\PricingSettingsController;
+use App\Http\Controllers\Api\CtaSettingsController;
+use App\Http\Controllers\Api\FooterSettingsController;
+use App\Http\Controllers\Api\SmsController;
+use App\Http\Controllers\Api\SmsSettingsController;
+use App\Http\Controllers\Api\MikrotikController;
+use App\Http\Controllers\Api\AdvancePaymentsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('sites/url/{url}', [SiteController::class, 'showByUrl']);
@@ -26,7 +40,19 @@ Route::post('login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('change-password', [AuthController::class, 'changePassword']);
+});
 
+Route::middleware(['auth:sanctum', 'password.changed'])->group(function () {
+    Route::get('clientsdashboard', [ClientsDashboardController::class, 'overview']);
+    Route::get('clientsdashboard/billings', [ClientsDashboardController::class, 'billings']);
+    Route::get('clientsdashboard/billings/{uuid}/payment', [ClientsDashboardController::class, 'billingPayment']);
+    Route::get('clientsdashboard/tickets', [ClientsDashboardController::class, 'tickets']);
+    Route::post('clientsdashboard/tickets', [ClientsDashboardController::class, 'storeTicket']);
+    Route::get('clientsdashboard/ticketcategories', [ClientsDashboardController::class, 'ticketCategories']);
+});
+
+Route::middleware(['auth:sanctum', 'not.client'])->group(function () {
     Route::apiResource('users', UserController::class)->except(['update']);
     Route::patch('users/{uuid}', [UserController::class, 'update']);
     Route::put('users/{uuid}', [UserController::class, 'replace']);
@@ -53,6 +79,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('internetplans/{uuid}', [InternetplanController::class, 'update']);
     Route::put('internetplans/{uuid}', [InternetplanController::class, 'replace']);
 
+    Route::get('clients/find', [ClientController::class, 'find']);
+    Route::get('/clients/{uuid}', [ClientController::class, 'show'])->name('clients.show');
     Route::apiResource('clients', ClientController::class)->except(['update']);
     Route::patch('clients/{uuid}', [ClientController::class, 'update']);
     Route::put('clients/{uuid}', [ClientController::class, 'replace']);
@@ -68,7 +96,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('tickets/{uuid}', [TicketController::class, 'update']);
     Route::put('tickets/{uuid}', [TicketController::class, 'replace']);
 
-    Route::apiResource('billings', BillingController::class)->except(['update']);
+    Route::get('billings/find', [BillingController::class, 'find']);
+    Route::apiResource('billings', BillingController::class)->except(['update','find']);
     Route::patch('billings/{uuid}', [BillingController::class, 'update']);
     Route::put('billings/{uuid}', [BillingController::class, 'replace']);
 
@@ -95,5 +124,59 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('expenseitems', ExpenseItemController::class)->except(['update']);
     Route::patch('expenseitems/{uuid}', [ExpenseItemController::class, 'update']);
     Route::put('expenseitems/{uuid}', [ExpenseItemController::class, 'replace']);
+
+    Route::apiResource('sites', SiteController::class)->except(['update']);
+    Route::patch('sites/{uuid}', [SiteController::class, 'update']);
+    Route::put('sites/{uuid}', [SiteController::class, 'replace']);
+
+    Route::get('sitebankaccount', [SiteBankAccountController::class, 'show']);
+    Route::post('sitebankaccount', [SiteBankAccountController::class, 'save']);
+
+    Route::apiResource('pesowifiareas', PesoWifiAreaController::class)->except(['update']);
+    Route::patch('pesowifiareas/{uuid}', [PesoWifiAreaController::class, 'update']);
+    Route::put('pesowifiareas/{uuid}', [PesoWifiAreaController::class, 'replace']);
+
+    Route::apiResource('pesowificlients', PesoWifiClientController::class)->except(['update']);
+    Route::patch('pesowificlients/{uuid}', [PesoWifiClientController::class, 'update']);
+    Route::put('pesowificlients/{uuid}', [PesoWifiClientController::class, 'replace']);
+
+    Route::apiResource('pesowifiharvests', PesoWifiHarvestController::class)->except(['update']);
+    Route::patch('pesowifiharvests/{uuid}', [PesoWifiHarvestController::class, 'update']);
+    Route::put('pesowifiharvests/{uuid}', [PesoWifiHarvestController::class, 'replace']);
+    Route::get('pesowifi/dashboard', [PesoWifiHarvestController::class, 'dashboard']);
+
+    Route::apiResource('homepagesettings', HomepageSettingsController::class)->except(['update']);
+    Route::patch('homepagesettings/{uuid}', [HomepageSettingsController::class, 'update']);
+    Route::put('homepagesettings/{uuid}', [HomepageSettingsController::class, 'replace']);
+
+    Route::apiResource('aboutussettings', AboutUsSettingsController::class)->except(['update']);
+    Route::patch('aboutussettings/{uuid}', [AboutUsSettingsController::class, 'update']);
+    Route::put('aboutussettings/{uuid}', [AboutUsSettingsController::class, 'replace']);
+
+    Route::apiResource('pricingsettings', PricingSettingsController::class)->except(['update']);
+    Route::patch('pricingsettings/{uuid}', [PricingSettingsController::class, 'update']);
+    Route::put('pricingsettings/{uuid}', [PricingSettingsController::class, 'replace']);
+
+    Route::apiResource('ctasettings', CtaSettingsController::class)->except(['update']);
+    Route::patch('ctasettings/{uuid}', [CtaSettingsController::class, 'update']);
+    Route::put('ctasettings/{uuid}', [CtaSettingsController::class, 'replace']);
+
+    Route::apiResource('footersettings', FooterSettingsController::class)->except(['update']);
+    Route::patch('footersettings/{uuid}', [FooterSettingsController::class, 'update']);
+    Route::put('footersettings/{uuid}', [FooterSettingsController::class, 'replace']);
+
+    Route::post('smssettings/test', [SmsSettingsController::class, 'test'])->middleware('throttle:10,1');
+    Route::post('sms/overdue-reminders', [SmsController::class, 'overdueReminders'])->middleware('throttle:5,1');
+    Route::apiResource('smssettings', SmsSettingsController::class)->except(['update']);
+    Route::patch('smssettings/{uuid}', [SmsSettingsController::class, 'update']);
+    Route::put('smssettings/{uuid}', [SmsSettingsController::class, 'replace']);
+
+    Route::apiResource('mikrotiks', MikrotikController::class)->except(['update']);
+    Route::patch('mikrotiks/{uuid}', [MikrotikController::class, 'update']);
+    Route::put('mikrotiks/{uuid}', [MikrotikController::class, 'replace']);
+    
+    Route::apiResource('advancepayments', AdvancePaymentsController::class)->except(['update']);
+    Route::patch('advancepayments/{uuid}', [AdvancePaymentsController::class, 'update']);
+    Route::put('advancepayments/{uuid}', [AdvancePaymentsController::class, 'replace']);
 
 });

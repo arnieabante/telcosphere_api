@@ -15,3 +15,18 @@ Schedule::command('app:run-automated-billing')
     ->appendOutputTo(
         storage_path('logs/billing.log')
     );
+
+Schedule::command('app:send-overdue-sms')
+    ->dailyAt('09:00')
+    ->timezone(config('sms.timezone'))
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->appendOutputTo(
+        storage_path('logs/sms.log')
+    );
+
+// delivers queued SMS using only the existing schedule:run cron, no separate worker process needed
+Schedule::command('queue:work --queue=' . config('sms.queue') . ' --stop-when-empty --max-time=55 --timeout=75')
+    ->everyMinute()
+    ->withoutOverlapping(5)
+    ->runInBackground();

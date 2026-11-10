@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureNotClient;
+use App\Http\Middleware\EnsurePasswordChanged;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -22,6 +24,11 @@ return Application::configure(basePath: dirname(__DIR__))
         }*/
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'not.client' => EnsureNotClient::class,
+            'password.changed' => EnsurePasswordChanged::class,
+        ]);
+
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [

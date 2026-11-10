@@ -28,7 +28,10 @@ class UserController extends ApiController
         $search = $request->get('search');
         $include = $request->get('include');
         $filter = $request->get('filter'); // e.g. "role"
-        $value = $request->get('value');   // e.g. "Technician"
+        $value = $request->get('value');   // e.g. "Technician"        
+        $from = $request->get('from');
+        $to = $request->get('to');
+
 
         $query = User::query()->with('role');
             if (!empty($filter) && !empty($value)) {
@@ -46,7 +49,10 @@ class UserController extends ApiController
         }
 
         if (!empty($include) && $include == 'all') {
-            $users = $query->orderBy('fullname', 'asc')->get();
+            // this feeds the staff dropdowns i.e. Technician, client logins don't belong there
+            $users = $query->whereDoesntHave('role', fn ($q) => $q->where('name', 'Client'))
+                ->orderBy('fullname', 'asc')
+                ->get();
             return UserResource::collection($users);
         } else {
             if (!empty($search)) {
@@ -57,6 +63,12 @@ class UserController extends ApiController
                 });
             }
         }
+        
+        // Filter by date range
+        if (!empty($from) && !empty($to)) {
+            $query->whereBetween('created_at', [$from, $to]);
+        }
+        
 
         $users = $query->orderBy('created_at', 'desc')->paginate($perPage);
         return UserResource::collection($users);
@@ -120,6 +132,7 @@ class UserController extends ApiController
                 }
             })->firstOrFail();
             $user->update($request->mappedAttributes());
+            $this->requireChangeAfterPasswordReset($request, $user);
 
             return new UserResource($user);
 
@@ -141,6 +154,7 @@ class UserController extends ApiController
             // $this->isAble('replace', User::class);
             $user = User::where('uuid', $uuid)->firstOrFail();
             $affected = $user->update($request->mappedAttributes());
+            $this->requireChangeAfterPasswordReset($request, $user);
 
             return new UserResource($user);
 
@@ -149,6 +163,16 @@ class UserController extends ApiController
 
         } catch (AuthorizationException $ex) {
             return $this->error('You are not authorized to update a User.', 401);
+        }
+    }
+
+    /**
+     * When staff set a client's password, staff know it, so the client must replace it.
+     */
+    private function requireChangeAfterPasswordReset(Request $request, User $user): void
+    {
+        if ($request->filled('password') && $user->isClient()) {
+            $user->update(['must_change_password' => true]);
         }
     }
 

@@ -15,7 +15,7 @@ class ModuleFactory extends Factory
 
         return [
             'uuid' => fake()->uuid(),
-            'site_id' => 1,
+            //'site_id' => 1,
             'parent_id' => $item['parent_id'],   // static
             'icon' => $item['icon'],             // static
             'name' => $item['name'],             // static
@@ -46,6 +46,13 @@ class ModuleFactory extends Factory
                 'parent_id' => 0,
                 'description' => 'Manage clients',
                 'url' => 'clients'
+            ],
+            [
+                'name' => 'Client Overview',
+                'icon' => 'fa fa-tachometer',
+                'parent_id' => 0,
+                'description' => 'Manage clients dashboard',
+                'url' => 'clientsdashboard'
             ],
             [
                 'name' => 'Billing',
@@ -85,56 +92,56 @@ class ModuleFactory extends Factory
             [
                 'name' => 'Internet Plans',
                 'icon' => 'fa fa-globe',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'Internet bandwidth plans',
                 'url' => 'internetplans'
             ],
             [
                 'name' => 'Servers',
                 'icon' => 'fa fa-server',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'List of hosted servers',
                 'url' => 'servers'
             ],
             [
                 'name' => 'Expense Categories',
                 'icon' => 'fa fa-money',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'List of Expense Categories',
                 'url' => 'expensecategories'
             ],
             [
                 'name' => 'SR Categories',
                 'icon' => 'fa fa-server',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'List of SR Categories',
                 'url' => 'ticketcategories'
             ],
             [
                 'name' => 'Billing Categories',
                 'icon' => 'fa fa-server',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'List of billing categories',
                 'url' => 'billingcategories'
             ],
             [
                 'name' => 'Employees',
                 'icon' => 'fa fa-id-badge',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'Employee management',
                 'url' => 'employees'
             ],
             [
                 'name' => 'Roles',
                 'icon' => 'fa fa-lock',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'Role-based access control',
                 'url' => 'roles'
             ],
             [
                 'name' => 'Users',
                 'icon' => 'fa fa-user',
-                'parent_id' => 7,
+                'parent_id' => 8,
                 'description' => 'System user accounts',
                 'url' => 'users'
             ],
@@ -146,19 +153,54 @@ class ModuleFactory extends Factory
                 'url' => ''
             ],
             [
+                'name' => 'Monthly Collection Report',
+                'icon' => 'fa fa-key',
+                'parent_id' => 17,
+                'description' => 'Generation of Monthly Collection Report',
+                'url' => 'montlycollectionreport'
+            ],
+            [
+                'name' => 'Monthly Expenses Report',
+                'icon' => 'fa fa-key',
+                'parent_id' => 17,
+                'description' => 'Generation of Monthly Expenses Report',
+                'url' => 'montlyexpensesreport'
+            ],
+            [
                 'name' => 'Statement of Account',
                 'icon' => 'fa fa-key',
-                'parent_id' => 16,
+                'parent_id' => 17,
                 'description' => 'Generation of Statemement of Account',
                 'url' => 'soa'
             ],
             [
                 'name' => 'Account History',
                 'icon' => 'fa fa-key',
-                'parent_id' => 16,
+                'parent_id' => 17,
                 'description' => 'Generation of Account History',
                 'url' => 'accounthistory'
             ],
+            [
+                'name' => 'Site Settings',
+                'icon' => 'fa fa-sliders',
+                'parent_id' => 0,
+                'description' => 'Site Settings',
+                'url' => 'sitesettings'
+            ],
+            [
+                'name' => 'Create Service Request',
+                'icon' => 'fa fa-key',
+                'parent_id' => 3,
+                'description' => 'Client Create of Service Request',
+                'url' => 'clientsticket'
+            ],
+            [
+                'name' => 'Pay using Gcash',
+                'icon' => 'fa fa-key',
+                'parent_id' => 3,
+                'description' => 'Pay online using the Gcash',
+                'url' => 'payonline'
+            ]
         ];
 
         return array_shift($modules);

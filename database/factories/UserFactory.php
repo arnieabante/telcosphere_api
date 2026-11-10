@@ -35,7 +35,7 @@ class UserFactory extends Factory
             'email' => $user['email'],
             'password' => static::$password ??= Hash::make('password'),
             'is_active' => 1,
-            'role_id' => null,
+            'role_id' => 1,
             'created_by' => 1,
             'updated_by' => 1
         ];
@@ -57,13 +57,11 @@ class UserFactory extends Factory
     private function getStaticUser()
     {
         static $users = [
-            ['site_id' => 1, 'fullname' => 'Janice Laurel', 'username' => 'jlaurel', 'email' => 'jlaurel@telcosphere.co'],
-            ['site_id' => 1, 'fullname' => 'Rodel Laurel', 'username' => 'rlaurel', 'email' => 'rlaurel@telcosphere.co'],
+            ['site_id' => 1, 'fullname' => 'Administrator', 'username' => 'admin.abantesoft', 'email' => 'admin.abantesoft@telcosphere.co'],
             ['site_id' => 1, 'fullname' => 'Arnie Abante', 'username' => 'aabante', 'email' => 'aabante@telcosphere.co'],
             ['site_id' => 1, 'fullname' => 'Melanie Abante', 'username' => 'mabante', 'email' => 'mabante@telcosphere.co'],
             ['site_id' => 1, 'fullname' => 'Elmar Malazarte', 'username' => 'emalazarte', 'email' => 'emalazarte@telcosphere.co'],
-            ['site_id' => 1, 'fullname' => 'Jeb Saldariega', 'username' => 'jsaldariega', 'email' => 'jsaldariega@telcosphere.co'],
-            ['site_id' => 2, 'fullname' => 'Janice Laurel', 'username' => 'jlaurel2', 'email' => 'jlaurel2@telcosphere.co']
+            ['site_id' => 1, 'fullname' => 'Jeb Saldariega', 'username' => 'jsaldariega', 'email' => 'jsaldariega@telcosphere.co']
         ];
 
         $user = array_shift($users);

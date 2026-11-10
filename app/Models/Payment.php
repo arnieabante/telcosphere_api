@@ -15,16 +15,14 @@ class Payment extends Model
      * Default attribute values
      */
     protected $attributes = [
-        'site_id' => 1,
-        'is_active' => 1,
-        'created_by' => 1,
-        'updated_by' => 1,
+        'is_active' => 1
     ];
 
     /**
      * Mass assignable attributes
      */
     protected $fillable = [
+        'site_id',
         'receipt_no',
         'client_id',
         'collection_date',
@@ -39,10 +37,11 @@ class Payment extends Model
         'amount_paid',
         'discount_reason',
         'balance',
-        'is_active'
+        'is_active',
+        'is_advance_payment'
     ];
 
-    
+
     protected static function booted()
     {
         // Apply global site filter
@@ -50,11 +49,21 @@ class Payment extends Model
 
         // Auto-assign site_id when creating a payment
         static::creating(function ($payment) {
-            $payment->site_id = $payment->site_id ?? (
-                auth()->check()
-                    ? auth()->user()->site_id
-                    : session('site_id') ?? request()->header('site_id') ?? 1
-            );
+            // but only when site_id is not already set
+            if (empty($payment->site_id)) {
+                $payment->site_id = request()->header('site_id') ?? auth()->user()->site_id ?? 1;
+            }
+
+            if (auth()->check()) {
+                $payment->created_by = auth()->id();
+                $payment->updated_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($payment) {
+            if (auth()->check()) {
+                $payment->updated_by = auth()->id();
+            }
         });
     }
 

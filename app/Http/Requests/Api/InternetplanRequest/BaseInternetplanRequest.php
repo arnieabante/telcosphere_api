@@ -6,11 +6,14 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class BaseInternetplanRequest extends FormRequest
 {
-    public function mappedAttributes(): array {
+    public function mappedAttributes(): array
+    {
         $attributes = [
             'name' => 'name',
             'monthly_subscription' => 'monthly_subscription',
-            'isActive' => 'is_active'
+            'is_featured' => 'is_featured',
+            'features' => 'features',
+            'isActive' => 'is_active',
         ];
 
         $attributesToUpdate = [];

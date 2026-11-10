@@ -17,7 +17,7 @@ class RoleFactory extends Factory
             'uuid'        => fake()->uuid(),
             'site_id'     => 1,
             'name'        => 'Admin',        // default, but you can override
-            'description' => fake()->text(50),
+            'description' => 'Administrator',
             'is_active'   => 1,
             'created_by'  => 1,
             'updated_by'  => 1
@@ -40,7 +40,7 @@ class RoleFactory extends Factory
         return $this->afterCreating(function (Role $role) {
 
             // Fetch modules ONLY for this role's site
-            $modules = Module::where('site_id', $role->site_id)->get();
+            $modules = Module::where('is_active', true)->get();
 
             // FULL ACCESS for Admin
             if ($role->name == 'Admin') {
