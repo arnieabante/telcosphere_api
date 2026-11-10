@@ -19,7 +19,8 @@ class SmsSettingsResource extends JsonResource
             'id' => (string) $this->id,
             'attributes' => [
                 'uuid' => $this->uuid,
-                'apiKey' => $this->api_key,
+                // the key itself never leaves the server
+                'hasApiKey' => filled($this->api_key),
                 'senderName' => $this->sender_name,
                 'apiUrl' => $this->api_url,
                 'isEnabled' => $this->is_enabled,
@@ -37,7 +38,7 @@ class SmsSettingsResource extends JsonResource
                 ),
             ],
             'links' => [
-                'smssetting' => route('smssettings.show', $this->id)
+                'smssetting' => route('smssettings.show', $this->uuid)
             ]
         ];
     }
