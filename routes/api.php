@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\AboutUsSettingsController;
 use App\Http\Controllers\Api\PricingSettingsController;
 use App\Http\Controllers\Api\CtaSettingsController;
 use App\Http\Controllers\Api\FooterSettingsController;
+use App\Http\Controllers\Api\SmsController;
 use App\Http\Controllers\Api\SmsSettingsController;
 use App\Http\Controllers\Api\MikrotikController;
 use App\Http\Controllers\Api\AdvancePaymentsController;
@@ -164,6 +165,8 @@ Route::middleware(['auth:sanctum', 'not.client'])->group(function () {
     Route::patch('footersettings/{uuid}', [FooterSettingsController::class, 'update']);
     Route::put('footersettings/{uuid}', [FooterSettingsController::class, 'replace']);
 
+    Route::post('smssettings/test', [SmsSettingsController::class, 'test'])->middleware('throttle:10,1');
+    Route::post('sms/overdue-reminders', [SmsController::class, 'overdueReminders'])->middleware('throttle:5,1');
     Route::apiResource('smssettings', SmsSettingsController::class)->except(['update']);
     Route::patch('smssettings/{uuid}', [SmsSettingsController::class, 'update']);
     Route::put('smssettings/{uuid}', [SmsSettingsController::class, 'replace']);
