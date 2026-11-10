@@ -21,10 +21,12 @@ class BillingService
     const BILLING_TYPE_ADJUSTMENT = 5;
 
     protected $invoice;
+    protected $smsNotifications;
 
-    public function __construct(InvoiceService $invoice)
+    public function __construct(InvoiceService $invoice, SmsNotificationService $smsNotifications)
     {
         $this->invoice = $invoice;
+        $this->smsNotifications = $smsNotifications;
     }
 
     public function generateBilling(BillingInterface $billingType, $data)
@@ -126,6 +128,8 @@ class BillingService
                 'latest_due_date' => $latestDueDate,
                 'latest_disconnection_date' => $billing->disconnection_date,
             ]);
+
+            $this->smsNotifications->notifyBillingCreated($billing);
         }
     }
 
@@ -271,22 +275,36 @@ class BillingService
         return new BillingResource($billing);
     }
 
-    public function runAutomatedBilling(BillingInterface $billingType)
+    /**
+     * Bill today's cycles for the current user's site, with the same due and
+     * disconnection dates the create billing screen works out.
+     *
+     * @return array<string, string> outcome per billing category name
+     */
+    public function runAutomatedBilling(BillingInterface $billingType): array
     {
-        $categories = BillingCategory::select(['id', 'name', 'days_to_due_date'])
-            ->where('date_cycle', date('d'))
+        $today = Carbon::today();
+
+        // a cycle on the 30th or 31st still has to be billed in shorter months
+        $cycleDays = $today->isLastOfMonth() ? range($today->day, 31) : [$today->day];
+
+        $categories = BillingCategory::select(['id', 'name', 'days_to_due_date', 'days_to_disconnection_date'])
+            ->whereIn('date_cycle', $cycleDays)
             ->where('site_id', auth()->user()->site_id)
+            ->where('is_active', 1)
             ->get();
 
-        if (count($categories) < 1)
-            throw new Exception('No Category found.');
+        $outcomes = [];
 
         foreach ($categories as $category) {
             $remark = "Automated Subscription Billing ({$category['name']})";
+            $dueDate = $today->copy()->addDays((int) $category['days_to_due_date']);
             $billingData = [
                 'billingCategory' => $category['id'],
                 'billingType' => 1,
                 'billingRemarks' => $remark,
+                'billingCutoff' => $dueDate->toDateString(),
+                'disconnectionDate' => $dueDate->copy()->addDays((int) $category['days_to_disconnection_date'])->toDateString(),
                 'billingItems' => [
                     [
                         'billingItemQuantity' => 1,
@@ -295,8 +313,16 @@ class BillingService
                 ]
             ];
 
-            $this->generateBilling($billingType, $billingData);
+            // one category with nobody to bill must not stop the others
+            try {
+                $this->generateBilling($billingType, $billingData);
+                $outcomes[$category['name']] = 'billed';
+            } catch (Exception $ex) {
+                $outcomes[$category['name']] = $ex->getMessage();
+            }
         }
+
+        return $outcomes;
     }
 
     /**

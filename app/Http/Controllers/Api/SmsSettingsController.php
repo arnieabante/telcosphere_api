@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\SmsDeliveryException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\SmsSettingsRequest\BaseSmsSettingsRequest;
+use App\Http\Requests\Api\SmsSettingsRequest\ReplaceSmsSettingsRequest;
 use App\Http\Requests\Api\SmsSettingsRequest\StoreSmsSettingsRequest;
 use App\Http\Requests\Api\SmsSettingsRequest\UpdateSmsSettingsRequest;
 use App\Http\Resources\Api\SmsSettingsResource;
+use App\Models\SmsLog;
 use App\Models\SmsSettings;
+use App\Services\SmsNotificationService;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -19,27 +24,13 @@ class SmsSettingsController extends ApiController
     /**
      * Display SMS settings for the current site.
      */
-    public function index(Request $request)
+    public function index()
     {
         try {
 
-            $siteId = $request->get('site_id')
-                ?? $request->header('site_id')
-                ?? auth()->user()->site_id
-                ?? null;
-
-            if (!$siteId) {
-
-                return $this->error(
-                    'Site ID is required.',
-                    400
-                );
-
-            }
-
             $smsSettings = SmsSettings::where(
                 'site_id',
-                $siteId
+                auth()->user()->site_id
             )->first();
 
             if (!$smsSettings) {
@@ -76,22 +67,9 @@ class SmsSettingsController extends ApiController
             $attributes = $request->mappedAttributes();
 
             /*
-             * Get site ID
+             * A site can only ever configure itself
              */
-            $siteId = $attributes['site_id']
-                ?? $request->get('siteId')
-                ?? $request->header('site_id')
-                ?? auth()->user()->site_id
-                ?? null;
-
-            if (!$siteId) {
-
-                return $this->error(
-                    'Site ID is required.',
-                    400
-                );
-
-            }
+            $siteId = auth()->user()->site_id;
 
             $attributes['site_id'] = $siteId;
 
@@ -154,7 +132,7 @@ class SmsSettingsController extends ApiController
      * Update SMS settings.
      */
     public function update(
-        UpdateSmsSettingsRequest $request,
+        BaseSmsSettingsRequest $request,
         string $uuid
     ) {
         try {
@@ -186,6 +164,75 @@ class SmsSettingsController extends ApiController
                 401
             );
         }
+    }
+
+    /**
+     * Replace SMS settings.
+     */
+    public function replace(
+        ReplaceSmsSettingsRequest $request,
+        string $uuid
+    ) {
+        return $this->update($request, $uuid);
+    }
+
+    /**
+     * Send a test SMS using the site's saved settings.
+     */
+    public function test(
+        Request $request,
+        SmsNotificationService $service
+    ) {
+        $data = $request->validate([
+            'number' => 'required|string|max:20'
+        ]);
+
+        $settings = SmsSettings::where(
+            'site_id',
+            auth()->user()->site_id
+        )->first();
+
+        if (!$settings || !$settings->is_enabled) {
+
+            return $this->error(
+                'SMS is turned off for this site. Turn on Enable SMS and save first.',
+                422
+            );
+        }
+
+        if (!$settings->test_mode && blank($settings->api_key)) {
+
+            return $this->error(
+                'Save your Semaphore API key first.',
+                422
+            );
+        }
+
+        $number = $service->normalizeNumber($data['number']);
+
+        if (!$number) {
+
+            return $this->error(
+                'Enter a valid Philippine mobile number.',
+                422
+            );
+        }
+
+        try {
+
+            $log = $service->sendTest($settings, $number);
+
+        } catch (SmsDeliveryException $ex) {
+
+            return $this->error($ex->getMessage(), 502);
+        }
+
+        return $this->ok(
+            $log->status === SmsLog::STATUS_SIMULATED
+                ? 'Test mode is on: the SMS was simulated and not sent.'
+                : 'Test SMS sent.',
+            ['status' => $log->status]
+        );
     }
 
     /**
